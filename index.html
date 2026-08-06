@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=3.0">
+  <link rel="stylesheet" href="styles.css?v=4.0">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 3.0</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 4.0</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -40,6 +40,13 @@
       <article class="card kpi">
         <span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
       </article>
+    </section>
+
+    <section class="daily-grid">
+      <article class="card daily-card"><span>Tagesgewinn</span><strong id="dailyGainEuro">–</strong><small>Gegenüber dem letzten gespeicherten Stand</small></article>
+      <article class="card daily-card"><span>Tagesrendite</span><strong id="dailyGainPct">–</strong><small>Einzahlungen werden soweit möglich herausgerechnet</small></article>
+      <article class="card daily-card"><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
+      <article class="card daily-card"><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
     </section>
 
     <section class="performance-grid">
@@ -109,6 +116,25 @@
         <button id="addDividend" class="secondary">Ausschüttung erfassen</button>
       </article>
     </section>
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head"><div><span class="eyebrow">Ausschüttungskalender</span><h2>Erfasste Zahlungen</h2></div></div>
+        <div id="dividendCalendar" class="calendar-list"></div>
+        <p class="hint">Neue Ausschüttungen kannst du weiterhin über „Ausschüttung erfassen“ hinzufügen.</p>
+      </article>
+      <article class="card">
+        <span class="eyebrow">FIRE-Rechner</span><h2>Finanzielle Freiheit</h2>
+        <div class="fire-form">
+          <label>Monatliche Ausgaben €<input id="monthlyExpenses" type="number" step="50" min="0" value="3000"></label>
+          <label>Entnahmerate<select id="withdrawalRate"><option value="0.03">3 %</option><option value="0.035">3,5 %</option><option value="0.04" selected>4 %</option></select></label>
+        </div>
+        <div class="fire-result">
+          <span>Benötigtes Vermögen</span><strong id="fireTarget">–</strong>
+          <small id="fireDate">–</small>
+        </div>
+      </article>
+    </section>
+
   </main>
 
   <footer>Alle Daten bleiben lokal auf diesem Gerät. Keine Anlageberatung.</footer>
@@ -135,6 +161,6 @@
   </form>
 </dialog>
 
-<script src="app.js?v=3.0"></script>
+<script src="app.js?v=4.0"></script>
 </body>
 </html>

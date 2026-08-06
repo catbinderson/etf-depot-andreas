@@ -1,13 +1,12 @@
-ETF DEPOT ANDREAS – VERSION 3.0 FINAL
+ETF DEPOT ANDREAS – VERSION 4.0 FINAL
 
 Neu:
-- Rendite heute, 7 Tage, Woche, Monat und Jahr
-- Eingezahltes Kapital
-- Ziele 250.000 €, 500.000 € und 1.000.000 €
-- Drawdown, Allzeithoch und Abstand zum Hoch
-- Countdown bis zum nächsten Sparplan
-- Ausschüttungen erfassen
-- eindeutige Versionsanzeige im Kopfbereich
+- Tagesgewinn in Euro und Prozent
+- bester und schwächster ETF seit Kauf
+- durchschnittlicher Kaufpreis je ETF
+- Ausschüttungskalender
+- FIRE-Rechner mit monatlichen Ausgaben und Entnahmerate
+- alle Funktionen aus Version 3 bleiben erhalten
 
-Wichtig:
-Diese Version verwendet absichtlich keinen Service Worker, damit GitHub-Pages-Updates nicht durch alten Cache verdeckt werden.
+Hinweis:
+Die App nutzt weiterhin manuell übernommene FNZ-Werte und lokal gespeicherte Tagesstände.

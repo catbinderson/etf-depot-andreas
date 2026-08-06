@@ -18,3 +18,15 @@ canvas{display:block;width:100%;height:auto;max-height:300px;margin-top:12px}.hi
 .dividend-box{text-align:center;padding:24px;border-radius:16px;background:var(--blue2);margin:14px 0}.dividend-box strong{display:block;font-size:34px}.dividend-box span{color:var(--muted)}.rate{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{border:0;background:transparent;padding:10px;width:min(760px,100%)}dialog::backdrop{background:rgba(8,18,30,.55);backdrop-filter:blur(4px)}.dialog-card{background:var(--card);color:var(--ink);border-radius:22px;padding:20px;box-shadow:var(--shadow)}.close{color:var(--ink);border-color:var(--line);background:var(--card)}.edit-row{border:1px solid var(--line);border-radius:15px;padding:14px;margin-top:12px}.edit-row h3{margin:0 0 10px}.edit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.edit-grid label{font-size:11px;color:var(--muted)}input,select{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px;margin-top:5px}.dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
 @media(max-width:850px){.kpi-grid,.performance-grid,.two-col,.wide-left,.forecast-grid{grid-template-columns:1fr}.fund{grid-template-columns:1fr 1fr}.fund>div:first-child{grid-column:1/-1}.risk-grid,.edit-grid{grid-template-columns:1fr}}
+
+.daily-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.daily-card span{color:var(--muted);font-weight:750}
+.daily-card strong{display:block;font-size:clamp(22px,4vw,34px);margin:8px 0}
+.daily-card small{color:var(--muted)}
+.calendar-list{display:grid;gap:10px;margin-top:14px}
+.calendar-item{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:13px}
+.calendar-item .date{font-weight:800}.calendar-item .fund{color:var(--muted)}.calendar-empty{padding:20px;border:1px dashed var(--line);border-radius:14px;color:var(--muted);text-align:center}
+.fire-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.fire-form label{font-size:12px;color:var(--muted)}
+.fire-result{margin-top:16px;padding:18px;border-radius:16px;background:var(--blue2)}
+.fire-result span,.fire-result small{display:block;color:var(--muted)}.fire-result strong{display:block;font-size:30px;margin:7px 0}
+@media(max-width:850px){.daily-grid{grid-template-columns:1fr}.calendar-item{grid-template-columns:1fr}.fire-form{grid-template-columns:1fr}}
