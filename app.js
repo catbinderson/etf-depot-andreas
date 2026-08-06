@@ -6,7 +6,7 @@ const DEFAULTS={
   {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04"},
   {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04"}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light"
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
 const old=localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
@@ -14,14 +14,14 @@ const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[]}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
 function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
 function totals(){const value=state.funds.reduce((s,f)=>s+Number(f.value||0),0),gain=state.funds.reduce((s,f)=>s+Number(f.gain||0),0),ytd=state.funds.reduce((s,f)=>s+Number(f.ytd||0),0),cost=value-gain;return{value,gain,ytd,cost,ret:cost?gain/cost:0}}
 function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderFire();
 }
 
 function renderDailySummary(current){
@@ -57,6 +57,33 @@ function monthsToTarget(start,monthly,annual,target){
 }
 function formatGoalMonths(m){const y=Math.floor(m/12),mo=m%12;return`${y?y+" Jahren ":""}${mo?mo+" Monaten":""}`.trim()}
 
+
+async function fetchUsdEur(){
+ fxStatus.textContent="Kurs wird geladen …";
+ try{
+   const r=await fetch("https://api.frankfurter.dev/v2/rate/USD/EUR",{cache:"no-store"});
+   if(!r.ok)throw new Error("HTTP "+r.status);
+   const j=await r.json();
+   const rate=Number(j.rate);
+   if(!Number.isFinite(rate))throw new Error("Ungültiger Kurs");
+   state.fx={usdEur:rate,date:j.date||isoDate(new Date()),source:"Frankfurter"};
+   persist();applyFxToVanguard();render();fxStatus.textContent="Automatischer Tageskurs";
+ }catch(e){
+   fxStatus.textContent="Letzter gespeicherter Kurs";
+   renderFx();
+ }
+}
+function renderFx(){
+ const rate=Number(state.fx?.usdEur||0);
+ usdEurRate.textContent=rate?`1 USD = ${rate.toLocaleString("de-DE",{minimumFractionDigits:4,maximumFractionDigits:4})} EUR`:"Kein Kurs";
+ usdEurDate.textContent=state.fx?.date?`Stand ${formatDate(state.fx.date)} · ${state.fx.source||"gespeichert"}`:"Noch nicht geladen";
+}
+function applyFxToVanguard(){
+ if(!state.vanguardUsdMode)return;
+ const rate=Number(state.fx?.usdEur||0),usd=Number(state.vanguardUsdValue||0);
+ if(rate>0&&usd>0)state.funds[0].value=usd*rate;
+}
+
 function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.value)-Number(f.gain),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
 function renderDonut(total){let start=0,parts=[];state.funds.forEach((f,i)=>{const s=total?f.value/total*100:0;parts.push(`${COLORS[i]} ${start}% ${start+s}%`);start+=s});donut.style.background=`conic-gradient(${parts.join(",")})`;donutValue.textContent=euro.format(total);legend.innerHTML=state.funds.map((f,i)=>`<div class="legend-row"><span><i class="dot" style="background:${COLORS[i]}"></i>${f.name}</span><strong>${pct.format(total?f.value/total:0)}</strong></div>`).join("")}
 function renderSavings(){savingsList.innerHTML=state.funds.map(f=>`<div class="saving-row"><span>${f.name}</span><strong>${euro.format(f.monthly)}</strong></div>`).join("")}
@@ -70,8 +97,8 @@ function renderHistory(){const ctx=historyChart.getContext("2d"),w=historyChart.
 function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value),ath=peak,maxDD=0;for(const x of hist){const v=Number(x.value);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const d=ath?totals().value/ath-1:0;distanceToHigh.textContent=pct.format(d);distanceToHigh.className=d>=0?"positive":"negative"}
 function renderDividends(){totalDividends.textContent=euro.format(state.dividends.reduce((s,d)=>s+Number(d.amount||0),0))}
 function renderNextSavings(){const now=new Date(),next=new Date(now.getFullYear(),now.getMonth()+1,1),days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
-function openEditor(){editRows.innerHTML=state.funds.map((f,i)=>`<section class="edit-row"><h3>${f.name}</h3><div class="edit-grid"><label>Depotwert €<input data-i="${i}" data-k="value" type="number" step="0.01" value="${f.value}"></label><label>GuV seit Kauf €<input data-i="${i}" data-k="gain" type="number" step="0.01" value="${f.gain}"></label><label>GuV YTD €<input data-i="${i}" data-k="ytd" type="number" step="0.01" value="${f.ytd}"></label><label>Anteile<input data-i="${i}" data-k="units" type="number" step="0.000001" value="${f.units}"></label><label>Stand<input data-i="${i}" data-k="date" type="date" value="${f.date}"></label></div></section>`).join("");editDialog.showModal()}
-function applyEditor(){editRows.querySelectorAll("input").forEach(i=>{const n=Number(i.dataset.i),k=i.dataset.k;state.funds[n][k]=k==="date"?i.value:Number(i.value)});persist();render()}
+function openEditor(){editRows.innerHTML=state.funds.map((f,i)=>`<section class="edit-row"><h3>${f.name}</h3><div class="edit-grid"><label>Depotwert €<input data-i="${i}" data-k="value" type="number" step="0.01" value="${f.value}"></label><label>GuV seit Kauf €<input data-i="${i}" data-k="gain" type="number" step="0.01" value="${f.gain}"></label><label>GuV YTD €<input data-i="${i}" data-k="ytd" type="number" step="0.01" value="${f.ytd}"></label><label>Anteile<input data-i="${i}" data-k="units" type="number" step="0.000001" value="${f.units}"></label><label>Stand<input data-i="${i}" data-k="date" type="date" value="${f.date}"></label></div>${i===0?`<div class="fx-mode"><label><input id="vanguardUsdMode" type="checkbox" ${state.vanguardUsdMode?"checked":""}> Vanguard-Depotwert in USD eingeben</label><label>USD-Depotwert <input id="vanguardUsdValue" type="number" step="0.01" value="${state.vanguardUsdValue||""}"></label></div>`:""}</section>`).join("");editDialog.showModal()}
+function applyEditor(){editRows.querySelectorAll("input[data-i]").forEach(i=>{const n=Number(i.dataset.i),k=i.dataset.k;state.funds[n][k]=k==="date"?i.value:Number(i.value)});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render()}
 function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();alert("Tagesstand gespeichert.")}
 function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());dividendDialog.showModal()}
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
@@ -85,4 +112,4 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();
+openEdit.onclick=openEditor;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();

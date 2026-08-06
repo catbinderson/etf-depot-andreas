@@ -30,3 +30,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .fire-result{margin-top:16px;padding:18px;border-radius:16px;background:var(--blue2)}
 .fire-result span,.fire-result small{display:block;color:var(--muted)}.fire-result strong{display:block;font-size:30px;margin:7px 0}
 @media(max-width:850px){.daily-grid{grid-template-columns:1fr}.calendar-item{grid-template-columns:1fr}.fire-form{grid-template-columns:1fr}}
+
+.fx-strip{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center}
+.fx-value{text-align:right}.fx-value strong{display:block;font-size:28px}.fx-value small{color:var(--muted)}
+.fx-status{display:flex;align-items:center;gap:12px}.fx-status span{color:var(--muted);font-size:13px}
+.fx-mode{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.fx-mode label{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:12px}
+.fx-mode input[type="checkbox"]{width:auto;margin:0}
+@media(max-width:850px){.fx-strip{grid-template-columns:1fr}.fx-value{text-align:left}.fx-status{justify-content:space-between}}

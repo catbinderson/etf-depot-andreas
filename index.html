@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=4.0">
+  <link rel="stylesheet" href="styles.css?v=4.1">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 4.0</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 4.1</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -30,6 +30,20 @@
   </nav>
 
   <main>
+    <section class="fx-strip card">
+      <div>
+        <span class="eyebrow">Währungsumrechnung</span>
+        <h2>USD → EUR</h2>
+      </div>
+      <div class="fx-value">
+        <strong id="usdEurRate">–</strong>
+        <small id="usdEurDate">Wird geladen …</small>
+      </div>
+      <div class="fx-status">
+        <span id="fxStatus">Automatischer Tageskurs</span>
+        <button id="refreshFx" class="secondary">Kurs aktualisieren</button>
+      </div>
+    </section>
     <section class="kpi-grid">
       <article class="card kpi main-kpi">
         <span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
@@ -143,7 +157,7 @@
 <dialog id="editDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head"><div><span class="eyebrow">FNZ-Werte übernehmen</span><h2>Depot aktualisieren</h2></div><button class="round close" value="cancel">×</button></div>
-    <p class="hint">Depotwert, GuV und Anteile können direkt aus der FNZ-App übernommen werden.</p>
+    <p class="hint">Depotwert, GuV und Anteile können direkt aus der FNZ-App übernommen werden. Beim Vanguard kannst du alternativ einen USD-Depotwert eintragen und automatisch in Euro umrechnen lassen.</p>
     <div id="editRows"></div>
     <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="applyEdit" value="default" class="primary">Übernehmen</button></div>
   </form>
@@ -161,6 +175,6 @@
   </form>
 </dialog>
 
-<script src="app.js?v=4.0"></script>
+<script src="app.js?v=4.1"></script>
 </body>
 </html>

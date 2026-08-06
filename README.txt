@@ -1,12 +1,11 @@
-ETF DEPOT ANDREAS – VERSION 4.0 FINAL
+ETF DEPOT ANDREAS – VERSION 4.1 FINAL
 
-Neu:
-- Tagesgewinn in Euro und Prozent
-- bester und schwächster ETF seit Kauf
-- durchschnittlicher Kaufpreis je ETF
-- Ausschüttungskalender
-- FIRE-Rechner mit monatlichen Ausgaben und Entnahmerate
-- alle Funktionen aus Version 3 bleiben erhalten
+Neu gegenüber Version 4.0:
+- automatischer USD/EUR-Tageskurs ohne API-Schlüssel
+- Datenquelle: Frankfurter API
+- Anzeige des Kursdatums
+- optionaler Vanguard-Depotwert in USD
+- automatische Umrechnung des Vanguard-USD-Werts in Euro
+- manueller Button zum Aktualisieren des Wechselkurses
 
-Hinweis:
-Die App nutzt weiterhin manuell übernommene FNZ-Werte und lokal gespeicherte Tagesstände.
+Alle bisherigen Version-4-Funktionen bleiben erhalten.
