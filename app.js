@@ -21,7 +21,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderFire();
 }
 
 function renderDailySummary(current){
@@ -84,6 +84,85 @@ function applyFxToVanguard(){
  if(rate>0&&usd>0)state.funds[0].value=usd*rate;
 }
 
+
+function getFilteredHistory(){
+  let hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  const range=analyticsRange.value;
+  if(range!=="all"){
+    const cutoff=new Date();
+    cutoff.setDate(cutoff.getDate()-Number(range));
+    hist=hist.filter(x=>new Date(x.date)>=cutoff);
+  }
+  return hist;
+}
+function dailyReturnsFromHistory(hist){
+  const out=[];
+  for(let i=1;i<hist.length;i++){
+    const prev=Number(hist[i-1].value||0),cur=Number(hist[i].value||0);
+    if(prev>0){
+      const cash=contributionsAfter(hist[i-1].date,hist[i].date);
+      out.push({date:hist[i].date,rate:(cur-prev-cash)/prev});
+    }
+  }
+  return out;
+}
+function renderAnalytics(){
+  const hist=getFilteredHistory(),rets=dailyReturnsFromHistory(hist);
+  if(rets.length<2){
+    volatility.textContent=sharpeRatio.textContent=bestDay.textContent=worstDay.textContent="–";
+    bestDayDate.textContent=worstDayDate.textContent="Mehr Tagesstände erforderlich";
+    return;
+  }
+  const values=rets.map(x=>x.rate),mean=values.reduce((a,b)=>a+b,0)/values.length;
+  const variance=values.reduce((s,x)=>s+Math.pow(x-mean,2),0)/(values.length-1);
+  const sd=Math.sqrt(Math.max(0,variance));
+  const annualVol=sd*Math.sqrt(252);
+  const annualReturn=mean*252;
+  const sharpe=sd>0?annualReturn/(sd*Math.sqrt(252)):0;
+  volatility.textContent=pct.format(annualVol);
+  sharpeRatio.textContent=sharpe.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const best=[...rets].sort((a,b)=>b.rate-a.rate)[0],worst=[...rets].sort((a,b)=>a.rate-b.rate)[0];
+  bestDay.textContent=pct.format(best.rate);bestDay.className=best.rate>=0?"positive":"negative";bestDayDate.textContent=formatDate(best.date);
+  worstDay.textContent=pct.format(worst.rate);worstDay.className=worst.rate>=0?"positive":"negative";worstDayDate.textContent=formatDate(worst.date);
+}
+function renderProgressGoals(){
+  const current=totals().value;
+  progressGoals.innerHTML=[250000,500000,1000000].map(goal=>{
+    const ratio=Math.min(1,current/goal);
+    return`<div class="progress-item"><div class="progress-head"><span>${euro.format(goal)}</span><strong>${pct.format(ratio)}</strong></div><div class="progress-track"><div class="progress-fill" style="width:${ratio*100}%"></div></div></div>`;
+  }).join("");
+}
+function periodStart(type){
+  const now=new Date();
+  if(type==="month")return new Date(now.getFullYear(),now.getMonth(),1);
+  if(type==="quarter")return new Date(now.getFullYear(),Math.floor(now.getMonth()/3)*3,1);
+  return new Date(now.getFullYear(),0,1);
+}
+function periodPerformance(type){
+  const r=periodReturn(periodStart(type),startOfDay(new Date()),totals().value);
+  return r?r.rate:null;
+}
+function setReturn(el,value){
+  if(value===null){el.textContent="–";el.className="";return}
+  el.textContent=pct.format(value);el.className=value>=0?"positive":"negative";
+}
+function renderPeriodSummary(){
+  setReturn(monthPerformance,periodPerformance("month"));
+  setReturn(quarterPerformance,periodPerformance("quarter"));
+  setReturn(yearPerformance,periodPerformance("year"));
+}
+function renderDataQuality(){
+  const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  snapshotCount.textContent=hist.length;
+  firstSnapshotDate.textContent=hist.length?formatDate(hist[0].date):"–";
+  lastSnapshotDate.textContent=hist.length?formatDate(hist.at(-1).date):"–";
+}
+function clearHistoryData(){
+  if(!confirm("Alle gespeicherten Tagesstände wirklich löschen?"))return;
+  state.history=[{date:isoDate(new Date()),value:totals().value}];
+  persist();render();
+}
+
 function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.value)-Number(f.gain),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
 function renderDonut(total){let start=0,parts=[];state.funds.forEach((f,i)=>{const s=total?f.value/total*100:0;parts.push(`${COLORS[i]} ${start}% ${start+s}%`);start+=s});donut.style.background=`conic-gradient(${parts.join(",")})`;donutValue.textContent=euro.format(total);legend.innerHTML=state.funds.map((f,i)=>`<div class="legend-row"><span><i class="dot" style="background:${COLORS[i]}"></i>${f.name}</span><strong>${pct.format(total?f.value/total:0)}</strong></div>`).join("")}
 function renderSavings(){savingsList.innerHTML=state.funds.map(f=>`<div class="saving-row"><span>${f.name}</span><strong>${euro.format(f.monthly)}</strong></div>`).join("")}
@@ -112,4 +191,4 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+openEdit.onclick=openEditor;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();

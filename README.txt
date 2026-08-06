@@ -1,11 +1,13 @@
-ETF DEPOT ANDREAS – VERSION 4.1 FINAL
+ETF DEPOT ANDREAS – VERSION 5.0 FINAL
 
-Neu gegenüber Version 4.0:
-- automatischer USD/EUR-Tageskurs ohne API-Schlüssel
-- Datenquelle: Frankfurter API
-- Anzeige des Kursdatums
-- optionaler Vanguard-Depotwert in USD
-- automatische Umrechnung des Vanguard-USD-Werts in Euro
-- manueller Button zum Aktualisieren des Wechselkurses
+Neu:
+- Volatilität auf Jahresbasis
+- Sharpe Ratio
+- bester und schwächster gespeicherter Tag
+- Rendite für Monat, Quartal und Jahr
+- Fortschrittsbalken für 250.000 €, 500.000 € und 1.000.000 €
+- Datenqualitätsanzeige mit Anzahl, erstem und letztem Tagesstand
+- Verlauf kann gezielt zurückgesetzt werden
+- alle Funktionen aus Version 4.1 bleiben erhalten
 
-Alle bisherigen Version-4-Funktionen bleiben erhalten.
+Die Analyse basiert auf lokal gespeicherten Tagesständen. Für aussagekräftige Kennzahlen sollten regelmäßig Tagesstände gespeichert werden.

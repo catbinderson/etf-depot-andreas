@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=4.1">
+  <link rel="stylesheet" href="styles.css?v=5.0">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 4.1</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 5.0</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -149,6 +149,56 @@
       </article>
     </section>
 
+
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Performance-Analyse</span><h2>Risiko & Qualität</h2></div>
+          <select id="analyticsRange">
+            <option value="30">30 Tage</option>
+            <option value="90" selected>90 Tage</option>
+            <option value="365">1 Jahr</option>
+            <option value="all">Gesamt</option>
+          </select>
+        </div>
+        <div class="analytics-grid">
+          <div><span>Volatilität p. a.</span><strong id="volatility">–</strong></div>
+          <div><span>Sharpe Ratio</span><strong id="sharpeRatio">–</strong></div>
+          <div><span>Bester Tag</span><strong id="bestDay">–</strong><small id="bestDayDate">–</small></div>
+          <div><span>Schwächster Tag</span><strong id="worstDay">–</strong><small id="worstDayDate">–</small></div>
+        </div>
+        <p class="hint">Diese Kennzahlen werden aus deinen gespeicherten Tagesständen berechnet. Je mehr Tagesstände vorhanden sind, desto aussagekräftiger sind sie.</p>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">Ziel-Fortschritt</span><h2>Auf dem Weg zum Vermögen</h2>
+        <div id="progressGoals" class="progress-list"></div>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Zeiträume</span><h2>Monat, Quartal & Jahr</h2></div>
+        </div>
+        <div class="period-grid">
+          <div><span>Monat</span><strong id="monthPerformance">–</strong></div>
+          <div><span>Quartal</span><strong id="quarterPerformance">–</strong></div>
+          <div><span>Jahr</span><strong id="yearPerformance">–</strong></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">Datenqualität</span><h2>Historie & Sicherung</h2>
+        <div class="data-quality">
+          <div><span>Gespeicherte Tagesstände</span><strong id="snapshotCount">0</strong></div>
+          <div><span>Erster Stand</span><strong id="firstSnapshotDate">–</strong></div>
+          <div><span>Letzter Stand</span><strong id="lastSnapshotDate">–</strong></div>
+        </div>
+        <button id="clearHistory" class="danger-button">Verlauf zurücksetzen</button>
+      </article>
+    </section>
+
   </main>
 
   <footer>Alle Daten bleiben lokal auf diesem Gerät. Keine Anlageberatung.</footer>
@@ -175,6 +225,6 @@
   </form>
 </dialog>
 
-<script src="app.js?v=4.1"></script>
+<script src="app.js?v=5.0"></script>
 </body>
 </html>
