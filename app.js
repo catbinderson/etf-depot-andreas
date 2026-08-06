@@ -1,3 +1,9 @@
+window.addEventListener("error",event=>{
+ const box=document.createElement("div");
+ box.className="runtime-error";
+ box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
+ document.body.appendChild(box);
+});
 const KEY="etfDepotAndreas.v8";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
@@ -25,7 +31,7 @@ function totals(){
   const ytd=state.funds.reduce((s,f)=>s+Number(f.ytd||0),0);
   const cost=state.funds.reduce((s,f)=>s+Number(f.costBasis||0),0);
   return{value,gain,ytd,cost,ret:cost?gain/cost:0}
-}}
+}
 function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
@@ -186,7 +192,7 @@ function renderBenchmark(){
 function openBenchmarkDialog(){
   const b=state.benchmark||DEFAULTS.benchmark;
   benchmarkName.value=b.name||"MSCI World";benchmarkStart.value=b.start||"";benchmarkCurrent.value=b.current||"";benchmarkDate.value=b.date||isoDate(new Date());
-  benchmarkDialog.showModal();
+  document.getElementById("benchmarkDialog").showModal();
 }
 function saveBenchmarkData(){
   state.benchmark={name:benchmarkName.value||"MSCI World",start:Number(benchmarkStart.value||0),current:Number(benchmarkCurrent.value||0),date:benchmarkDate.value};
@@ -212,7 +218,7 @@ function renderContributions(){
   extraContributionsTotal.textContent=euro.format(items.reduce((s,x)=>s+Number(x.amount||0),0));
 }
 function openContributionDialog(){
-  contributionAmount.value="";contributionDate.value=isoDate(new Date());contributionNote.value="";contributionDialog.showModal();
+  contributionAmount.value="";contributionDate.value=isoDate(new Date());contributionNote.value="";document.getElementById("contributionDialog").showModal();
 }
 function saveContributionData(){
   const amount=Number(contributionAmount.value||0);if(amount<=0)return;
@@ -317,7 +323,7 @@ function openCloudDialog(){
   cloudEmail.value=state.cloud.email||"";
   cloudPassword.value="";
   cloudDialogMessage.textContent="";
-  cloudDialog.showModal();
+  document.getElementById("cloudDialog").showModal();
 }
 function saveCloudForm(){
   state.cloud.url=supabaseUrl.value.trim()||"https://dgrulyvrxmughqgzherg.supabase.co";
@@ -439,14 +445,14 @@ function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCom
 function renderDividends(){totalDividends.textContent=euro.format(state.dividends.reduce((s,d)=>s+Number(d.amount||0),0))}
 function renderNextSavings(){const now=new Date(),next=new Date(now.getFullYear(),now.getMonth()+1,1),days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
 function openEditor(){
-  simpleValueRows.innerHTML=state.funds.map((f,i)=>`
+  document.getElementById("simpleValueRows").innerHTML=state.funds.map((f,i)=>`
     <section class="simple-value-row">
       <div><h3>${f.name}</h3><p>${f.isin} · aktueller Einstand ${euro.format(f.costBasis)}</p></div>
       <label>Aktueller Depotwert €
         <input data-simple-i="${i}" type="number" step="0.01" value="${Number(f.value).toFixed(2)}">
       </label>
     </section>`).join("");
-  advancedRows.innerHTML=state.funds.map((f,i)=>`
+  document.getElementById("advancedRows").innerHTML=state.funds.map((f,i)=>`
     <section class="edit-row"><h3>${f.name}</h3>
       <div class="edit-grid">
         <label>Anteile<input data-advanced-i="${i}" data-k="units" type="number" step="0.000001" value="${f.units}"></label>
@@ -455,15 +461,15 @@ function openEditor(){
         <label>YTD-Basis €<input data-advanced-i="${i}" data-k="ytdBasis" type="number" step="0.01" value="${f.ytdBasis}"></label>
       </div>
     </section>`).join("");
-  editDialog.showModal();
+  document.getElementById("editDialog").showModal();
 }
 function applyEditor(){
-  simpleValueRows.querySelectorAll("input[data-simple-i]").forEach(inp=>{
+  document.getElementById("simpleValueRows").querySelectorAll("input[data-simple-i]").forEach(inp=>{
     const i=Number(inp.dataset.simpleI);
     state.funds[i].value=Number(inp.value||0);
     state.funds[i].date=isoDate(new Date());
   });
-  advancedRows.querySelectorAll("input[data-advanced-i]").forEach(inp=>{
+  document.getElementById("advancedRows").querySelectorAll("input[data-advanced-i]").forEach(inp=>{
     const i=Number(inp.dataset.advancedI),k=inp.dataset.k;
     state.funds[i][k]=k==="date"?inp.value:Number(inp.value||0);
   });
@@ -471,9 +477,9 @@ function applyEditor(){
   persist();
   render();
   if(cloudConfigured())syncToCloud().catch(()=>{});
-});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render();if(cloudConfigured())syncToCloud().catch(()=>{})}
+}
 function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")}
-function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());dividendDialog.showModal()}
+function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());document.getElementById("dividendDialog").showModal()}
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
 function exportBackup(){const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ETF-Depot-Andreas-Backup.json";a.click();URL.revokeObjectURL(a.href)}
 function importBackup(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);persist();render()}catch{alert("Ungültige Backup-Datei")}};r.readAsText(f)}
@@ -485,11 +491,35 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;syncNow.onclick=syncNowHandler;cloudSettings.onclick=openCloudDialog;cloudRegister.onclick=registerCloud;cloudLogin.onclick=loginCloud;cloudLogout.onclick=logoutCloud;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;
+document.getElementById("openEdit").onclick=openEditor;
+document.getElementById("syncNow").onclick=syncNowHandler;
+document.getElementById("cloudSettings").onclick=openCloudDialog;
+document.getElementById("cloudRegister").onclick=registerCloud;
+document.getElementById("cloudLogin").onclick=loginCloud;
+document.getElementById("cloudLogout").onclick=logoutCloud;
+document.getElementById("editBenchmark").onclick=openBenchmarkDialog;
+document.getElementById("saveBenchmark").onclick=saveBenchmarkData;
+document.getElementById("addContribution").onclick=openContributionDialog;
+document.getElementById("saveContribution").onclick=saveContributionData;
+document.getElementById("exportCsv").onclick=exportHistoryCsv;
+document.getElementById("refreshFx").onclick=fetchUsdEur;
+document.getElementById("applyEdit").onclick=applyEditor;
+document.getElementById("saveSnapshot").onclick=snapshot;
+document.getElementById("exportBtn").onclick=exportBackup;
+document.getElementById("importInput").onchange=importBackup;
+document.getElementById("themeToggle").onclick=toggleTheme;
+document.getElementById("forecastRate").onchange=()=>{renderForecast();renderGoals();renderFire()};
+document.getElementById("historyRange").onchange=renderHistory;
+document.getElementById("analyticsRange").onchange=renderAnalytics;
+document.getElementById("clearHistory").onclick=clearHistoryData;
+document.getElementById("monthlyExpenses").oninput=renderFire;
+document.getElementById("withdrawalRate").onchange=renderFire;
+document.getElementById("addDividend").onclick=openDividendDialog;
+document.getElementById("saveDividend").onclick=saveDividendEntry;
 if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
 persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 8.0";
+document.title="ETF Depot Andreas · Version 8.1";
