@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=7.0">
+  <link rel="stylesheet" href="styles.css?v=8.0">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 7.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V7</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 8.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V8 Cloud Sync</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -25,7 +25,7 @@
   <nav class="actions">
     <button id="openEdit" class="primary">Werte aktualisieren</button>
     <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button><button id="exportCsv">CSV-Export</button>
+    <button id="exportBtn">Backup</button><button id="syncNow">Synchronisieren</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
 
@@ -77,6 +77,18 @@
       <article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
       <article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
       <article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
+    </section>
+
+    <section class="card cloud-card">
+      <div>
+        <span class="eyebrow">Geräteübergreifende Synchronisation</span>
+        <h2>iPhone und Mac auf demselben Stand</h2>
+        <p id="cloudMessage">Cloud-Synchronisation ist noch nicht eingerichtet.</p>
+      </div>
+      <div class="cloud-status">
+        <span id="cloudBadge" class="status cloud-off">Nicht verbunden</span>
+        <small id="cloudLastSync">Noch nie synchronisiert</small>
+      </div>
     </section>
 
     <section class="three-col">
@@ -317,6 +329,29 @@
   </form>
 </dialog>
 
-<script src="app.js?v=7.0"></script>
+
+<dialog id="cloudDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head">
+      <div><span class="eyebrow">Cloud-Synchronisation</span><h2>Supabase verbinden</h2></div>
+      <button class="round close" value="cancel">×</button>
+    </div>
+    <p class="hint">Trage die Projekt-URL und den öffentlichen Anon-Key deines Supabase-Projekts ein. Danach meldest du dich mit E-Mail und Passwort an. Dieselben Zugangsdaten verwendest du auf iPhone und Mac.</p>
+    <div class="cloud-form">
+      <label>Supabase Project URL<input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
+      <label>Supabase Anon Key<input id="supabaseAnonKey" type="password" placeholder="eyJ..."></label>
+      <label>E-Mail<input id="cloudEmail" type="email"></label>
+      <label>Passwort<input id="cloudPassword" type="password"></label>
+    </div>
+    <div class="cloud-actions">
+      <button id="cloudRegister" type="button">Konto erstellen</button>
+      <button id="cloudLogin" type="button" class="primary">Anmelden</button>
+      <button id="cloudLogout" type="button">Abmelden</button>
+    </div>
+    <p id="cloudDialogMessage" class="hint"></p>
+  </form>
+</dialog>
+
+<script src="app.js?v=8.0"></script>
 </body>
 </html>

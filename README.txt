@@ -1,21 +1,20 @@
-ETF DEPOT ANDREAS – VERSION 7.0 VERIFIED
+ETF DEPOT ANDREAS – VERSION 8.0 CLOUD SYNC
 
-Täglicher Ablauf:
-1. FNZ-App öffnen.
-2. In „Werte aktualisieren“ nur die drei aktuellen Euro-Depotwerte eintragen.
-3. „Tagesstand speichern“ drücken.
+Neu:
+- Synchronisation zwischen iPhone und Mac
+- sichere Anmeldung per E-Mail und Passwort
+- Supabase-Cloudspeicher
+- lokale Nutzung bleibt weiterhin möglich
+- manueller Button „Synchronisieren“
+- automatisches Speichern nach wichtigen Änderungen
 
-Automatisch:
-- Gewinn seit Eröffnung
-- GuV seit Jahresbeginn
-- Renditen
-- Gewichtungen
-- Einstandskapital
-- Sparraten am 1. des Monats:
-  Vanguard 600 €
-  Dimensional 600 €
-  Amundi 300 €
+Einmalige Einrichtung:
+1. Kostenloses Supabase-Projekt erstellen.
+2. Im Supabase SQL Editor die Datei SUPABASE_SETUP.sql ausführen.
+3. In der App „Cloud-Einstellungen“ öffnen.
+4. Project URL und Anon Key eintragen.
+5. Konto erstellen oder anmelden.
+6. Auf iPhone und Mac dieselben Zugangsdaten verwenden.
 
-Wichtig:
-Die exakten Stückzahlen können ohne tatsächlichen FNZ-Ausführungskurs nicht automatisch berechnet werden.
-Sie lassen sich nach einem Sparplankauf optional unter „Erweiterte Angaben“ korrigieren.
+Sicherheit:
+Die Datenbank verwendet Row Level Security. Jeder angemeldete Benutzer kann nur seine eigenen Depotdaten lesen und ändern.

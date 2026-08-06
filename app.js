@@ -1,4 +1,4 @@
-const KEY="etfDepotAndreas.v7";
+const KEY="etfDepotAndreas.v8";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -6,9 +6,9 @@ const DEFAULTS={
   {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04",costBasis:33000.00,ytdBasis:39979.64},
   {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04",costBasis:16470.87,ytdBasis:20443.90}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"",anonKey:"",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
-const old=localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
 initializeAutomaticAccounting();
 applyScheduledContributions();
@@ -16,7 +16,7 @@ const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
 function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
 function totals(){
   recalculateFundMetrics();
@@ -30,7 +30,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();
 }
 
 function renderDailySummary(current){
@@ -294,6 +294,137 @@ function formatMonthKey(key){
   return`${m}.${y}`;
 }
 
+
+function cloudConfigured(){
+  return Boolean(state.cloud?.url&&state.cloud?.anonKey&&state.cloud?.accessToken&&state.cloud?.userId);
+}
+function cloudHeaders(auth=true){
+  const h={"apikey":state.cloud.anonKey,"Content-Type":"application/json"};
+  if(auth&&state.cloud.accessToken)h["Authorization"]="Bearer "+state.cloud.accessToken;
+  return h;
+}
+async function cloudRequest(path,options={}){
+  const url=state.cloud.url.replace(/\/$/,"")+path;
+  const r=await fetch(url,{...options,headers:{...cloudHeaders(options.auth!==false),...(options.headers||{})}});
+  const text=await r.text();
+  let body=null;try{body=text?JSON.parse(text):null}catch{body=text}
+  if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||body?.error||`HTTP ${r.status}`);
+  return body;
+}
+function openCloudDialog(){
+  supabaseUrl.value=state.cloud.url||"";
+  supabaseAnonKey.value=state.cloud.anonKey||"";
+  cloudEmail.value=state.cloud.email||"";
+  cloudPassword.value="";
+  cloudDialogMessage.textContent="";
+  cloudDialog.showModal();
+}
+function saveCloudForm(){
+  state.cloud.url=supabaseUrl.value.trim();
+  state.cloud.anonKey=supabaseAnonKey.value.trim();
+  state.cloud.email=cloudEmail.value.trim();
+  persist();
+}
+async function registerCloud(){
+  try{
+    saveCloudForm();
+    cloudDialogMessage.textContent="Konto wird erstellt …";
+    const body=await cloudRequest("/auth/v1/signup",{method:"POST",auth:false,body:JSON.stringify({email:state.cloud.email,password:cloudPassword.value})});
+    if(body?.access_token){
+      storeSession(body);
+      cloudDialogMessage.textContent="Konto erstellt und angemeldet.";
+      await syncToCloud();
+    }else{
+      cloudDialogMessage.textContent="Konto erstellt. Bestätige ggf. die E-Mail und melde dich danach an.";
+    }
+    renderCloudStatus();
+  }catch(e){cloudDialogMessage.textContent="Fehler: "+e.message}
+}
+async function loginCloud(){
+  try{
+    saveCloudForm();
+    cloudDialogMessage.textContent="Anmeldung läuft …";
+    const body=await cloudRequest("/auth/v1/token?grant_type=password",{method:"POST",auth:false,body:JSON.stringify({email:state.cloud.email,password:cloudPassword.value})});
+    storeSession(body);
+    cloudDialogMessage.textContent="Angemeldet. Cloud-Daten werden geladen …";
+    await syncFromCloud(true);
+    render();
+  }catch(e){cloudDialogMessage.textContent="Fehler: "+e.message}
+}
+function storeSession(body){
+  state.cloud.accessToken=body.access_token||"";
+  state.cloud.refreshToken=body.refresh_token||"";
+  state.cloud.userId=body.user?.id||"";
+  state.cloud.email=body.user?.email||state.cloud.email;
+  persist();
+}
+function logoutCloud(){
+  state.cloud.accessToken="";state.cloud.refreshToken="";state.cloud.userId="";state.cloud.lastSync="";
+  persist();renderCloudStatus();cloudDialogMessage.textContent="Abgemeldet.";
+}
+function cloudPayload(){
+  const copy=JSON.parse(JSON.stringify(state));
+  if(copy.cloud){
+    copy.cloud.accessToken="";copy.cloud.refreshToken="";copy.cloud.anonKey="";copy.cloud.url="";
+  }
+  return copy;
+}
+async function syncToCloud(){
+  if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
+  const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:new Date().toISOString()};
+  await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
+  state.cloud.lastSync=new Date().toISOString();persist();renderCloudStatus();
+}
+async function syncFromCloud(preferCloud=false){
+  if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
+  const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at`);
+  if(!rows?.length){
+    await syncToCloud();return;
+  }
+  const remote=rows[0].portfolio_data;
+  if(preferCloud&&remote){
+    const cloudKeep={...state.cloud};
+    state={...state,...remote,cloud:cloudKeep};
+  }
+  state.cloud.lastSync=rows[0].updated_at||new Date().toISOString();
+  persist();renderCloudStatus();
+}
+async function syncNowHandler(){
+  try{
+    cloudBadge.textContent="Synchronisiere …";cloudBadge.className="status";
+    if(!cloudConfigured()){openCloudDialog();return}
+    const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at`);
+    if(rows?.length&&rows[0].updated_at){
+      const remoteTime=new Date(rows[0].updated_at).getTime();
+      const localTime=state.cloud.lastSync?new Date(state.cloud.lastSync).getTime():0;
+      if(remoteTime>localTime&&rows[0].portfolio_data){
+        const keep={...state.cloud};
+        state={...state,...rows[0].portfolio_data,cloud:keep};
+        state.cloud.lastSync=rows[0].updated_at;
+        persist();render();
+        cloudMessage.textContent="Neuere Cloud-Daten wurden geladen.";
+        return;
+      }
+    }
+    await syncToCloud();
+    cloudMessage.textContent="Lokale Daten wurden in die Cloud gespeichert.";
+  }catch(e){
+    cloudMessage.textContent="Synchronisation fehlgeschlagen: "+e.message;
+    cloudBadge.textContent="Fehler";cloudBadge.className="status cloud-error";
+  }
+}
+function renderCloudStatus(){
+  if(cloudConfigured()){
+    cloudBadge.textContent="Verbunden";cloudBadge.className="status cloud-on";
+    cloudMessage.textContent=`Angemeldet als ${state.cloud.email}. Änderungen können auf iPhone und Mac synchronisiert werden.`;
+    cloudLastSync.textContent=state.cloud.lastSync?`Letzte Synchronisation: ${new Date(state.cloud.lastSync).toLocaleString("de-DE")}`:"Noch nie synchronisiert";
+  }else{
+    cloudBadge.textContent="Nicht verbunden";cloudBadge.className="status cloud-off";
+    cloudMessage.textContent="Cloud-Synchronisation ist noch nicht eingerichtet.";
+    cloudLastSync.textContent="Noch nie synchronisiert";
+  }
+}
+
 function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.costBasis||0),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
 function renderDonut(total){let start=0,parts=[];state.funds.forEach((f,i)=>{const s=total?f.value/total*100:0;parts.push(`${COLORS[i]} ${start}% ${start+s}%`);start+=s});donut.style.background=`conic-gradient(${parts.join(",")})`;donutValue.textContent=euro.format(total);legend.innerHTML=state.funds.map((f,i)=>`<div class="legend-row"><span><i class="dot" style="background:${COLORS[i]}"></i>${f.name}</span><strong>${pct.format(total?f.value/total:0)}</strong></div>`).join("")}
 function renderSavings(){savingsList.innerHTML=state.funds.map(f=>`<div class="saving-row"><span>${f.name}</span><strong>${euro.format(f.monthly)}</strong></div>`).join("")}
@@ -339,8 +470,9 @@ function applyEditor(){
   recalculateFundMetrics();
   persist();
   render();
-});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render()}
-function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();alert("Tagesstand gespeichert.")}
+  if(cloudConfigured())syncToCloud().catch(()=>{});
+});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render();if(cloudConfigured())syncToCloud().catch(()=>{})}
+function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")}
 function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());dividendDialog.showModal()}
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
 function exportBackup(){const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ETF-Depot-Andreas-Backup.json";a.click();URL.revokeObjectURL(a.href)}
@@ -353,6 +485,6 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+openEdit.onclick=openEditor;syncNow.onclick=syncNowHandler;cloudSettings.onclick=openCloudDialog;cloudRegister.onclick=registerCloud;cloudLogin.onclick=loginCloud;cloudLogout.onclick=logoutCloud;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 7.0";
+document.title="ETF Depot Andreas · Version 8.0";

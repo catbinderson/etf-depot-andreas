@@ -79,3 +79,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .simple-value-row input{font-size:21px;font-weight:850;background:var(--blue2)}
 .advanced-box{margin-top:16px;border:1px solid var(--line);border-radius:15px;padding:13px}.advanced-box summary{font-weight:850;cursor:pointer}
 @media(max-width:850px){.automation-note,.three-col{grid-template-columns:1fr}.automation-steps{grid-template-columns:1fr}.simple-value-row{grid-template-columns:1fr}}
+
+.cloud-card{display:flex;justify-content:space-between;gap:20px;align-items:center}
+.cloud-card p{margin:8px 0 0;color:var(--muted)}
+.cloud-status{text-align:right}.cloud-status small{display:block;margin-top:8px;color:var(--muted)}
+.cloud-off{background:#eef2f6;color:#617184}.cloud-on{background:#e7f6ec;color:var(--green)}.cloud-error{background:#fff0ee;color:var(--red)}
+.cloud-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.cloud-form label{font-size:12px;color:var(--muted)}
+.cloud-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.cloud-actions button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:10px 14px;font-weight:800}
+@media(max-width:850px){.cloud-card{display:grid}.cloud-status{text-align:left}.cloud-form{grid-template-columns:1fr}}
