@@ -5,176 +5,136 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#17365D">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3.0">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">Persönliche Depotübersicht</p>
-        <h1>ETF Depot Andreas</h1>
-        <p class="hero-sub">Dein Depot, deine Sparpläne und deine Entwicklung auf einen Blick.</p>
-      </div>
-      <button id="themeToggle" class="icon-button" aria-label="Darstellung wechseln">◐</button>
-    </header>
+<div class="app">
+  <header class="hero">
+    <div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 3.0</span></div>
+      <h1>ETF Depot Andreas</h1>
+      <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
+    </div>
+    <button id="themeToggle" class="round" aria-label="Darstellung wechseln">◐</button>
+  </header>
 
-    <nav class="quick-actions">
-      <button id="openEdit" class="primary">Werte aktualisieren</button>
-      <button id="saveSnapshot">Tagesstand speichern</button>
-      <button id="exportBtn">Backup</button>
-    </nav>
+  <nav class="actions">
+    <button id="openEdit" class="primary">Werte aktualisieren</button>
+    <button id="saveSnapshot">Tagesstand speichern</button>
+    <button id="exportBtn">Backup</button>
+    <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
+  </nav>
 
-    <main>
-      <section class="kpi-grid">
-        <article class="card kpi-card">
-          <span>Depotwert</span>
-          <strong id="totalValue">–</strong>
-          <small id="lastUpdated">–</small>
-        </article>
-        <article class="card kpi-card">
-          <span>Gewinn seit Eröffnung</span>
-          <strong id="totalGain">–</strong>
-          <small id="totalGainPct">–</small>
-        </article>
-        <article class="card kpi-card">
-          <span>GuV seit Jahresbeginn</span>
-          <strong id="totalYtd">–</strong>
-          <small id="bestFund">–</small>
-        </article>
-      </section>
+  <main>
+    <section class="kpi-grid">
+      <article class="card kpi main-kpi">
+        <span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
+      </article>
+      <article class="card kpi">
+        <span>Gewinn seit Eröffnung</span><strong id="totalGain">–</strong><small id="totalGainPct">–</small>
+      </article>
+      <article class="card kpi">
+        <span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
+      </article>
+    </section>
 
-      <section class="performance-grid">
-        <article class="card performance-card">
-          <span>Rendite letzte 7 Tage</span>
-          <strong id="return7d">–</strong>
-          <small id="return7dInfo">Noch keine Vergleichsdaten</small>
-        </article>
-        <article class="card performance-card">
-          <span>Rendite aktuelle Woche</span>
-          <strong id="returnWeek">–</strong>
-          <small id="returnWeekInfo">Woche ab Montag</small>
-        </article>
-        <article class="card performance-card">
-          <span>Rendite aktueller Monat</span>
-          <strong id="returnMonth">–</strong>
-          <small id="returnMonthInfo">Monat ab dem 1.</small>
-        </article>
-      </section>
+    <section class="performance-grid">
+      <article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
+      <article class="card performance"><span>Letzte 7 Tage</span><strong id="return7d">–</strong><small id="return7dInfo">Stand von vor 7 Tagen erforderlich</small></article>
+      <article class="card performance"><span>Aktuelle Woche</span><strong id="returnWeek">–</strong><small id="returnWeekInfo">Stand vom Wochenbeginn erforderlich</small></article>
+      <article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
+      <article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
+      <article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
+    </section>
 
-      <p class="performance-note">Die Kurzfrist-Renditen werden aus deinen gespeicherten Tagesständen berechnet. Sparplaneinzahlungen am 1. werden herausgerechnet, soweit dafür ausreichend Verlaufsdaten vorhanden sind.</p>
+    <section class="two-col wide-left">
+      <article class="card">
+        <div class="section-head"><div><span class="eyebrow">Portfolio</span><h2>Deine Positionen</h2></div><span id="statusBadge" class="status">Planmäßig</span></div>
+        <div id="fundList"></div>
+      </article>
+      <article class="card">
+        <span class="eyebrow">Gewichtung</span><h2>Depotverteilung</h2>
+        <div class="donut-wrap">
+          <div id="donut" class="donut"><div><strong id="donutValue">–</strong><span>Gesamt</span></div></div>
+          <div id="legend" class="legend"></div>
+        </div>
+      </article>
+    </section>
 
-      <section class="performance-grid v3-grid">
-        <article class="card performance-card"><span>Rendite heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
-        <article class="card performance-card"><span>Rendite aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
-        <article class="card performance-card"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
-      </section>
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head"><div><span class="eyebrow">Verlauf</span><h2>Depotentwicklung</h2></div>
+          <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
+        </div>
+        <canvas id="historyChart" width="900" height="360"></canvas>
+        <p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p>
+      </article>
+      <article class="card">
+        <span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
+        <div id="savingsList"></div>
+        <div class="info-box"><span>Jährliche Sparleistung</span><strong>18.000 €</strong></div>
+        <div class="info-box"><span>Nächste Ausführung</span><strong id="nextSavingsDate">–</strong></div>
+      </article>
+    </section>
 
-      <section class="two-col">
-        <article class="card">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Portfolio</p>
-              <h2>Deine Positionen</h2>
-            </div>
-            <span id="statusBadge" class="status-badge">Planmäßig</span>
-          </div>
-          <div id="fundList" class="fund-list"></div>
-        </article>
-
-        <article class="card">
-          <p class="eyebrow">Gewichtung</p>
-          <h2>Depotverteilung</h2>
-          <div class="allocation-wrap">
-            <div id="donut" class="donut"><div><strong id="donutValue">–</strong><span>Gesamt</span></div></div>
-            <div id="legend" class="legend"></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="two-col">
-        <article class="card">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Verlauf</p>
-              <h2>Depotentwicklung</h2>
-            </div>
-            <select id="historyRange">
-              <option value="30">30 Tage</option>
-              <option value="90">90 Tage</option>
-              <option value="365">1 Jahr</option>
-              <option value="all">Gesamt</option>
-            </select>
-          </div>
-          <canvas id="historyChart" width="900" height="360"></canvas>
-          <p class="hint">Ein neuer Punkt entsteht, wenn du „Tagesstand speichern“ antippst.</p>
-        </article>
-
-        <article class="card">
-          <p class="eyebrow">Sparpläne</p>
-          <h2>1.500 € pro Monat</h2>
-          <div id="savingsList"></div>
-          <div class="annual-box">
-            <span>Jährliche Sparleistung</span>
-            <strong>18.000 €</strong>
-          </div>
-          <p class="hint">Ausführung jeweils am 1. des Monats.</p>
-        </article>
-      </section>
-
-      <section class="card">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Prognose</p>
-            <h2>Vermögensentwicklung</h2>
-          </div>
-          <label class="rate-control">Rendite
-            <select id="forecastRate">
-              <option value="0.05">5 %</option>
-              <option value="0.07" selected>7 %</option>
-              <option value="0.09">9 %</option>
-            </select>
-          </label>
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head"><div><span class="eyebrow">Prognose</span><h2>Vermögensentwicklung</h2></div>
+          <label class="rate">Rendite <select id="forecastRate"><option value="0.05">5 %</option><option value="0.07" selected>7 %</option><option value="0.09">9 %</option></select></label>
         </div>
         <div id="forecastGrid" class="forecast-grid"></div>
-      </section>
-      <section class="two-col">
-        <article class="card"><p class="eyebrow">Zielvermögen</p><h2>Wann erreichst du deine Ziele?</h2><div id="goalGrid" class="goal-grid"></div></article>
-        <article class="card"><p class="eyebrow">Risikoblick</p><h2>Verlaufsauswertung</h2><div class="risk-grid"><div><span>Max. Drawdown</span><strong id="maxDrawdown">–</strong></div><div><span>Allzeithoch</span><strong id="allTimeHigh">–</strong></div><div><span>Abstand zum Hoch</span><strong id="distanceToHigh">–</strong></div></div></article>
-      </section>
-      <section class="two-col">
-        <article class="card"><p class="eyebrow">Nächster Sparplan</p><h2 id="nextSavingsDate">–</h2><p class="hint">Ausführung am 1. des Monats · insgesamt 1.500 €</p></article>
-        <article class="card"><p class="eyebrow">Ausschüttungen</p><h2>Erfasste Erträge</h2><div class="dividend-box"><strong id="totalDividends">0,00 €</strong><span>Gesamt erfasst</span></div><button id="addDividend" class="inline-button">Ausschüttung erfassen</button></article>
-      </section>
-    </main>
+      </article>
+      <article class="card">
+        <span class="eyebrow">Zielvermögen</span><h2>Wann erreichst du deine Ziele?</h2>
+        <div id="goalGrid" class="goal-grid"></div>
+      </article>
+    </section>
 
-    <footer>Alle Werte werden nur auf diesem Gerät gespeichert. Keine Anlageberatung.</footer>
-  </div>
-
-  <dialog id="editDialog">
-    <form method="dialog" class="dialog-card">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">FNZ-Werte übernehmen</p>
-          <h2>Depot aktualisieren</h2>
+    <section class="two-col">
+      <article class="card">
+        <span class="eyebrow">Risikoblick</span><h2>Verlaufsauswertung</h2>
+        <div class="risk-grid">
+          <div><span>Max. Drawdown</span><strong id="maxDrawdown">–</strong></div>
+          <div><span>Allzeithoch</span><strong id="allTimeHigh">–</strong></div>
+          <div><span>Abstand zum Hoch</span><strong id="distanceToHigh">–</strong></div>
         </div>
-        <button class="icon-button" value="cancel" aria-label="Schließen">×</button>
-      </div>
-      <p class="hint">Du kannst nur die Depotwerte ändern. GuV und Anteile sind optional.</p>
-      <div id="editRows" class="edit-rows"></div>
-      <div class="dialog-actions">
-        <button value="cancel">Abbrechen</button>
-        <button id="applyEdit" value="default" class="primary">Übernehmen</button>
-      </div>
-    </form>
-  </dialog>
+      </article>
+      <article class="card">
+        <span class="eyebrow">Ausschüttungen</span><h2>Erfasste Erträge</h2>
+        <div class="dividend-box"><strong id="totalDividends">0,00 €</strong><span>Gesamt erfasst</span></div>
+        <button id="addDividend" class="secondary">Ausschüttung erfassen</button>
+      </article>
+    </section>
+  </main>
 
-  <dialog id="dividendDialog"><form method="dialog" class="dialog-card"><div class="section-head"><div><p class="eyebrow">Ertrag erfassen</p><h2>Ausschüttung hinzufügen</h2></div><button class="icon-button" value="cancel">×</button></div><div class="edit-grid dividend-form"><label>Fonds<select id="dividendFund"></select></label><label>Betrag €<input id="dividendAmount" type="number" step="0.01" min="0"></label><label>Datum<input id="dividendDate" type="date"></label></div><div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveDividend" value="default" class="primary">Speichern</button></div></form></dialog>
-  <input id="importInput" type="file" accept="application/json" hidden>
-  <script src="app.js"></script>
+  <footer>Alle Daten bleiben lokal auf diesem Gerät. Keine Anlageberatung.</footer>
+</div>
+
+<dialog id="editDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">FNZ-Werte übernehmen</span><h2>Depot aktualisieren</h2></div><button class="round close" value="cancel">×</button></div>
+    <p class="hint">Depotwert, GuV und Anteile können direkt aus der FNZ-App übernommen werden.</p>
+    <div id="editRows"></div>
+    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="applyEdit" value="default" class="primary">Übernehmen</button></div>
+  </form>
+</dialog>
+
+<dialog id="dividendDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">Ertrag erfassen</span><h2>Ausschüttung hinzufügen</h2></div><button class="round close" value="cancel">×</button></div>
+    <div class="edit-grid">
+      <label>Fonds<select id="dividendFund"></select></label>
+      <label>Betrag €<input id="dividendAmount" type="number" step="0.01" min="0"></label>
+      <label>Datum<input id="dividendDate" type="date"></label>
+    </div>
+    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveDividend" value="default" class="primary">Speichern</button></div>
+  </form>
+</dialog>
+
+<script src="app.js?v=3.0"></script>
 </body>
 </html>
