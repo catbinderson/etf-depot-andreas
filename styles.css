@@ -49,3 +49,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .progress-track{height:12px;background:var(--blue2);border-radius:999px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:999px}
 .danger-button{margin-top:14px;border:1px solid #f1b7b1;background:#fff1f0;color:#a22a20;border-radius:12px;padding:10px 14px;font-weight:800}
 @media(max-width:850px){.analytics-grid,.period-grid,.data-quality{grid-template-columns:1fr}}
+
+.build-stamp{
+  font-size:11px;
+  background:rgba(255,255,255,.10);
+  padding:5px 8px;
+  border-radius:999px;
+  color:#d9e8f5;
+}
