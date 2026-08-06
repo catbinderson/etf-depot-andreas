@@ -1,4 +1,4 @@
-const KEY="etfDepotAndreas.v5_1";
+const KEY="etfDepotAndreas.v6";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -6,22 +6,22 @@ const DEFAULTS={
   {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04"},
   {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04"}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
-const old=localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
 const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
 function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
 function totals(){const value=state.funds.reduce((s,f)=>s+Number(f.value||0),0),gain=state.funds.reduce((s,f)=>s+Number(f.gain||0),0),ytd=state.funds.reduce((s,f)=>s+Number(f.ytd||0),0),cost=value-gain;return{value,gain,ytd,cost,ret:cost?gain/cost:0}}
 function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderFire();
 }
 
 function renderDailySummary(current){
@@ -163,6 +163,74 @@ function clearHistoryData(){
   persist();render();
 }
 
+
+function renderBenchmark(){
+  const b=state.benchmark||{};
+  const p=totals();
+  const portfolioReturn=p.cost?p.gain/p.cost:null;
+  const benchmarkRet=(Number(b.start)>0&&Number(b.current)>0)?Number(b.current)/Number(b.start)-1:null;
+  setReturn(portfolioBenchmarkReturn,portfolioReturn);
+  setReturn(benchmarkReturn,benchmarkRet);
+  setReturn(benchmarkDifference,(portfolioReturn!==null&&benchmarkRet!==null)?portfolioReturn-benchmarkRet:null);
+  benchmarkInfo.textContent=benchmarkRet===null?"Benchmarkwerte noch nicht hinterlegt.":`${b.name||"Benchmark"} · Start ${formatDate(b.date)} · ${Number(b.start).toLocaleString("de-DE")} → ${Number(b.current).toLocaleString("de-DE")}`;
+}
+function openBenchmarkDialog(){
+  const b=state.benchmark||DEFAULTS.benchmark;
+  benchmarkName.value=b.name||"MSCI World";benchmarkStart.value=b.start||"";benchmarkCurrent.value=b.current||"";benchmarkDate.value=b.date||isoDate(new Date());
+  benchmarkDialog.showModal();
+}
+function saveBenchmarkData(){
+  state.benchmark={name:benchmarkName.value||"MSCI World",start:Number(benchmarkStart.value||0),current:Number(benchmarkCurrent.value||0),date:benchmarkDate.value};
+  persist();render();
+}
+function renderMonthlyReport(){
+  const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  const c=hist.filter(x=>x.date<=isoDate(start));
+  const baseline=c.length?Number(c.at(-1).value||0):null;
+  const current=totals().value;
+  const scheduled=baseline===null?null:contributionsAfter(c.at(-1).date,isoDate(now));
+  const extras=(state.contributions||[]).filter(x=>x.date>=isoDate(start)&&x.date<=isoDate(now)).reduce((s,x)=>s+Number(x.amount||0),0);
+  monthStartValue.textContent=baseline===null?"–":euro.format(baseline);
+  monthCurrentValue.textContent=euro.format(current);
+  monthContributions.textContent=scheduled===null?"–":euro.format(scheduled+extras);
+  const gain=baseline===null?null:current-baseline-scheduled-extras;
+  if(gain===null){monthGainEuro.textContent="–";monthGainEuro.className=""}else{monthGainEuro.textContent=euro.format(gain);monthGainEuro.className=gain>=0?"positive":"negative"}
+}
+function renderContributions(){
+  const items=[...(state.contributions||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length){contributionList.innerHTML='<div class="calendar-empty">Noch keine zusätzlichen Einzahlungen erfasst.</div>'}
+  else contributionList.innerHTML=items.map(x=>`<div class="calendar-item"><div class="date">${formatDate(x.date)}</div><div class="fund">${x.note||"Einzahlung"}</div><strong>${euro.format(x.amount)}</strong></div>`).join("");
+  extraContributionsTotal.textContent=euro.format(items.reduce((s,x)=>s+Number(x.amount||0),0));
+}
+function openContributionDialog(){
+  contributionAmount.value="";contributionDate.value=isoDate(new Date());contributionNote.value="";contributionDialog.showModal();
+}
+function saveContributionData(){
+  const amount=Number(contributionAmount.value||0);if(amount<=0)return;
+  state.contributions=state.contributions||[];
+  state.contributions.push({amount,date:contributionDate.value,note:contributionNote.value});
+  persist();render();
+}
+function renderHealth(){
+  const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  const now=isoDate(new Date()),last=hist.length?hist.at(-1).date:"";
+  const age=last?Math.floor((new Date(now)-new Date(last))/86400000):999;
+  const fxFresh=state.fx?.date===now;
+  const checks=[
+    {label:"Tagesstände",ok:hist.length>=7,text:`${hist.length} gespeichert`,warn:hist.length<7},
+    {label:"Letzter Tagesstand",ok:age<=1,text:last?formatDate(last):"fehlt",warn:age>1},
+    {label:"USD/EUR-Kurs",ok:fxFresh,text:state.fx?.date?formatDate(state.fx.date):"fehlt",warn:!fxFresh},
+    {label:"Backup",ok:true,text:"manuell verfügbar",warn:false}
+  ];
+  healthList.innerHTML=checks.map(c=>`<div class="health-item"><span>${c.label}</span><strong class="${c.ok?"health-ok":c.warn?"health-warn":"health-bad"}">${c.ok?"OK":"Prüfen"} · ${c.text}</strong></div>`).join("");
+}
+function exportHistoryCsv(){
+  const rows=[["Datum","Depotwert_EUR"],...[...state.history].sort((a,b)=>a.date.localeCompare(b.date)).map(x=>[x.date,String(x.value).replace(".",",")])];
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(";")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="ETF-Depot-Andreas-Verlauf.csv";a.click();URL.revokeObjectURL(a.href);
+}
+
 function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.value)-Number(f.gain),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
 function renderDonut(total){let start=0,parts=[];state.funds.forEach((f,i)=>{const s=total?f.value/total*100:0;parts.push(`${COLORS[i]} ${start}% ${start+s}%`);start+=s});donut.style.background=`conic-gradient(${parts.join(",")})`;donutValue.textContent=euro.format(total);legend.innerHTML=state.funds.map((f,i)=>`<div class="legend-row"><span><i class="dot" style="background:${COLORS[i]}"></i>${f.name}</span><strong>${pct.format(total?f.value/total:0)}</strong></div>`).join("")}
 function renderSavings(){savingsList.innerHTML=state.funds.map(f=>`<div class="saving-row"><span>${f.name}</span><strong>${euro.format(f.monthly)}</strong></div>`).join("")}
@@ -191,6 +259,6 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+openEdit.onclick=openEditor;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 5.1";
+document.title="ETF Depot Andreas · Version 6.0";

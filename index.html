@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=5.1">
+  <link rel="stylesheet" href="styles.css?v=6.0">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 5.1</span><span id="buildStamp" class="build-stamp">Build 2026-08-06</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 6.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V6</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -25,7 +25,7 @@
   <nav class="actions">
     <button id="openEdit" class="primary">Werte aktualisieren</button>
     <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button>
+    <button id="exportBtn">Backup</button><button id="exportCsv">CSV-Export</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
 
@@ -199,6 +199,48 @@
       </article>
     </section>
 
+
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Benchmark</span><h2>Vergleich zum Weltindex</h2></div>
+          <button id="editBenchmark" class="secondary">Benchmark bearbeiten</button>
+        </div>
+        <div class="benchmark-grid">
+          <div><span>Depotperformance</span><strong id="portfolioBenchmarkReturn">–</strong></div>
+          <div><span>Benchmarkperformance</span><strong id="benchmarkReturn">–</strong></div>
+          <div><span>Mehr-/Minderrendite</span><strong id="benchmarkDifference">–</strong></div>
+        </div>
+        <p id="benchmarkInfo" class="hint">Benchmarkwerte noch nicht hinterlegt.</p>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">Monatsbericht</span><h2>Aktueller Monat</h2>
+        <div class="report-grid">
+          <div><span>Startwert</span><strong id="monthStartValue">–</strong></div>
+          <div><span>Aktueller Wert</span><strong id="monthCurrentValue">–</strong></div>
+          <div><span>Einzahlungen</span><strong id="monthContributions">–</strong></div>
+          <div><span>Wertentwicklung</span><strong id="monthGainEuro">–</strong></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Einzahlungen</span><h2>Cashflow-Protokoll</h2></div>
+          <button id="addContribution" class="secondary">Einzahlung erfassen</button>
+        </div>
+        <div id="contributionList" class="calendar-list"></div>
+        <div class="info-box"><span>Zusätzlich erfasste Einzahlungen</span><strong id="extraContributionsTotal">0,00 €</strong></div>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">App-Status</span><h2>Datenprüfung</h2>
+        <div id="healthList" class="health-list"></div>
+      </article>
+    </section>
+
   </main>
 
   <footer>Alle Daten bleiben lokal auf diesem Gerät. Keine Anlageberatung.</footer>
@@ -225,6 +267,32 @@
   </form>
 </dialog>
 
-<script src="app.js?v=5.1"></script>
+
+<dialog id="benchmarkDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">Benchmark</span><h2>Weltindex hinterlegen</h2></div><button class="round close" value="cancel">×</button></div>
+    <div class="edit-grid">
+      <label>Bezeichnung<input id="benchmarkName" type="text" value="MSCI World"></label>
+      <label>Startwert<input id="benchmarkStart" type="number" step="0.01"></label>
+      <label>Aktueller Wert<input id="benchmarkCurrent" type="number" step="0.01"></label>
+      <label>Startdatum<input id="benchmarkDate" type="date"></label>
+    </div>
+    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveBenchmark" value="default" class="primary">Speichern</button></div>
+  </form>
+</dialog>
+
+<dialog id="contributionDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">Cashflow</span><h2>Einzahlung erfassen</h2></div><button class="round close" value="cancel">×</button></div>
+    <div class="edit-grid">
+      <label>Betrag €<input id="contributionAmount" type="number" step="0.01" min="0"></label>
+      <label>Datum<input id="contributionDate" type="date"></label>
+      <label>Notiz<input id="contributionNote" type="text" placeholder="z. B. Sonderzahlung"></label>
+    </div>
+    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveContribution" value="default" class="primary">Speichern</button></div>
+  </form>
+</dialog>
+
+<script src="app.js?v=6.0"></script>
 </body>
 </html>
