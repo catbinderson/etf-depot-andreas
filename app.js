@@ -7,7 +7,8 @@ const DEFAULTS={
     {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04"}
   ],
   history:[{date:"2026-08-04",value:121163.28}],
-  theme:"system"
+  theme:"system",
+  dividends:[]
 };
 let state=load();
 const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
@@ -37,6 +38,8 @@ function render(){
   lastUpdated.textContent="Stand "+formatDate(latestDate());
   statusBadge.textContent=allocationStatus(t.value);
   renderShortTermReturns(t.value);
+  investedCapital.textContent=euro.format(t.cost);
+  renderV3(t.value);
 
   fundList.innerHTML=state.funds.map((f,i)=>`
     <div class="fund">
@@ -60,6 +63,8 @@ function render(){
 function renderShortTermReturns(currentValue){
   const today=startOfDay(new Date());
   const periods=[
+    {valueEl:returnToday,infoEl:returnTodayInfo,start:addDays(today,-1),fallback:"Benötigt einen Stand von gestern"},
+    {valueEl:returnYear,infoEl:returnYearInfo,start:new Date(today.getFullYear(),0,1),fallback:"Benötigt einen Stand zum Jahresbeginn"},
     {
       valueEl:return7d,
       infoEl:return7dInfo,
@@ -125,6 +130,15 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+
+function renderV3(currentValue){renderGoals(currentValue);renderRisk(currentValue);renderDividends();renderNextSavings()}
+function renderGoals(currentValue){const rate=Number(forecastRate.value),monthly=state.funds.reduce((s,f)=>s+Number(f.monthly||0),0),goals=[250000,500000,1000000];goalGrid.innerHTML=goals.map(goal=>`<div class="goal-item"><span>${euro.format(goal)}</span><strong>${goalTime(currentValue,monthly,rate,goal)}</strong></div>`).join("")}
+function goalTime(start,monthly,annual,goal){if(start>=goal)return"bereits erreicht";const r=annual/12;for(let m=1;m<=1200;m++){const fv=start*Math.pow(1+r,m)+monthly*((Math.pow(1+r,m)-1)/r);if(fv>=goal){const y=Math.floor(m/12),mo=m%12;return`${y?y+" J. ":""}${mo?mo+" Mon.":""}`.trim()}}return"nicht erreichbar"}
+function renderRisk(currentValue){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value||0),ath=peak,maxDD=0;for(const h of hist){const v=Number(h.value||0);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const dist=ath?currentValue/ath-1:0;distanceToHigh.textContent=pct.format(dist);distanceToHigh.className=dist>=0?"positive":"negative"}
+function renderDividends(){totalDividends.textContent=euro.format((state.dividends||[]).reduce((s,d)=>s+Number(d.amount||0),0))}
+function renderNextSavings(){const now=new Date();let next=new Date(now.getFullYear(),now.getMonth()+1,1);const days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
+function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());dividendDialog.showModal()}
+function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends=state.dividends||[];state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
 
 function allocationStatus(total){
   const shares=state.funds.map(f=>f.value/total);
@@ -194,8 +208,8 @@ function toggleTheme(){
   document.documentElement.dataset.theme=next;state.theme=next;persist();renderHistory();
 }
 function applyTheme(){if(state.theme==="dark"||state.theme==="light")document.documentElement.dataset.theme=state.theme}
-openEdit.onclick=openEditor;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;themeToggle.onclick=toggleTheme;
-forecastRate.onchange=renderForecast;historyRange.onchange=renderHistory;
+openEdit.onclick=openEditor;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;themeToggle.onclick=toggleTheme;
+forecastRate.onchange=()=>{renderForecast();renderGoals(totals().value)};historyRange.onchange=renderHistory;
 importInput.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);persist();render()}catch{alert("Ungültige Backup-Datei")}};r.readAsText(f)};
 exportBtn.addEventListener("contextmenu",e=>{e.preventDefault();importInput.click()});
 applyTheme();render();

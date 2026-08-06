@@ -29,3 +29,11 @@ NEU IN VERSION 2:
 - Rendite des aktuellen Monats (ab dem 1.)
 - bekannte Sparplaneinzahlungen werden bei der Renditeberechnung herausgerechnet
 - für die Berechnung müssen regelmäßig Tagesstände gespeichert werden
+
+NEU IN VERSION 3:
+- Rendite heute und aktuelles Jahr
+- Eingezahltes Kapital
+- Zielvermögen 250.000 €, 500.000 € und 1.000.000 €
+- maximaler Drawdown, Allzeithoch und Abstand zum Hoch
+- Countdown bis zur nächsten Sparplanausführung
+- Ausschüttungen erfassen
