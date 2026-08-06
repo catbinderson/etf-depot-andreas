@@ -8,3 +8,4 @@ Behoben:
 - sichtbare Fehlermeldung bei künftigen Scriptfehlern
 
 Cloud-Synchronisation und alle Version-8-Funktionen bleiben erhalten.
+Testle
