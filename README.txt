@@ -1,13 +1,21 @@
-ETF DEPOT ANDREAS – VERSION 6.0 VERIFIED
+ETF DEPOT ANDREAS – VERSION 7.0 VERIFIED
 
-Neu:
-- Benchmark-Vergleich gegen einen frei wählbaren Weltindex
-- Mehr- oder Minderrendite gegenüber dem Benchmark
-- Monatsbericht mit Startwert, aktuellem Wert, Einzahlungen und Wertentwicklung
-- Protokoll für zusätzliche Einzahlungen
-- CSV-Export der Depot-Historie
-- Datenprüfung für Tagesstände, Wechselkurs und Aktualität
-- alle Funktionen aus Version 5.1 bleiben erhalten
+Täglicher Ablauf:
+1. FNZ-App öffnen.
+2. In „Werte aktualisieren“ nur die drei aktuellen Euro-Depotwerte eintragen.
+3. „Tagesstand speichern“ drücken.
 
-Hinweis:
-Benchmarkwerte werden bewusst manuell gepflegt, damit keine unzuverlässige Kursquelle verwendet wird.
+Automatisch:
+- Gewinn seit Eröffnung
+- GuV seit Jahresbeginn
+- Renditen
+- Gewichtungen
+- Einstandskapital
+- Sparraten am 1. des Monats:
+  Vanguard 600 €
+  Dimensional 600 €
+  Amundi 300 €
+
+Wichtig:
+Die exakten Stückzahlen können ohne tatsächlichen FNZ-Ausführungskurs nicht automatisch berechnet werden.
+Sie lassen sich nach einem Sparplankauf optional unter „Erweiterte Angaben“ korrigieren.

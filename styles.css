@@ -67,3 +67,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .health-item{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:13px}
 .health-ok{color:var(--green)}.health-warn{color:#b77900}.health-bad{color:var(--red)}
 @media(max-width:850px){.benchmark-grid,.report-grid{grid-template-columns:1fr}}
+
+.automation-note{display:grid;grid-template-columns:1.25fr 1.75fr;gap:18px;align-items:center}
+.automation-note p{grid-column:1/-1;margin:0;color:var(--muted)}
+.automation-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.automation-steps span{background:var(--blue2);border-radius:12px;padding:12px;text-align:center;font-weight:800;font-size:13px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mini-summary span{color:var(--muted);font-weight:750}.mini-summary strong{display:block;font-size:26px;margin:8px 0}.mini-summary small{color:var(--muted)}
+.simple-value-rows{display:grid;gap:13px;margin-top:16px}.simple-value-row{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;align-items:center;border:1px solid var(--line);border-radius:15px;padding:15px}
+.simple-value-row h3{margin:0}.simple-value-row p{margin:5px 0 0;color:var(--muted);font-size:12px}.simple-value-row label{font-size:12px;color:var(--muted)}
+.simple-value-row input{font-size:21px;font-weight:850;background:var(--blue2)}
+.advanced-box{margin-top:16px;border:1px solid var(--line);border-radius:15px;padding:13px}.advanced-box summary{font-weight:850;cursor:pointer}
+@media(max-width:850px){.automation-note,.three-col{grid-template-columns:1fr}.automation-steps{grid-template-columns:1fr}.simple-value-row{grid-template-columns:1fr}}

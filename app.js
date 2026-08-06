@@ -1,27 +1,36 @@
-const KEY="etfDepotAndreas.v6";
+const KEY="etfDepotAndreas.v7";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
-  {name:"Vanguard FTSE Developed World",isin:"IE00BKX55T58",units:384.222758,value:48374.61,gain:15492.27,ytd:6396.34,monthly:600,date:"2026-08-04"},
-  {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04"},
-  {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04"}
+  {name:"Vanguard FTSE Developed World",isin:"IE00BKX55T58",units:384.222758,value:48374.61,gain:15492.27,ytd:6396.34,monthly:600,date:"2026-08-04",costBasis:32882.34,ytdBasis:41978.27},
+  {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04",costBasis:33000.00,ytdBasis:39979.64},
+  {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04",costBasis:16470.87,ytdBasis:20443.90}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
-const old=localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
+initializeAutomaticAccounting();
+applyScheduledContributions();
 const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
 function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
-function totals(){const value=state.funds.reduce((s,f)=>s+Number(f.value||0),0),gain=state.funds.reduce((s,f)=>s+Number(f.gain||0),0),ytd=state.funds.reduce((s,f)=>s+Number(f.ytd||0),0),cost=value-gain;return{value,gain,ytd,cost,ret:cost?gain/cost:0}}
+function totals(){
+  recalculateFundMetrics();
+  const value=state.funds.reduce((s,f)=>s+Number(f.value||0),0);
+  const gain=state.funds.reduce((s,f)=>s+Number(f.gain||0),0);
+  const ytd=state.funds.reduce((s,f)=>s+Number(f.ytd||0),0);
+  const cost=state.funds.reduce((s,f)=>s+Number(f.costBasis||0),0);
+  return{value,gain,ytd,cost,ret:cost?gain/cost:0}
+}}
 function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderFire();
 }
 
 function renderDailySummary(current){
@@ -231,7 +240,61 @@ function exportHistoryCsv(){
   a.href=URL.createObjectURL(blob);a.download="ETF-Depot-Andreas-Verlauf.csv";a.click();URL.revokeObjectURL(a.href);
 }
 
-function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.value)-Number(f.gain),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
+
+function initializeAutomaticAccounting(){
+  state.autoAccounting=state.autoAccounting||{lastAppliedMonth:"2026-08",totalApplied:0};
+  state.funds.forEach(f=>{
+    if(!Number.isFinite(Number(f.costBasis)))f.costBasis=Number(f.value||0)-Number(f.gain||0);
+    if(!Number.isFinite(Number(f.ytdBasis)))f.ytdBasis=Number(f.value||0)-Number(f.ytd||0);
+  });
+  recalculateFundMetrics();
+}
+function recalculateFundMetrics(){
+  state.funds.forEach(f=>{
+    f.gain=Number(f.value||0)-Number(f.costBasis||0);
+    f.ytd=Number(f.value||0)-Number(f.ytdBasis||0);
+  });
+}
+function currentMonthKey(){
+  const d=new Date();
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function nextMonthKey(key){
+  const[y,m]=key.split("-").map(Number),d=new Date(y,m,1);
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function applyScheduledContributions(){
+  const today=new Date();
+  if(today.getDate()<1)return;
+  let cursor=state.autoAccounting.lastAppliedMonth||"2026-08";
+  const target=currentMonthKey();
+  while(cursor<target){
+    cursor=nextMonthKey(cursor);
+    state.funds.forEach(f=>{
+      const amount=Number(f.monthly||0);
+      f.costBasis=Number(f.costBasis||0)+amount;
+      f.ytdBasis=Number(f.ytdBasis||0)+amount;
+      state.autoAccounting.totalApplied=Number(state.autoAccounting.totalApplied||0)+amount;
+    });
+    state.autoAccounting.lastAppliedMonth=cursor;
+  }
+  recalculateFundMetrics();
+  persist();
+}
+function renderAutomaticAccounting(){
+  autoContributions.textContent=euro.format(Number(state.autoAccounting?.totalApplied||0));
+  lastContributionMonth.textContent=`Zuletzt berücksichtigt: ${formatMonthKey(state.autoAccounting?.lastAppliedMonth)}`;
+  automaticCostBasis.textContent=euro.format(state.funds.reduce((s,f)=>s+Number(f.costBasis||0),0));
+  const next=nextMonthKey(state.autoAccounting?.lastAppliedMonth||currentMonthKey());
+  nextAutoContribution.textContent=`01.${next.split("-")[1]}.${next.split("-")[0]}`;
+}
+function formatMonthKey(key){
+  if(!key)return"–";
+  const[y,m]=key.split("-");
+  return`${m}.${y}`;
+}
+
+function renderFunds(total){fundList.innerHTML=state.funds.map(f=>{const cost=Number(f.costBasis||0),avg=f.units?cost/f.units:0;return`<div class="fund"><div><div class="fund-name">${f.name}</div><div class="fund-sub">${f.isin} · ${num.format(f.units)} Anteile · Ø Kauf ${euro.format(avg)}</div></div><div><div class="metric-label">Depotwert</div><div class="metric-value">${euro.format(f.value)}</div></div><div><div class="metric-label">Gewichtung</div><div class="metric-value">${pct.format(total?f.value/total:0)}</div></div><div><div class="metric-label">Seit Kauf</div><div class="metric-value ${f.gain>=0?"positive":"negative"}">${euro.format(f.gain)}</div></div><div><div class="metric-label">GuV YTD</div><div class="metric-value ${f.ytd>=0?"positive":"negative"}">${euro.format(f.ytd)}</div></div></div>`}).join("")}
 function renderDonut(total){let start=0,parts=[];state.funds.forEach((f,i)=>{const s=total?f.value/total*100:0;parts.push(`${COLORS[i]} ${start}% ${start+s}%`);start+=s});donut.style.background=`conic-gradient(${parts.join(",")})`;donutValue.textContent=euro.format(total);legend.innerHTML=state.funds.map((f,i)=>`<div class="legend-row"><span><i class="dot" style="background:${COLORS[i]}"></i>${f.name}</span><strong>${pct.format(total?f.value/total:0)}</strong></div>`).join("")}
 function renderSavings(){savingsList.innerHTML=state.funds.map(f=>`<div class="saving-row"><span>${f.name}</span><strong>${euro.format(f.monthly)}</strong></div>`).join("")}
 function renderReturns(current){const today=startOfDay(new Date()),periods=[["Today",returnToday,returnTodayInfo,addDays(today,-1),"Stand von gestern erforderlich"],["7d",return7d,return7dInfo,addDays(today,-7),"Stand von vor 7 Tagen erforderlich"],["Week",returnWeek,returnWeekInfo,startOfWeek(today),"Stand vom Wochenbeginn erforderlich"],["Month",returnMonth,returnMonthInfo,new Date(today.getFullYear(),today.getMonth(),1),"Stand vom Monatsbeginn erforderlich"],["Year",returnYear,returnYearInfo,new Date(today.getFullYear(),0,1),"Stand vom Jahresbeginn erforderlich"]];for(const[,el,info,start,fallback]of periods){const r=periodReturn(start,today,current);if(!r){el.textContent="–";el.className="";info.textContent=fallback;continue}el.textContent=pct.format(r.rate);el.className=r.rate>=0?"positive":"negative";info.textContent=`Vergleich mit ${formatDate(r.baseline.date)}${r.cashflows?` · ${euro.format(r.cashflows)} Sparrate abgezogen`:""}`}}
@@ -244,8 +307,39 @@ function renderHistory(){const ctx=historyChart.getContext("2d"),w=historyChart.
 function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value),ath=peak,maxDD=0;for(const x of hist){const v=Number(x.value);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const d=ath?totals().value/ath-1:0;distanceToHigh.textContent=pct.format(d);distanceToHigh.className=d>=0?"positive":"negative"}
 function renderDividends(){totalDividends.textContent=euro.format(state.dividends.reduce((s,d)=>s+Number(d.amount||0),0))}
 function renderNextSavings(){const now=new Date(),next=new Date(now.getFullYear(),now.getMonth()+1,1),days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
-function openEditor(){editRows.innerHTML=state.funds.map((f,i)=>`<section class="edit-row"><h3>${f.name}</h3><div class="edit-grid"><label>Depotwert €<input data-i="${i}" data-k="value" type="number" step="0.01" value="${f.value}"></label><label>GuV seit Kauf €<input data-i="${i}" data-k="gain" type="number" step="0.01" value="${f.gain}"></label><label>GuV YTD €<input data-i="${i}" data-k="ytd" type="number" step="0.01" value="${f.ytd}"></label><label>Anteile<input data-i="${i}" data-k="units" type="number" step="0.000001" value="${f.units}"></label><label>Stand<input data-i="${i}" data-k="date" type="date" value="${f.date}"></label></div>${i===0?`<div class="fx-mode"><label><input id="vanguardUsdMode" type="checkbox" ${state.vanguardUsdMode?"checked":""}> Vanguard-Depotwert in USD eingeben</label><label>USD-Depotwert <input id="vanguardUsdValue" type="number" step="0.01" value="${state.vanguardUsdValue||""}"></label></div>`:""}</section>`).join("");editDialog.showModal()}
-function applyEditor(){editRows.querySelectorAll("input[data-i]").forEach(i=>{const n=Number(i.dataset.i),k=i.dataset.k;state.funds[n][k]=k==="date"?i.value:Number(i.value)});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render()}
+function openEditor(){
+  simpleValueRows.innerHTML=state.funds.map((f,i)=>`
+    <section class="simple-value-row">
+      <div><h3>${f.name}</h3><p>${f.isin} · aktueller Einstand ${euro.format(f.costBasis)}</p></div>
+      <label>Aktueller Depotwert €
+        <input data-simple-i="${i}" type="number" step="0.01" value="${Number(f.value).toFixed(2)}">
+      </label>
+    </section>`).join("");
+  advancedRows.innerHTML=state.funds.map((f,i)=>`
+    <section class="edit-row"><h3>${f.name}</h3>
+      <div class="edit-grid">
+        <label>Anteile<input data-advanced-i="${i}" data-k="units" type="number" step="0.000001" value="${f.units}"></label>
+        <label>Stand<input data-advanced-i="${i}" data-k="date" type="date" value="${f.date}"></label>
+        <label>Einstandskapital €<input data-advanced-i="${i}" data-k="costBasis" type="number" step="0.01" value="${f.costBasis}"></label>
+        <label>YTD-Basis €<input data-advanced-i="${i}" data-k="ytdBasis" type="number" step="0.01" value="${f.ytdBasis}"></label>
+      </div>
+    </section>`).join("");
+  editDialog.showModal();
+}
+function applyEditor(){
+  simpleValueRows.querySelectorAll("input[data-simple-i]").forEach(inp=>{
+    const i=Number(inp.dataset.simpleI);
+    state.funds[i].value=Number(inp.value||0);
+    state.funds[i].date=isoDate(new Date());
+  });
+  advancedRows.querySelectorAll("input[data-advanced-i]").forEach(inp=>{
+    const i=Number(inp.dataset.advancedI),k=inp.dataset.k;
+    state.funds[i][k]=k==="date"?inp.value:Number(inp.value||0);
+  });
+  recalculateFundMetrics();
+  persist();
+  render();
+});const mode=document.getElementById("vanguardUsdMode");const usd=document.getElementById("vanguardUsdValue");state.vanguardUsdMode=Boolean(mode?.checked);state.vanguardUsdValue=Number(usd?.value||0);applyFxToVanguard();persist();render()}
 function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();alert("Tagesstand gespeichert.")}
 function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());dividendDialog.showModal()}
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
@@ -261,4 +355,4 @@ function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.g
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 openEdit.onclick=openEditor;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 6.0";
+document.title="ETF Depot Andreas · Version 7.0";
