@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=8.0">
+  <link rel="stylesheet" href="styles.css?v=8.0-ready">
   <title>ETF Depot Andreas</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 8.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V8 Cloud Sync</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 8.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V8.0 Ready</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -336,10 +336,10 @@
       <div><span class="eyebrow">Cloud-Synchronisation</span><h2>Supabase verbinden</h2></div>
       <button class="round close" value="cancel">×</button>
     </div>
-    <p class="hint">Trage die Projekt-URL und den öffentlichen Anon-Key deines Supabase-Projekts ein. Danach meldest du dich mit E-Mail und Passwort an. Dieselben Zugangsdaten verwendest du auf iPhone und Mac.</p>
-    <div class="cloud-form">
-      <label>Supabase Project URL<input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
-      <label>Supabase Anon Key<input id="supabaseAnonKey" type="password" placeholder="eyJ..."></label>
+    <p class="hint">Die Supabase-Verbindung ist bereits eingerichtet. Du musst nur noch ein Konto mit E-Mail und Passwort erstellen und dich auf iPhone und Mac mit denselben Zugangsdaten anmelden.</p>
+    <div class="cloud-form"><details class="advanced-box" open><summary>Supabase-Verbindung</summary>
+      <label>Supabase Project URL<input id="supabaseUrl" type="url" value="https://dgrulyvrxmughqgzherg.supabase.co" readonly></label>
+      <label>Supabase Publishable Key<input id="supabaseAnonKey" type="password" value="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2" readonly></label></details>
       <label>E-Mail<input id="cloudEmail" type="email"></label>
       <label>Passwort<input id="cloudPassword" type="password"></label>
     </div>
@@ -352,6 +352,6 @@
   </form>
 </dialog>
 
-<script src="app.js?v=8.0"></script>
+<script src="app.js?v=8.0-ready"></script>
 </body>
 </html>

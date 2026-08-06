@@ -1,20 +1,24 @@
-ETF DEPOT ANDREAS – VERSION 8.0 CLOUD SYNC
+ETF DEPOT ANDREAS – VERSION 8.0 READY
 
-Neu:
+Die Supabase-Verbindung ist bereits vorkonfiguriert.
+
+Project URL:
+https://dgrulyvrxmughqgzherg.supabase.co
+
+Enthalten:
 - Synchronisation zwischen iPhone und Mac
-- sichere Anmeldung per E-Mail und Passwort
-- Supabase-Cloudspeicher
-- lokale Nutzung bleibt weiterhin möglich
+- Anmeldung mit E-Mail und Passwort
 - manueller Button „Synchronisieren“
-- automatisches Speichern nach wichtigen Änderungen
+- automatische Cloud-Sicherung nach wichtigen Änderungen
+- lokale Nutzung bleibt möglich
+- alle Funktionen aus Version 7
 
-Einmalige Einrichtung:
-1. Kostenloses Supabase-Projekt erstellen.
-2. Im Supabase SQL Editor die Datei SUPABASE_SETUP.sql ausführen.
-3. In der App „Cloud-Einstellungen“ öffnen.
-4. Project URL und Anon Key eintragen.
-5. Konto erstellen oder anmelden.
+In der App:
+1. Cloud-Einstellungen öffnen.
+2. E-Mail und Passwort eintragen.
+3. „Konto erstellen“ klicken.
+4. Falls Supabase eine Bestätigungs-E-Mail sendet, diese bestätigen.
+5. Danach anmelden und synchronisieren.
 6. Auf iPhone und Mac dieselben Zugangsdaten verwenden.
 
-Sicherheit:
-Die Datenbank verwendet Row Level Security. Jeder angemeldete Benutzer kann nur seine eigenen Depotdaten lesen und ändern.
+Der Publishable Key ist absichtlich in der Browser-App enthalten. Der Secret Key ist nicht enthalten.

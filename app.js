@@ -6,7 +6,7 @@ const DEFAULTS={
   {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04",costBasis:33000.00,ytdBasis:39979.64},
   {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04",costBasis:16470.87,ytdBasis:20443.90}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"",anonKey:"",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
 const old=localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
@@ -320,8 +320,8 @@ function openCloudDialog(){
   cloudDialog.showModal();
 }
 function saveCloudForm(){
-  state.cloud.url=supabaseUrl.value.trim();
-  state.cloud.anonKey=supabaseAnonKey.value.trim();
+  state.cloud.url=supabaseUrl.value.trim()||"https://dgrulyvrxmughqgzherg.supabase.co";
+  state.cloud.anonKey=supabaseAnonKey.value.trim()||"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
   state.cloud.email=cloudEmail.value.trim();
   persist();
 }
@@ -485,6 +485,11 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-openEdit.onclick=openEditor;syncNow.onclick=syncNowHandler;cloudSettings.onclick=openCloudDialog;cloudRegister.onclick=registerCloud;cloudLogin.onclick=loginCloud;cloudLogout.onclick=logoutCloud;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+openEdit.onclick=openEditor;syncNow.onclick=syncNowHandler;cloudSettings.onclick=openCloudDialog;cloudRegister.onclick=registerCloud;cloudLogin.onclick=loginCloud;cloudLogout.onclick=logoutCloud;editBenchmark.onclick=openBenchmarkDialog;saveBenchmark.onclick=saveBenchmarkData;addContribution.onclick=openContributionDialog;saveContribution.onclick=saveContributionData;exportCsv.onclick=exportHistoryCsv;refreshFx.onclick=fetchUsdEur;applyEdit.onclick=applyEditor;saveSnapshot.onclick=snapshot;exportBtn.onclick=exportBackup;importInput.onchange=importBackup;themeToggle.onclick=toggleTheme;forecastRate.onchange=()=>{renderForecast();renderGoals();renderFire()};historyRange.onchange=renderHistory;analyticsRange.onchange=renderAnalytics;clearHistory.onclick=clearHistoryData;monthlyExpenses.oninput=renderFire;withdrawalRate.onchange=renderFire;addDividend.onclick=openDividendDialog;saveDividend.onclick=saveDividendEntry;
+if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
+if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
+persist();
+
+document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
 document.title="ETF Depot Andreas · Version 8.0";
