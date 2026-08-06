@@ -36,6 +36,7 @@ function render(){
   bestFund.textContent="Bester Beitrag: "+best.name;
   lastUpdated.textContent="Stand "+formatDate(latestDate());
   statusBadge.textContent=allocationStatus(t.value);
+  renderShortTermReturns(t.value);
 
   fundList.innerHTML=state.funds.map((f,i)=>`
     <div class="fund">
@@ -55,6 +56,76 @@ function render(){
   renderForecast();
   renderHistory();
 }
+
+function renderShortTermReturns(currentValue){
+  const today=startOfDay(new Date());
+  const periods=[
+    {
+      valueEl:return7d,
+      infoEl:return7dInfo,
+      start:addDays(today,-7),
+      fallback:"Benötigt einen Stand von vor 7 Tagen"
+    },
+    {
+      valueEl:returnWeek,
+      infoEl:returnWeekInfo,
+      start:startOfWeek(today),
+      fallback:"Benötigt einen Stand vom Wochenbeginn"
+    },
+    {
+      valueEl:returnMonth,
+      infoEl:returnMonthInfo,
+      start:new Date(today.getFullYear(),today.getMonth(),1),
+      fallback:"Benötigt einen Stand zum Monatsbeginn"
+    }
+  ];
+  for(const p of periods){
+    const result=periodReturn(p.start,today,currentValue);
+    if(!result){
+      p.valueEl.textContent="–";
+      p.valueEl.className="";
+      p.infoEl.textContent=p.fallback;
+      continue;
+    }
+    p.valueEl.textContent=pct.format(result.rate);
+    p.valueEl.className=result.rate>=0?"positive":"negative";
+    const cashText=result.cashflows>0?` · ${euro.format(result.cashflows)} Sparrate herausgerechnet`:"";
+    p.infoEl.textContent=`Vergleich mit ${formatDate(result.baseline.date)}${cashText}`;
+  }
+}
+function periodReturn(startDate,endDate,currentValue){
+  const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  const startIso=isoDate(startDate);
+  const candidates=hist.filter(x=>x.date<=startIso);
+  if(!candidates.length)return null;
+  const baseline=candidates.at(-1);
+  const baseValue=Number(baseline.value||0);
+  if(!baseValue)return null;
+  const cashflows=scheduledContributionsAfter(baseline.date,isoDate(endDate));
+  return{
+    baseline,
+    cashflows,
+    rate:(currentValue-baseValue-cashflows)/baseValue
+  };
+}
+function scheduledContributionsAfter(startIso,endIso){
+  const monthly=state.funds.reduce((s,f)=>s+Number(f.monthly||0),0);
+  if(!monthly)return 0;
+  let cursor=new Date(startIso+"T12:00:00");
+  cursor=new Date(cursor.getFullYear(),cursor.getMonth(),1);
+  if(isoDate(cursor)<=startIso)cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
+  let total=0;
+  while(isoDate(cursor)<=endIso){
+    total+=monthly;
+    cursor=new Date(cursor.getFullYear(),cursor.getMonth()+1,1);
+  }
+  return total;
+}
+function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
+function isoDate(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+
 function allocationStatus(total){
   const shares=state.funds.map(f=>f.value/total);
   if(shares.some(x=>x>0.5))return"Gewichtung prüfen";
@@ -108,7 +179,7 @@ function applyEditor(){
   persist();render();
 }
 function snapshot(){
-  const today=new Date().toISOString().slice(0,10),value=totals().value;
+  const today=isoDate(new Date()),value=totals().value;
   const found=state.history.find(x=>x.date===today);
   found?found.value=value:state.history.push({date:today,value});
   persist();render();

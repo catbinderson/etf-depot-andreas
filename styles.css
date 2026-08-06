@@ -44,3 +44,10 @@ dialog{border:0;background:transparent;padding:10px;width:min(760px,100%)}dialog
   .fund{grid-template-columns:1fr 1fr}.fund>div:first-child{grid-column:1/-1}
   .edit-grid{grid-template-columns:1fr 1fr}
 }
+
+.performance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.performance-card span{color:var(--muted);font-weight:750}
+.performance-card strong{display:block;font-size:clamp(25px,4.5vw,36px);margin:8px 0}
+.performance-card small{color:var(--muted)}
+.performance-note{margin:0;color:var(--muted);font-size:12px;line-height:1.45;padding:0 4px}
+@media(max-width:850px){.performance-grid{grid-template-columns:1fr}}

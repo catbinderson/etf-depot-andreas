@@ -21,3 +21,11 @@ Amundi: LU1861132840
 
 Sparpläne:
 600 €, 600 €, 300 € jeweils am 1. des Monats.
+
+
+NEU IN VERSION 2:
+- Rendite der letzten 7 Tage
+- Rendite der aktuellen Woche (ab Montag)
+- Rendite des aktuellen Monats (ab dem 1.)
+- bekannte Sparplaneinzahlungen werden bei der Renditeberechnung herausgerechnet
+- für die Berechnung müssen regelmäßig Tagesstände gespeichert werden
