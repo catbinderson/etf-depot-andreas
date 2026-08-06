@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=8.1">
-  <title>ETF Depot Andreas</title>
+  <link rel="stylesheet" href="styles.css?v=9.0.0">
+  <title>ETF Depot Andreas · Version 9.0</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 8.1</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V8.1 Fixed</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 9.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V9.0 Professional</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -31,11 +31,12 @@
 
   <main>
     <section class="card automation-note">
-      <div><span class="eyebrow">Version 7 – vereinfachte Pflege</span><h2>Du aktualisierst täglich nur noch drei Zahlen</h2></div>
+      <div><span class="eyebrow">Version 9.0 – Professional Dashboard</span><h2>Dein Depot in 30 Sekunden täglich aktuell</h2></div>
       <div class="automation-steps">
         <span>1. FNZ öffnen</span><span>2. Drei Depotwerte übernehmen</span><span>3. Tagesstand speichern</span>
       </div>
       <p>Die App führt deine monatlichen Sparraten am 1. automatisch dem Einstandskapital zu: 600 €, 600 € und 300 €.</p>
+      <div class="feature-pills"><span>Cloud-Sync</span><span>Offline-fähig</span><span>Automatische Kennzahlen</span><span>Retina-Charts</span></div>
     </section>
     <section class="fx-strip card">
       <div>
@@ -116,8 +117,8 @@
         <div class="section-head"><div><span class="eyebrow">Verlauf</span><h2>Depotentwicklung</h2></div>
           <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
         </div>
-        <canvas id="historyChart" width="900" height="360"></canvas>
-        <p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p>
+        <div class="chart-shell"><canvas id="historyChart" width="900" height="360"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
+        <div class="chart-footer"><p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p><button id="openHistoryManager" class="secondary">Tagesstände verwalten</button></div>
       </article>
       <article class="card">
         <span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
@@ -266,9 +267,13 @@
       </article>
     </section>
 
+    <section class="card release-card">
+      <div><span class="eyebrow">Version 9.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+      <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
+    </section>
   </main>
 
-  <footer>Alle Daten bleiben lokal auf diesem Gerät. Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 9.0 · Daten lokal und optional in Supabase · Keine Anlageberatung.</footer>
 </div>
 
 <dialog id="editDialog">
@@ -352,6 +357,15 @@
   </form>
 </dialog>
 
-<script src="app.js?v=8.1"></script>
+
+<dialog id="historyDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">Historie</span><h2>Tagesstände verwalten</h2></div><button class="round close" value="cancel">×</button></div>
+    <p class="hint">Du kannst einzelne gespeicherte Tagesstände korrigieren oder löschen.</p>
+    <div id="historyManagerList" class="history-manager"></div>
+    <div class="dialog-actions"><button value="cancel">Schließen</button></div>
+  </form>
+</dialog>
+<script src="app.js?v=9.0.0"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v8";
+const KEY="etfDepotAndreas.v9";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -14,7 +14,7 @@ const DEFAULTS={
  ],
  history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
-const old=localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let state=load();
 initializeAutomaticAccounting();
 applyScheduledContributions();
@@ -36,7 +36,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderSystemSummary();
 }
 
 function renderDailySummary(current){
@@ -440,10 +440,36 @@ function contributionsAfter(startIso,endIso){const monthly=state.funds.reduce((s
 function renderForecast(){const t=totals(),rate=Number(forecastRate.value),monthly=state.funds.reduce((s,f)=>s+f.monthly,0),r=rate/12;forecastGrid.innerHTML=[5,10,20,30].map(y=>{const m=y*12,fv=t.value*Math.pow(1+r,m)+monthly*((Math.pow(1+r,m)-1)/r);return`<div class="forecast-item"><span>In ${y} Jahren</span><strong>${euro.format(fv)}</strong></div>`}).join("")}
 function renderGoals(){const t=totals(),rate=Number(forecastRate.value),monthly=state.funds.reduce((s,f)=>s+Number(f.monthly||0),0);goalGrid.innerHTML=[250000,500000,1000000].map(g=>`<div class="goal-item"><span>${euro.format(g)}</span><strong>${goalTime(t.value,monthly,rate,g)}</strong></div>`).join("")}
 function goalTime(start,monthly,annual,goal){if(start>=goal)return"bereits erreicht";const r=annual/12;for(let m=1;m<=1200;m++){const fv=start*Math.pow(1+r,m)+monthly*((Math.pow(1+r,m)-1)/r);if(fv>=goal){const y=Math.floor(m/12),mo=m%12;return`${y?y+" J. ":""}${mo?mo+" Mon.":""}`.trim()}}return"nicht erreichbar"}
-function renderHistory(){const ctx=historyChart.getContext("2d"),w=historyChart.width,h=historyChart.height,p=48;ctx.clearRect(0,0,w,h);let hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(historyRange.value!=="all"){const c=new Date();c.setDate(c.getDate()-Number(historyRange.value));hist=hist.filter(x=>new Date(x.date)>=c)}if(!hist.length)return;const vals=hist.map(x=>Number(x.value)),min=Math.min(...vals),max=Math.max(...vals),span=Math.max(1,max-min);ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue("--line");ctx.lineWidth=1;for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;ctx.beginPath();ctx.moveTo(p,y);ctx.lineTo(w-p,y);ctx.stroke()}ctx.strokeStyle=COLORS[0];ctx.lineWidth=5;ctx.beginPath();hist.forEach((pt,i)=>{const x=p+(hist.length===1?0:i*(w-2*p)/(hist.length-1)),y=h-p-((pt.value-min)/span)*(h-2*p);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--ink");ctx.font="16px -apple-system";ctx.fillText(euro.format(max),p,22);ctx.fillText(euro.format(min),p,h-14)}
+let chartPoints=[];
+function renderHistory(){
+ const canvas=document.getElementById("historyChart"),rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ const w=Math.max(320,Math.round(rect.width||900)),h=Math.max(240,Math.round(Math.min(w*.43,360))),p=48;
+ canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ let hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(historyRange.value!=="all"){const c=new Date();c.setDate(c.getDate()-Number(historyRange.value));hist=hist.filter(x=>new Date(x.date)>=c)}
+ const ink=getComputedStyle(document.documentElement).getPropertyValue("--ink").trim(),line=getComputedStyle(document.documentElement).getPropertyValue("--line").trim(),card=getComputedStyle(document.documentElement).getPropertyValue("--card").trim();
+ if(!hist.length){chartPoints=[];ctx.fillStyle=ink;ctx.font="600 15px -apple-system";ctx.textAlign="center";ctx.fillText("Noch keine Tagesstände gespeichert",w/2,h/2);return}
+ const vals=hist.map(x=>Number(x.value||0)),rawMin=Math.min(...vals),rawMax=Math.max(...vals),padding=Math.max(100,(rawMax-rawMin)*.15),min=rawMin-padding,max=rawMax+padding,span=Math.max(1,max-min);
+ ctx.strokeStyle=line;ctx.lineWidth=1;ctx.fillStyle=ink;ctx.font="12px -apple-system";ctx.textAlign="left";for(let i=0;i<5;i++){const y=p+i*(h-2*p)/4;ctx.beginPath();ctx.moveTo(p,y);ctx.lineTo(w-p,y);ctx.stroke();ctx.fillText(euro.format(max-i*span/4),p+5,y-7)}
+ chartPoints=hist.map((pt,i)=>({x:p+(hist.length===1?(w-2*p)/2:i*(w-2*p)/(hist.length-1)),y:h-p-((Number(pt.value)-min)/span)*(h-2*p),date:pt.date,value:Number(pt.value)}));
+ const grad=ctx.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(91,155,213,.32)");grad.addColorStop(1,"rgba(91,155,213,0)");ctx.beginPath();ctx.moveTo(chartPoints[0].x,h-p);chartPoints.forEach(q=>ctx.lineTo(q.x,q.y));ctx.lineTo(chartPoints.at(-1).x,h-p);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+ ctx.beginPath();chartPoints.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.strokeStyle=COLORS[0];ctx.lineWidth=4;ctx.lineJoin="round";ctx.lineCap="round";ctx.stroke();chartPoints.forEach(q=>{ctx.beginPath();ctx.arc(q.x,q.y,4,0,Math.PI*2);ctx.fillStyle=COLORS[0];ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=card;ctx.stroke()});
+ ctx.fillStyle=ink;ctx.textAlign="left";ctx.fillText(formatDate(hist[0].date),p,h-12);ctx.textAlign="right";ctx.fillText(formatDate(hist.at(-1).date),w-p,h-12);
+}
+function showChartTooltip(event){const canvas=historyChart,tip=chartTooltip;if(!chartPoints.length)return;const r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;const q=chartPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);tip.textContent=`${formatDate(q.date)} · ${euro.format(q.value)}`;tip.style.left=q.x+"px";tip.style.top=q.y+"px";tip.hidden=false}
+function hideChartTooltip(){chartTooltip.hidden=true}
 function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value),ath=peak,maxDD=0;for(const x of hist){const v=Number(x.value);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const d=ath?totals().value/ath-1:0;distanceToHigh.textContent=pct.format(d);distanceToHigh.className=d>=0?"positive":"negative"}
 function renderDividends(){totalDividends.textContent=euro.format(state.dividends.reduce((s,d)=>s+Number(d.amount||0),0))}
 function renderNextSavings(){const now=new Date(),next=new Date(now.getFullYear(),now.getMonth()+1,1),days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
+
+function openHistoryManager(){
+ const rows=[...state.history].sort((a,b)=>b.date.localeCompare(a.date));historyManagerList.innerHTML=rows.length?rows.map(x=>`<div class="history-manage-row"><label>Datum<input data-hdate="${x.date}" type="date" value="${x.date}"></label><label>Depotwert €<input data-hvalue="${x.date}" type="number" step="0.01" value="${Number(x.value).toFixed(2)}"></label><button type="button" data-hdelete="${x.date}">Löschen</button></div>`).join(""):'<div class="calendar-empty">Keine Tagesstände vorhanden.</div>';
+ historyManagerList.querySelectorAll("input").forEach(inp=>inp.onchange=()=>{const key=inp.dataset.hdate||inp.dataset.hvalue,row=state.history.find(x=>x.date===key);if(!row)return;if(inp.dataset.hdate){row.date=inp.value}else row.value=Number(inp.value||0);state.history=state.history.filter((x,i,a)=>a.findIndex(y=>y.date===x.date)===i);persist();render();openHistoryManager()});
+ historyManagerList.querySelectorAll("button[data-hdelete]").forEach(btn=>btn.onclick=()=>{if(!confirm("Diesen Tagesstand löschen?"))return;state.history=state.history.filter(x=>x.date!==btn.dataset.hdelete);persist();render();openHistoryManager()});historyDialog.showModal();
+}
+function renderSystemSummary(){const age=state.history.length?Math.floor((new Date(isoDate(new Date()))-new Date([...state.history].sort((a,b)=>a.date.localeCompare(b.date)).at(-1).date))/86400000):999;const cloud=cloudConfigured()?"Cloud verbunden":"lokal gespeichert";systemSummary.textContent=`${state.history.length} Tagesstände · letzter Stand ${age===0?"heute":age===1?"gestern":`vor ${age} Tagen`} · ${cloud}`}
+function forceVersionRefresh(){if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.update()))).finally(()=>location.reload(true));else location.reload(true)}
+let deferredInstallPrompt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;installApp.hidden=false});async function installPwa(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installApp.hidden=true}
+
 function openEditor(){
   document.getElementById("simpleValueRows").innerHTML=state.funds.map((f,i)=>`
     <section class="simple-value-row">
@@ -516,10 +542,19 @@ document.getElementById("monthlyExpenses").oninput=renderFire;
 document.getElementById("withdrawalRate").onchange=renderFire;
 document.getElementById("addDividend").onclick=openDividendDialog;
 document.getElementById("saveDividend").onclick=saveDividendEntry;
+document.getElementById("openHistoryManager").onclick=openHistoryManager;
+document.getElementById("forceRefresh").onclick=forceVersionRefresh;
+document.getElementById("installApp").onclick=installPwa;
+document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
+document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
+document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
+document.getElementById("historyChart").addEventListener("touchend",hideChartTooltip);
 if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
 persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 8.1";
+document.title="ETF Depot Andreas · Version 9.0";
+
+let chartResizeTimer;window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});window.addEventListener("focus",()=>{if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();if(cloudConfigured())syncFromCloud(true).then(render).catch(()=>{})});

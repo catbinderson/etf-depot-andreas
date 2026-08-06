@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 8.1",
-  "short_name": "ETF Depot 8.1",
+  "name": "ETF Depot Andreas Version 9.0",
+  "short_name": "ETF Depot 9",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -16,5 +16,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "description": "Professionelles persönliches ETF-Depot-Dashboard mit Historie, Renditen und Cloud-Synchronisation."
 }
