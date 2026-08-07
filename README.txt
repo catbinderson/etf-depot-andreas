@@ -1,40 +1,38 @@
-ETF DEPOT ANDREAS – VERSION 10.1 CLOUD FINAL
+ETF DEPOT ANDREAS – VERSION 10.2 CLOUD VERIFIED
 
-Ziel
-----
-Ein gemeinsamer Depotstand auf Mac, iPhone und iPad.
-Supabase ist die zentrale Datenquelle. Der lokale Browser-Speicher ist nur Cache/Offline-Warteschlange.
+Wichtigste Änderung gegenüber 10.1
+----------------------------------
+Version 10.1 hat bereits erfolgreich automatisch nach Supabase geschrieben.
+Der Zeitstempel in Supabase wird in UTC angezeigt:
+05:36 UTC = 07:36 Uhr Deutschland (MESZ).
 
-Neu in 10.1
+Der sichtbare Wert schema_version blieb jedoch auf 10.0, weil die App bisher nur
+portfolio_data und updated_at geschrieben hat. Version 10.2 behebt genau das.
+
+Neu in 10.2
 -----------
-- Auto-Sync nach Änderungen (Debounce)
-- Auto-Sync beim Start, Fokuswechsel, Rückkehr zur App und nach Wiederherstellung der Internetverbindung
-- automatisches Nachladen eines neueren Cloud-Stands
-- sichtbarer Live-Cloudstatus: Synchronisiert / Synchronisiere / Offline / Konflikt / Fehler
-- Zeitstempel des letzten erfolgreichen Syncs
-- Synchronisationsprotokoll
-- Offline-Queue: lokale Änderungen bleiben erhalten und werden später übertragen
-- Konfliktschutz: lokale und neuere Cloud-Änderungen werden nicht still überschrieben
-- Geräteübersicht
-- Cloud-Versionshistorie / Wiederherstellungspunkte
-- weiterhin Rebalancing, Performance-Auswertung, CSV, Backup und PDF/Druck
+- schema_version wird bei jedem Cloud-Upsert explizit auf 10.2 gesetzt
+- Nach jedem Schreiben liest die App den Datensatz erneut aus Supabase
+- Schreibvorgang gilt erst dann als "Bestätigt", wenn updated_at und schema_version
+  von Supabase zurückgelesen wurden
+- Cloud-Schreibstatus direkt im Dashboard
+- sichtbares Cloud-Schema
+- Sync-Protokoll meldet "Supabase-Schreibtest bestätigt"
 
 Supabase
 --------
-Deine bestehenden Version-10-Tabellen funktionieren weiter.
-SUPABASE_SETUP.sql muss nicht erneut ausgeführt werden, wenn portfolio_sync,
-portfolio_devices und portfolio_sync_versions bereits existieren.
+Kein neues SQL-Setup nötig. Deine Tabellen sind bereits korrekt eingerichtet.
 
-Erster Test
------------
-1. Auf dem Mac anmelden.
-2. Einen Wert ändern.
-3. 2–3 Sekunden warten.
-4. Supabase → Table Editor → portfolio_sync prüfen: updated_at muss sich ändern.
-5. Auf dem iPhone dieselbe App öffnen und mit derselben E-Mail anmelden.
-6. Nach wenigen Sekunden muss der Mac-Stand erscheinen.
+Test
+----
+1. Version 10.2 auf GitHub hochladen und Deployment abwarten.
+2. App neu laden.
+3. Einen Depotwert minimal ändern.
+4. 2–3 Sekunden warten.
+5. Im Dashboard muss "Cloud-Schreibstatus: Bestätigt ✓" erscheinen.
+6. In Supabase portfolio_sync muss schema_version = 10.2 stehen.
+7. updated_at ist UTC; Deutschland im August liegt 2 Stunden davor (MESZ).
 
 GitHub Pages
 ------------
-Repository: etf-depot-andreas
-Settings → Pages → Deploy from a branch → main → /(root)
+main → /(root)

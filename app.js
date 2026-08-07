@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v10_1.cache";
+const KEY="etfDepotAndreas.v10_2.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -371,6 +371,15 @@ function renderSyncStatus(){
   if(typeof syncStateText!=="undefined") syncStateText.textContent=configured?label:"Nicht angemeldet";
   if(typeof syncLastSuccess!=="undefined") syncLastSuccess.textContent=state.syncMeta?.lastSuccess?new Date(state.syncMeta.lastSuccess).toLocaleString("de-DE"):"Noch nie";
   if(typeof syncPendingState!=="undefined") syncPendingState.textContent=localDirty?"Ja – wird automatisch übertragen":"Nein";
+  if(typeof syncCloudSchema!=="undefined") syncCloudSchema.textContent=state.syncMeta?.cloudSchema||"–";
+  if(typeof cloudWriteProof!=="undefined"){
+    const ok=Boolean(state.syncMeta?.writeVerified);
+    cloudWriteProof.textContent=ok?"Bestätigt ✓":"Noch nicht bestätigt";
+    cloudWriteProof.className=ok?"positive":"";
+    cloudWriteProofDetail.textContent=ok
+      ?`Supabase hat den Schreibvorgang bestätigt · ${new Date(state.syncMeta.writeVerifiedAt).toLocaleString("de-DE")}`
+      :"Nach der nächsten Änderung wird der Cloud-Schreibvorgang automatisch verifiziert.";
+  }
   if(typeof syncLogList!=="undefined"){
     const rows=(state.syncLog||[]).slice(0,16);
     syncLogList.innerHTML=rows.length?rows.map(x=>`<div class="sync-log-row ${x.type||""}"><time>${new Date(x.ts).toLocaleString("de-DE")}</time><span>${x.message}</span></div>`).join(""):'<div class="calendar-empty">Noch keine Synchronisationsereignisse.</div>';
@@ -491,7 +500,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="10.1";
+  copy.schemaVersion="10.2";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -603,19 +612,22 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"10.2"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
-    state.cloud.lastSync=now;
+    const verify=await getCloudRow();
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="10.2");
+    state.cloud.lastSync=verify?.updated_at||now;
+    state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
     lastCloudError="";
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`In Supabase gespeichert · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 10.2 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
-  const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at`);
+  const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at,schema_version`);
   return rows?.[0]||null;
 }
 async function syncFromCloud(preferCloud=true){
@@ -624,6 +636,7 @@ async function syncFromCloud(preferCloud=true){
   syncInFlight=true;
   try{
     const row=await getCloudRow();
+    if(row?.schema_version){state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:row.schema_version};persist({cloud:false})}
     if(!row){
       syncInFlight=false;
       await syncToCloud({force:true,reason:"Erster Cloud-Stand"});
@@ -904,7 +917,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 10.1";
+document.title="ETF Depot Andreas · Version 10.2";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});

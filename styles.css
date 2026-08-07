@@ -175,3 +175,12 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
   .sync-status-panel{grid-template-columns:1fr}
   .sync-log-row{grid-template-columns:1fr;gap:3px}
 }
+
+/* Version 10.2 Cloud Verified */
+.sync-proof{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin:14px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.sync-proof span{color:var(--muted);font-size:12px;font-weight:800}
+.sync-proof strong{font-size:14px}
+.sync-proof small{flex-basis:100%;color:var(--muted)}
+.sync-status-panel{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.sync-status-panel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.sync-status-panel{grid-template-columns:1fr}}
