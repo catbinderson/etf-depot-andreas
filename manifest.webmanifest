@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 9.0",
-  "short_name": "ETF Depot 9",
+  "name": "ETF Depot Andreas Version 9.1",
+  "short_name": "ETF Depot 9.1",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Professionelles persönliches ETF-Depot-Dashboard mit Historie, Renditen und Cloud-Synchronisation."
+  "description": "Cloud-First ETF-Depot-Dashboard mit Supabase als zentraler Datenquelle für Mac, iPhone und iPad."
 }

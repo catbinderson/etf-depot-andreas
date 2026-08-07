@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=9.0.0">
-  <title>ETF Depot Andreas · Version 9.0</title>
+  <link rel="stylesheet" href="styles.css?v=9.1.0">
+  <title>ETF Depot Andreas · Version 9.1</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 9.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-06 · V9.0 Professional</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 9.1</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V9.1 Cloud First</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -25,18 +25,18 @@
   <nav class="actions">
     <button id="openEdit" class="primary">Werte aktualisieren</button>
     <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button><button id="syncNow">Synchronisieren</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button>
+    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt abgleichen</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
 
   <main>
     <section class="card automation-note">
-      <div><span class="eyebrow">Version 9.0 – Professional Dashboard</span><h2>Dein Depot in 30 Sekunden täglich aktuell</h2></div>
+      <div><span class="eyebrow">Version 9.1 – Cloud First</span><h2>Einmal erfassen – auf allen Geräten aktuell</h2></div>
       <div class="automation-steps">
-        <span>1. FNZ öffnen</span><span>2. Drei Depotwerte übernehmen</span><span>3. Tagesstand speichern</span>
+        <span>1. Auf einem Gerät erfassen</span><span>2. Automatisch zu Supabase</span><span>3. Mac & iPhone gleichen sich ab</span>
       </div>
-      <p>Die App führt deine monatlichen Sparraten am 1. automatisch dem Einstandskapital zu: 600 €, 600 € und 300 €.</p>
-      <div class="feature-pills"><span>Cloud-Sync</span><span>Offline-fähig</span><span>Automatische Kennzahlen</span><span>Retina-Charts</span></div>
+      <p>Supabase ist nach der Anmeldung die führende Datenquelle. Änderungen werden automatisch gespeichert und auf Mac, iPhone und iPad geladen. Der lokale Speicher dient nur noch als Offline-Zwischenspeicher.</p>
+      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Offline-Cache</span><span>Session-Refresh</span><span>Retina-Charts</span></div>
     </section>
     <section class="fx-strip card">
       <div>
@@ -82,9 +82,9 @@
 
     <section class="card cloud-card">
       <div>
-        <span class="eyebrow">Geräteübergreifende Synchronisation</span>
-        <h2>iPhone und Mac auf demselben Stand</h2>
-        <p id="cloudMessage">Cloud-Synchronisation ist noch nicht eingerichtet.</p>
+        <span class="eyebrow">Cloud-First Synchronisation</span>
+        <h2>Ein Datenbestand für Mac, iPhone und iPad</h2>
+        <p id="cloudMessage">Supabase ist noch nicht verbunden.</p>
       </div>
       <div class="cloud-status">
         <span id="cloudBadge" class="status cloud-off">Nicht verbunden</span>
@@ -273,7 +273,7 @@
     </section>
   </main>
 
-  <footer>ETF Depot Andreas · Version 9.0 · Daten lokal und optional in Supabase · Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 9.1 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
 </div>
 
 <dialog id="editDialog">
@@ -338,10 +338,10 @@
 <dialog id="cloudDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head">
-      <div><span class="eyebrow">Cloud-Synchronisation</span><h2>Supabase verbinden</h2></div>
+      <div><span class="eyebrow">Version 9.1 · Cloud First</span><h2>Supabase-Konto verbinden</h2></div>
       <button class="round close" value="cancel">×</button>
     </div>
-    <p class="hint">Die Supabase-Verbindung ist bereits eingerichtet. Du musst nur noch ein Konto mit E-Mail und Passwort erstellen und dich auf iPhone und Mac mit denselben Zugangsdaten anmelden.</p>
+    <p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
     <div class="cloud-form"><details class="advanced-box" open><summary>Supabase-Verbindung</summary>
       <label>Supabase Project URL<input id="supabaseUrl" type="url" value="https://dgrulyvrxmughqgzherg.supabase.co" readonly></label>
       <label>Supabase Publishable Key<input id="supabaseAnonKey" type="password" value="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2" readonly></label></details>
@@ -354,6 +354,7 @@
       <button id="cloudLogout" type="button">Abmelden</button>
     </div>
     <p id="cloudDialogMessage" class="hint"></p>
+    <div class="cloud-master-note"><strong>Cloud-First:</strong> Portfolio-Daten werden automatisch nach Supabase geschrieben. Auf anderen angemeldeten Geräten werden neue Cloud-Daten automatisch geladen.</div>
   </form>
 </dialog>
 
@@ -366,6 +367,6 @@
     <div class="dialog-actions"><button value="cancel">Schließen</button></div>
   </form>
 </dialog>
-<script src="app.js?v=9.0.0"></script>
+<script src="app.js?v=9.1.0"></script>
 </body>
 </html>

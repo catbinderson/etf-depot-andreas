@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v9";
+const KEY="etfDepotAndreas.v9_1.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -14,7 +14,12 @@ const DEFAULTS={
  ],
  history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
 };
-const old=localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+let syncTimer=null;
+let syncInFlight=false;
+let applyingRemote=false;
+let localDirty=false;
+let lastCloudError="";
 let state=load();
 initializeAutomaticAccounting();
 applyScheduledContributions();
@@ -23,7 +28,12 @@ const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
-function persist(){localStorage.setItem(KEY,JSON.stringify(state))}
+function persist(options={}){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  if(options.cloud===false||applyingRemote)return;
+  localDirty=true;
+  if(cloudConfigured())scheduleCloudSave();
+}
 function totals(){
   recalculateFundMetrics();
   const value=state.funds.reduce((s,f)=>s+Number(f.value||0),0);
@@ -302,16 +312,45 @@ function formatMonthKey(key){
 
 
 function cloudConfigured(){
-  return Boolean(state.cloud?.url&&state.cloud?.anonKey&&state.cloud?.accessToken&&state.cloud?.userId);
+  return Boolean(state.cloud?.url&&state.cloud?.anonKey&&state.cloud?.userId&&(state.cloud?.accessToken||state.cloud?.refreshToken));
 }
 function cloudHeaders(auth=true){
   const h={"apikey":state.cloud.anonKey,"Content-Type":"application/json"};
   if(auth&&state.cloud.accessToken)h["Authorization"]="Bearer "+state.cloud.accessToken;
   return h;
 }
+function tokenExpiryMs(token){
+  try{
+    const payload=JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+    return Number(payload.exp||0)*1000;
+  }catch{return 0}
+}
+async function refreshCloudSession(){
+  if(!state.cloud?.refreshToken)throw new Error("Bitte erneut bei Supabase anmelden.");
+  const url=state.cloud.url.replace(/\/$/,"")+"/auth/v1/token?grant_type=refresh_token";
+  const r=await fetch(url,{method:"POST",headers:{"apikey":state.cloud.anonKey,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:state.cloud.refreshToken})});
+  const text=await r.text();let body=null;try{body=text?JSON.parse(text):null}catch{body=text}
+  if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||body?.error||`HTTP ${r.status}`);
+  storeSession(body);
+  return body;
+}
+async function ensureCloudSession(){
+  if(!state.cloud?.userId)throw new Error("Nicht bei Supabase angemeldet.");
+  const exp=tokenExpiryMs(state.cloud.accessToken);
+  if(state.cloud.accessToken&&exp>Date.now()+90000)return;
+  await refreshCloudSession();
+}
 async function cloudRequest(path,options={}){
+  const auth=options.auth!==false;
+  if(auth)await ensureCloudSession();
   const url=state.cloud.url.replace(/\/$/,"")+path;
-  const r=await fetch(url,{...options,headers:{...cloudHeaders(options.auth!==false),...(options.headers||{})}});
+  const requestOptions={...options};
+  delete requestOptions.auth;delete requestOptions.retry;
+  let r=await fetch(url,{...requestOptions,headers:{...cloudHeaders(auth),...(requestOptions.headers||{})}});
+  if(auth&&r.status===401&&!options.retry&&state.cloud.refreshToken){
+    await refreshCloudSession();
+    r=await fetch(url,{...requestOptions,headers:{...cloudHeaders(true),...(requestOptions.headers||{})}});
+  }
   const text=await r.text();
   let body=null;try{body=text?JSON.parse(text):null}catch{body=text}
   if(!r.ok)throw new Error(body?.msg||body?.message||body?.error_description||body?.error||`HTTP ${r.status}`);
@@ -322,14 +361,16 @@ function openCloudDialog(){
   supabaseAnonKey.value=state.cloud.anonKey||"";
   cloudEmail.value=state.cloud.email||"";
   cloudPassword.value="";
-  cloudDialogMessage.textContent="";
+  cloudDialogMessage.textContent=cloudConfigured()
+    ?"Dieses Gerät ist angemeldet. Supabase ist die führende Datenquelle."
+    :"Melde dieses Gerät einmalig mit demselben Konto an, das du auf deinen anderen Geräten verwendest.";
   document.getElementById("cloudDialog").showModal();
 }
 function saveCloudForm(){
   state.cloud.url=supabaseUrl.value.trim()||"https://dgrulyvrxmughqgzherg.supabase.co";
   state.cloud.anonKey=supabaseAnonKey.value.trim()||"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
   state.cloud.email=cloudEmail.value.trim();
-  persist();
+  persist({cloud:false});
 }
 async function registerCloud(){
   try{
@@ -338,8 +379,9 @@ async function registerCloud(){
     const body=await cloudRequest("/auth/v1/signup",{method:"POST",auth:false,body:JSON.stringify({email:state.cloud.email,password:cloudPassword.value})});
     if(body?.access_token){
       storeSession(body);
-      cloudDialogMessage.textContent="Konto erstellt und angemeldet.";
-      await syncToCloud();
+      cloudDialogMessage.textContent="Konto erstellt. Vorhandener Datenstand wird einmalig zur Cloud übertragen …";
+      await bootstrapCloud(true);
+      cloudDialogMessage.textContent="Fertig. Supabase ist jetzt der Hauptspeicher.";
     }else{
       cloudDialogMessage.textContent="Konto erstellt. Bestätige ggf. die E-Mail und melde dich danach an.";
     }
@@ -352,82 +394,152 @@ async function loginCloud(){
     cloudDialogMessage.textContent="Anmeldung läuft …";
     const body=await cloudRequest("/auth/v1/token?grant_type=password",{method:"POST",auth:false,body:JSON.stringify({email:state.cloud.email,password:cloudPassword.value})});
     storeSession(body);
-    cloudDialogMessage.textContent="Angemeldet. Cloud-Daten werden geladen …";
-    await syncFromCloud(true);
+    cloudDialogMessage.textContent="Angemeldet. Der zentrale Cloud-Datenstand wird geladen …";
+    await bootstrapCloud(true);
     render();
+    cloudDialogMessage.textContent="Verbunden. Künftige Änderungen werden automatisch synchronisiert.";
   }catch(e){cloudDialogMessage.textContent="Fehler: "+e.message}
 }
 function storeSession(body){
-  state.cloud.accessToken=body.access_token||"";
-  state.cloud.refreshToken=body.refresh_token||"";
-  state.cloud.userId=body.user?.id||"";
+  state.cloud.accessToken=body.access_token||state.cloud.accessToken||"";
+  state.cloud.refreshToken=body.refresh_token||state.cloud.refreshToken||"";
+  state.cloud.userId=body.user?.id||state.cloud.userId||"";
   state.cloud.email=body.user?.email||state.cloud.email;
-  persist();
+  persist({cloud:false});
 }
 function logoutCloud(){
   state.cloud.accessToken="";state.cloud.refreshToken="";state.cloud.userId="";state.cloud.lastSync="";
-  persist();renderCloudStatus();cloudDialogMessage.textContent="Abgemeldet.";
+  localDirty=false;
+  persist({cloud:false});renderCloudStatus();cloudDialogMessage.textContent="Abgemeldet. Der letzte Datenstand bleibt nur als Offline-Cache auf diesem Gerät.";
 }
 function cloudPayload(){
   const copy=JSON.parse(JSON.stringify(state));
   if(copy.cloud){
-    copy.cloud.accessToken="";copy.cloud.refreshToken="";copy.cloud.anonKey="";copy.cloud.url="";
+    copy.cloud.accessToken="";
+    copy.cloud.refreshToken="";
+    copy.cloud.anonKey="";
+    copy.cloud.url="";
+    copy.cloud.lastSync="";
   }
+  copy.schemaVersion="9.1";
   return copy;
+}
+function mergeRemoteState(remote,updatedAt){
+  if(!remote)return;
+  applyingRemote=true;
+  const cloudKeep={...state.cloud};
+  state={...clone(DEFAULTS),...state,...remote,cloud:cloudKeep};
+  state.dividends=remote.dividends||[];
+  state.benchmark={...DEFAULTS.benchmark,...(remote.benchmark||{})};
+  state.contributions=remote.contributions||[];
+  state.autoAccounting={...DEFAULTS.autoAccounting,...(remote.autoAccounting||{})};
+  state.fx={...DEFAULTS.fx,...(remote.fx||{})};
+  state.cloud.lastSync=updatedAt||new Date().toISOString();
+  localDirty=false;
+  localStorage.setItem(KEY,JSON.stringify(state));
+  applyingRemote=false;
+}
+function scheduleCloudSave(){
+  if(!cloudConfigured()||applyingRemote)return;
+  clearTimeout(syncTimer);
+  cloudBadge.textContent="Speichere …";cloudBadge.className="status";
+  syncTimer=setTimeout(()=>syncToCloud().catch(handleCloudError),700);
+}
+function handleCloudError(e){
+  lastCloudError=e?.message||String(e);
+  cloudMessage.textContent="Cloud-Synchronisation wartet: "+lastCloudError;
+  cloudBadge.textContent=navigator.onLine?"Fehler":"Offline";
+  cloudBadge.className="status cloud-error";
 }
 async function syncToCloud(){
   if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
-  const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:new Date().toISOString()};
-  await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
-  state.cloud.lastSync=new Date().toISOString();persist();renderCloudStatus();
+  if(syncInFlight)return;
+  syncInFlight=true;
+  try{
+    const now=new Date().toISOString();
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now};
+    await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
+    state.cloud.lastSync=now;
+    localDirty=false;
+    lastCloudError="";
+    persist({cloud:false});
+    renderCloudStatus();
+  }finally{syncInFlight=false}
 }
-async function syncFromCloud(preferCloud=false){
-  if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
+async function getCloudRow(){
   const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at`);
-  if(!rows?.length){
-    await syncToCloud();return;
+  return rows?.[0]||null;
+}
+async function syncFromCloud(preferCloud=true){
+  if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
+  if(syncInFlight)return false;
+  if(localDirty){
+    await syncToCloud();
+    return true;
   }
-  const remote=rows[0].portfolio_data;
-  if(preferCloud&&remote){
-    const cloudKeep={...state.cloud};
-    state={...state,...remote,cloud:cloudKeep};
+  syncInFlight=true;
+  try{
+    const row=await getCloudRow();
+    if(!row){
+      syncInFlight=false;
+      await syncToCloud();
+      return true;
+    }
+    const remoteTime=row.updated_at?new Date(row.updated_at).getTime():0;
+    const localTime=state.cloud.lastSync?new Date(state.cloud.lastSync).getTime():0;
+    if(preferCloud&&row.portfolio_data&&(remoteTime>localTime||!state.cloud.lastSync)){
+      mergeRemoteState(row.portfolio_data,row.updated_at);
+      initializeAutomaticAccounting();
+      applyScheduledContributions();
+      render();
+      return true;
+    }
+    state.cloud.lastSync=row.updated_at||state.cloud.lastSync;
+    persist({cloud:false});
+    renderCloudStatus();
+    return false;
+  }finally{syncInFlight=false}
+}
+async function bootstrapCloud(firstLogin=false){
+  if(!cloudConfigured())return;
+  try{
+    await ensureCloudSession();
+    const row=await getCloudRow();
+    if(row?.portfolio_data){
+      mergeRemoteState(row.portfolio_data,row.updated_at);
+      initializeAutomaticAccounting();
+      applyScheduledContributions();
+      render();
+    }else{
+      localDirty=true;
+      await syncToCloud();
+    }
+    lastCloudError="";
+    renderCloudStatus();
+  }catch(e){
+    handleCloudError(e);
+    if(firstLogin)throw e;
   }
-  state.cloud.lastSync=rows[0].updated_at||new Date().toISOString();
-  persist();renderCloudStatus();
 }
 async function syncNowHandler(){
   try{
-    cloudBadge.textContent="Synchronisiere …";cloudBadge.className="status";
     if(!cloudConfigured()){openCloudDialog();return}
-    const rows=await cloudRequest(`/rest/v1/portfolio_sync?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,updated_at`);
-    if(rows?.length&&rows[0].updated_at){
-      const remoteTime=new Date(rows[0].updated_at).getTime();
-      const localTime=state.cloud.lastSync?new Date(state.cloud.lastSync).getTime():0;
-      if(remoteTime>localTime&&rows[0].portfolio_data){
-        const keep={...state.cloud};
-        state={...state,...rows[0].portfolio_data,cloud:keep};
-        state.cloud.lastSync=rows[0].updated_at;
-        persist();render();
-        cloudMessage.textContent="Neuere Cloud-Daten wurden geladen.";
-        return;
-      }
-    }
-    await syncToCloud();
-    cloudMessage.textContent="Lokale Daten wurden in die Cloud gespeichert.";
-  }catch(e){
-    cloudMessage.textContent="Synchronisation fehlgeschlagen: "+e.message;
-    cloudBadge.textContent="Fehler";cloudBadge.className="status cloud-error";
-  }
+    cloudBadge.textContent="Gleiche ab …";cloudBadge.className="status";
+    if(localDirty)await syncToCloud();
+    else await syncFromCloud(true);
+    cloudMessage.textContent="Cloud und dieses Gerät sind auf demselben Stand.";
+  }catch(e){handleCloudError(e)}
 }
 function renderCloudStatus(){
   if(cloudConfigured()){
-    cloudBadge.textContent="Verbunden";cloudBadge.className="status cloud-on";
-    cloudMessage.textContent=`Angemeldet als ${state.cloud.email}. Änderungen können auf iPhone und Mac synchronisiert werden.`;
-    cloudLastSync.textContent=state.cloud.lastSync?`Letzte Synchronisation: ${new Date(state.cloud.lastSync).toLocaleString("de-DE")}`:"Noch nie synchronisiert";
+    cloudBadge.textContent=localDirty?"Änderung ausstehend":"Auto-Sync aktiv";
+    cloudBadge.className="status cloud-on";
+    cloudMessage.textContent=`Supabase ist die führende Datenquelle. Angemeldet als ${state.cloud.email}. Änderungen auf einem Gerät werden automatisch auf die anderen Geräte übertragen.`;
+    cloudLastSync.textContent=state.cloud.lastSync?`Cloud-Stand: ${new Date(state.cloud.lastSync).toLocaleString("de-DE")}`:"Cloud wird initialisiert …";
   }else{
     cloudBadge.textContent="Nicht verbunden";cloudBadge.className="status cloud-off";
-    cloudMessage.textContent="Cloud-Synchronisation ist noch nicht eingerichtet.";
-    cloudLastSync.textContent="Noch nie synchronisiert";
+    cloudMessage.textContent="Einmalig auf jedem Gerät anmelden. Danach musst du Depotwerte nur noch auf einem Gerät erfassen.";
+    cloudLastSync.textContent="Lokaler Datenstand dient bis zur Anmeldung als Offline-Cache";
   }
 }
 
@@ -466,7 +578,7 @@ function openHistoryManager(){
  historyManagerList.querySelectorAll("input").forEach(inp=>inp.onchange=()=>{const key=inp.dataset.hdate||inp.dataset.hvalue,row=state.history.find(x=>x.date===key);if(!row)return;if(inp.dataset.hdate){row.date=inp.value}else row.value=Number(inp.value||0);state.history=state.history.filter((x,i,a)=>a.findIndex(y=>y.date===x.date)===i);persist();render();openHistoryManager()});
  historyManagerList.querySelectorAll("button[data-hdelete]").forEach(btn=>btn.onclick=()=>{if(!confirm("Diesen Tagesstand löschen?"))return;state.history=state.history.filter(x=>x.date!==btn.dataset.hdelete);persist();render();openHistoryManager()});historyDialog.showModal();
 }
-function renderSystemSummary(){const age=state.history.length?Math.floor((new Date(isoDate(new Date()))-new Date([...state.history].sort((a,b)=>a.date.localeCompare(b.date)).at(-1).date))/86400000):999;const cloud=cloudConfigured()?"Cloud verbunden":"lokal gespeichert";systemSummary.textContent=`${state.history.length} Tagesstände · letzter Stand ${age===0?"heute":age===1?"gestern":`vor ${age} Tagen`} · ${cloud}`}
+function renderSystemSummary(){const age=state.history.length?Math.floor((new Date(isoDate(new Date()))-new Date([...state.history].sort((a,b)=>a.date.localeCompare(b.date)).at(-1).date))/86400000):999;const cloud=cloudConfigured()?"Supabase Master · Auto-Sync":"Offline-Cache · Supabase nicht angemeldet";systemSummary.textContent=`${state.history.length} Tagesstände · letzter Stand ${age===0?"heute":age===1?"gestern":`vor ${age} Tagen`} · ${cloud}`}
 function forceVersionRefresh(){if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.update()))).finally(()=>location.reload(true));else location.reload(true)}
 let deferredInstallPrompt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;installApp.hidden=false});async function installPwa(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installApp.hidden=true}
 
@@ -555,6 +667,21 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 9.0";
+document.title="ETF Depot Andreas · Version 9.1";
 
-let chartResizeTimer;window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});window.addEventListener("focus",()=>{if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();if(cloudConfigured())syncFromCloud(true).then(render).catch(()=>{})});
+let chartResizeTimer;
+window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});
+async function resumeCloudSync(){
+  if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+  if(!cloudConfigured())return;
+  try{
+    if(localDirty)await syncToCloud();
+    await syncFromCloud(true);
+  }catch(e){handleCloudError(e)}
+}
+window.addEventListener("focus",resumeCloudSync);
+window.addEventListener("online",resumeCloudSync);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeCloudSync()});
+window.addEventListener("storage",e=>{if(e.key===KEY&&!localDirty){state=load();render()}});
+setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},30000);
+bootstrapCloud(false);

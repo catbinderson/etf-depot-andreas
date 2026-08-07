@@ -1,35 +1,48 @@
-ETF DEPOT ANDREAS – VERSION 9.0 PROFESSIONAL
+ETF DEPOT ANDREAS – VERSION 9.1 CLOUD FIRST
 
-WICHTIG VOR DEM UPDATE
-1. In der laufenden App auf „Backup“ klicken und die JSON-Datei sichern.
-2. Die Dateien dieser ZIP direkt in das Repository etf-depot-andreas hochladen.
-3. Settings > Pages bleibt: Deploy from a branch, main, /(root).
+Hauptänderung
+-------------
+Supabase ist nach der Anmeldung die führende Datenquelle.
+Depotwerte müssen nicht mehr getrennt auf Mac und iPhone erfasst werden.
 
-NEU UND VERBESSERT
-- professionelle Versionskennzeichnung 9.0
-- bestehende Daten aus Version 8 werden automatisch übernommen
-- responsive Retina-Verlaufsgrafik mit sauberer Skalierung
-- interaktive Chart-Anzeige mit Datum und Depotwert
-- Tagesstände einzeln bearbeiten und löschen
-- moderner Systemstatus mit Historien- und Cloud-Zustand
-- optionaler Installationsbutton für die Web-App
-- Schaltfläche zum Laden einer neuen App-Version
-- automatische Wechselkursprüfung beim erneuten Öffnen
-- automatische Cloud-Aktualisierung beim erneuten Fokussieren
-- zuverlässiger Cache v9 mit Löschung alter Cache-Versionen
-- bessere mobile Navigation und größere Touch-Flächen
-- Sticky-Aktionsleiste
-- bessere Tastatur-Fokusmarkierungen
-- optimierte Darstellung für iPhone, iPad und Mac
-- reduzierte Animationen, wenn das Betriebssystem dies verlangt
-- klarere Release- und Systeminformationen
+So funktioniert es
+-------------------
+1. SUPABASE_SETUP.sql einmal im Supabase SQL Editor ausführen.
+2. Die App auf dem Mac öffnen und unter „Cloud-Einstellungen“ anmelden.
+3. Wenn in Supabase noch kein Datensatz existiert, wird der vorhandene Version-9-Datenstand einmalig hochgeladen.
+4. Auf iPhone/iPad dieselbe Website öffnen und mit demselben Supabase-Konto einmalig anmelden.
+5. Danach werden Änderungen automatisch zu Supabase geschrieben.
+6. Andere angemeldete Geräte laden neue Cloud-Daten automatisch beim Öffnen, beim Zurückkehren zur App, nach Wiederherstellung der Internetverbindung und regelmäßig im Vordergrund.
 
-TÄGLICHER ABLAUF
-1. Werte aktualisieren.
-2. Die drei Depotwerte aus FNZ eintragen.
-3. Werte übernehmen.
-4. Tagesstand speichern.
-5. Bei aktivierter Cloud wird automatisch synchronisiert.
+Cloud-First Verhalten
+---------------------
+- Supabase = zentraler Master-Datenstand
+- lokaler Browser-Speicher = Offline-Cache / Fallback
+- automatische Speicherung nach Änderungen (Debounce)
+- automatisches Laden neuer Cloud-Daten
+- automatische Erneuerung abgelaufener Supabase Access Tokens
+- manueller Button „Jetzt abgleichen“ bleibt als Notfall-/Kontrollfunktion
+- bestehende Version-9-Daten werden beim ersten Cloud-Login übernommen
+- gleicher Datenbestand auf Mac, iPhone und iPad
 
-Keine Anlageberatung.
-Test4712
+Weitere Funktionen aus 9.0 bleiben erhalten
+-------------------------------------------
+- Professional Dashboard
+- Tages-, Wochen-, Monats- und Jahreskennzahlen
+- Retina-Verlaufsgrafik und Historienverwaltung
+- ETF-Renditevergleich
+- Sparraten-/Einstandskapital-Automatik
+- USD/EUR-Tageskurs
+- Backup/Import und CSV-Export
+- PWA/Offline-Unterstützung
+- Dark/Light Mode
+
+GitHub Pages
+------------
+Für das Repository etf-depot-andreas:
+Settings → Pages → Deploy from a branch → main → /(root)
+
+Wichtig
+-------
+Auf jedem neuen Gerät ist nur eine einmalige Supabase-Anmeldung nötig.
+Danach müssen Depotwerte nur noch auf EINEM Gerät erfasst werden.
