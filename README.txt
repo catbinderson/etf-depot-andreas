@@ -1,21 +1,26 @@
-ETF DEPOT ANDREAS – VERSION 14 PRO · DASHBOARD 2.0
+ETF DEPOT ANDREAS – VERSION 14 PRO FINAL
 
-Neu strukturiert:
-- kompakter Header mit Depotwert, Gesamtgewinn und Cloudstatus
-- Versionsdetails nur noch über „Was ist neu?“
-- Performance als eigener kompakter Bereich
-- Charts deutlich weiter oben
-- Portfolio direkt nach den Charts
-- Smart Insights und Depot-Assistent als klarer Analyseblock
-- großer Benchmarkbereich
-- Cloudtechnik weiter unten
-- aufgeräumte Aktionsleiste
-- iPhone: kompakter Header, kleine Sync-Anzeige, Bottom Navigation
+Diese Version konzentriert sich auf Design, Übersicht und Alltagstauglichkeit.
 
-Technische Bereinigung:
-- doppelte HTML-IDs aus Risiko- und Benchmarkbereichen beseitigt
-- neuer Cache-Key / Service-Worker-Cache
+FINAL-Feinschliff
+-----------------
+- Header rund 30–40 % kompakter
+- Depotwert, Gesamtgewinn und Cloudstatus direkt im Header
+- „Was ist neu?“ nur noch als kleines Info-Symbol
+- Aktionsleiste schlanker
+- Währungsbox klarer gewichtet
+- KPI-Karten harmonisiert
+- zweite KPI-Reihe kompakter
+- Performancebereich deutlich ruhiger
+- Charts / Portfolio / Smart Insights klarer getrennt
+- Cloudbereich optisch zurückgenommen
+- iPhone: nochmals kleinerer Sync-Status
+- iPhone: kompaktere Karten und Abstände
+- Bottom Navigation bleibt erhalten
+
+Technik
+-------
+- alle Funktionen aus Version 14 PRO bleiben erhalten
 - bestehende Supabase-Daten bleiben kompatibel
-
-Supabase:
-Keine neue SQL-Einrichtung erforderlich.
+- kein neues SQL erforderlich
+- neuer Cache-Key und Service-Worker-Cache zur sicheren Aktualisierung

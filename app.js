@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v14pro.dashboard2.cache";
+const KEY="etfDepotAndreas.v14pro.final.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -1234,7 +1234,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 14 PRO Dashboard 2.0";
+document.title="ETF Depot Andreas · Version 14 PRO FINAL";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

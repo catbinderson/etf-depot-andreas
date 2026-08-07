@@ -9,14 +9,14 @@
 <meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=14.1.0" rel="stylesheet"/>
-<title>ETF Depot Andreas · Version 14 PRO Dashboard 2.0</title>
+<link href="styles.css?v=14.2.0" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 14 PRO FINAL</title>
 </head>
 <body>
 <div class="app">
 <header class="hero">
 <div>
-<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 14 PRO</span><span class="build-stamp" id="buildStamp">V14 PRO · Dashboard 2.0</span></div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 14 PRO</span><span class="build-stamp" id="buildStamp">V14 PRO · FINAL</span></div>
 <h1>ETF Depot Andreas</h1>
 <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
 <div class="hero-dashboard-summary">
@@ -33,7 +33,7 @@
 <small id="liveCloudTime">–</small>
 </div>
 <button aria-label="Darstellung wechseln" class="round hero-tool" id="themeToggle">◐</button>
-<button aria-label="Neuigkeiten in Version 14 PRO" class="hero-info-button" id="openVersionInfo">Was ist neu?</button></header>
+<button aria-label="Was ist neu in Version 14 PRO?" class="hero-info-icon" id="openVersionInfo" title="Was ist neu?">i</button></header>
 <nav class="actions actions-pro">
 <button class="primary" id="openEdit">Werte aktualisieren</button>
 <button id="saveSnapshot">Tagesstand speichern</button>
@@ -48,7 +48,7 @@
 <main><section class="fx-strip card" id="fxSection">
 <div>
 <span class="eyebrow">Währungsumrechnung</span>
-<h2>USD → EUR</h2>
+<h2 class="fx-pair-title">USD → EUR</h2>
 </div>
 <div class="fx-value">
 <strong id="usdEurRate">–</strong>
@@ -59,7 +59,7 @@
 <button class="secondary" id="refreshFx">Kurs aktualisieren</button>
 </div>
 </section><section class="kpi-grid" id="dashboardKpis">
-<article class="card kpi main-kpi">
+<article class="card kpi main-kpi kpi-compact-primary">
 <span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
 </article>
 <article class="card kpi">
@@ -74,7 +74,7 @@
 <article class="card daily-card"><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
 <article class="card daily-card"><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
 </section><div class="dashboard-section-heading" id="performanceHeading">
-<div><span class="eyebrow">Performance</span><h2>Dein Depot auf einen Blick</h2></div>
+<div><span class="eyebrow">Performance</span><h2>Performance</h2></div>
 <small>Heute · Woche · Monat · Jahr</small>
 </div><section class="performance-grid" id="performanceSection">
 <article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
@@ -207,19 +207,11 @@
 <div class="progress-list" id="progressGoals"></div>
 </article>
 </section>
-
-
-
-
-
-
 <section class="three-col">
 <article class="card mini-summary"><span>Automatisch erfasste Sparraten</span><strong id="autoContributions">–</strong><small id="lastContributionMonth">–</small></article>
 <article class="card mini-summary"><span>Einstandskapital gesamt</span><strong id="automaticCostBasis">–</strong><small>Basis der automatischen Gewinnberechnung</small></article>
 <article class="card mini-summary"><span>Nächste automatische Buchung</span><strong id="nextAutoContribution">–</strong><small>Jeweils am 1. des Monats</small></article>
 </section>
-
-
 <section class="two-col">
 <article class="card">
 <span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
@@ -290,7 +282,6 @@
 </div>
 </article>
 </section>
-
 <section class="two-col">
 <article class="card">
 <div class="section-head">
@@ -349,9 +340,7 @@
 <div class="health-list" id="healthList"></div>
 </article>
 </section>
-
-
-<section class="card cloud-card">
+<section class="card cloud-card cloud-card-compact">
 <div>
 <span class="eyebrow">Cloud-First Synchronisation</span>
 <h2>Ein Datenbestand für Mac, iPhone und iPad</h2>
@@ -565,6 +554,6 @@
 <button id="closeVersionInfoBottom">Schließen</button>
 </div>
 </dialog>
-<script src="app.js?v=14.1.0"></script>
+<script src="app.js?v=14.2.0"></script>
 </body>
 </html>
