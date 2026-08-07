@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.3.persistentlogin.cache";
+const KEY="etfDepotAndreas.v1.4.autoupdate.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -102,6 +102,118 @@ async function restoreCloudSession(){
     renderCloudAccountSummary();
   }
   return true;
+}
+
+
+const APP_VERSION="1.4";
+const APP_UPDATE_CHECK_INTERVAL=60*60*1000;
+const APP_UPDATE_DISMISS_KEY="etfDepotAndreas.update.dismissed";
+let appUpdateCheckTimer=null;
+let latestAvailableVersion=null;
+let updateInstallInProgress=false;
+
+function versionParts(v){
+  return String(v||"0").replace(/[^0-9.].*$/,"").split(".").map(x=>Number(x)||0);
+}
+function compareVersions(a,b){
+  const A=versionParts(a),B=versionParts(b),n=Math.max(A.length,B.length);
+  for(let i=0;i<n;i++){const x=A[i]||0,y=B[i]||0;if(x>y)return 1;if(x<y)return-1}
+  return 0;
+}
+function setUpdateStatus(text){
+  const e=document.getElementById("appUpdateStatus");
+  if(e)e.textContent=text;
+}
+function showUpdateBanner(meta){
+  latestAvailableVersion=meta?.version||null;
+  const b=document.getElementById("updateBanner");
+  const t=document.getElementById("updateBannerTitle");
+  const x=document.getElementById("updateBannerText");
+  if(!b)return;
+  if(t)t.textContent=`Version ${meta.version} verfügbar`;
+  if(x)x.textContent=meta.message||`Version ${meta.version} kann jetzt installiert werden.`;
+  b.hidden=false;
+}
+function hideUpdateBanner(){
+  const b=document.getElementById("updateBanner");if(b)b.hidden=true;
+}
+async function registerAppServiceWorker(){
+  if(!("serviceWorker" in navigator))return null;
+  try{
+    const reg=await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
+    await reg.update().catch(()=>{});
+    return reg;
+  }catch(e){
+    setUpdateStatus("Update-Dienst konnte nicht registriert werden.");
+    return null;
+  }
+}
+async function checkForAppUpdate({manual=false}={}){
+  if(!navigator.onLine){
+    if(manual)setUpdateStatus("Offline – Update-Prüfung momentan nicht möglich.");
+    return null;
+  }
+  try{
+    if(manual)setUpdateStatus("Suche nach neuer Version …");
+    const r=await fetch(`./version.json?t=${Date.now()}`,{cache:"no-store",headers:{"Cache-Control":"no-cache"}});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const meta=await r.json();
+    const newer=compareVersions(meta.version,APP_VERSION)>0;
+    if(newer){
+      const dismissed=localStorage.getItem(APP_UPDATE_DISMISS_KEY);
+      if(manual||dismissed!==meta.version)showUpdateBanner(meta);
+      setUpdateStatus(`Neue Version ${meta.version} verfügbar.`);
+      const reg=await registerAppServiceWorker();
+      if(reg)await reg.update().catch(()=>{});
+    }else{
+      latestAvailableVersion=null;
+      if(manual)hideUpdateBanner();
+      setUpdateStatus(`Version ${APP_VERSION} ist aktuell.`);
+    }
+    return meta;
+  }catch(e){
+    if(manual)setUpdateStatus(`Update-Prüfung fehlgeschlagen: ${e.message}`);
+    return null;
+  }
+}
+async function applyAppUpdate(){
+  if(updateInstallInProgress)return;
+  updateInstallInProgress=true;
+  const btn=document.getElementById("applyUpdate");
+  if(btn){btn.disabled=true;btn.textContent="Aktualisiere …"}
+  setUpdateStatus("Neue Version wird installiert …");
+  try{
+    // Cloud/local state is already persisted continuously; ensure a final local write.
+    persist({cloud:false});
+    if("serviceWorker" in navigator){
+      const reg=await registerAppServiceWorker();
+      if(reg){
+        await reg.update().catch(()=>{});
+        if(reg.waiting)reg.waiting.postMessage({type:"SKIP_WAITING"});
+      }
+    }
+    if("caches" in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.filter(k=>k.startsWith("etf-depot-andreas-")).map(k=>caches.delete(k)));
+    }
+    localStorage.removeItem(APP_UPDATE_DISMISS_KEY);
+    const url=new URL(location.href);
+    url.searchParams.set("_appv",latestAvailableVersion||Date.now().toString());
+    location.replace(url.toString());
+  }catch(e){
+    updateInstallInProgress=false;
+    if(btn){btn.disabled=false;btn.textContent="Jetzt aktualisieren"}
+    setUpdateStatus(`Update konnte nicht installiert werden: ${e.message}`);
+  }
+}
+function dismissAppUpdate(){
+  if(latestAvailableVersion)localStorage.setItem(APP_UPDATE_DISMISS_KEY,latestAvailableVersion);
+  hideUpdateBanner();
+  setUpdateStatus(`Version ${latestAvailableVersion||""} später aktualisieren.`.trim());
+}
+function scheduleAppUpdateChecks(){
+  if(appUpdateCheckTimer)clearInterval(appUpdateCheckTimer);
+  appUpdateCheckTimer=setInterval(()=>{if(document.visibilityState==="visible")checkForAppUpdate().catch(()=>{})},APP_UPDATE_CHECK_INTERVAL);
 }
 
 let localDirty=false;
@@ -656,7 +768,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.3";
+  copy.schemaVersion="1.4";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -768,10 +880,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.3"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.4"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.3");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.4");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -779,7 +891,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.3 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.4 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1148,7 +1260,7 @@ function openHistoryManager(){
  historyManagerList.querySelectorAll("button[data-hdelete]").forEach(btn=>btn.onclick=()=>{if(!confirm("Diesen Tagesstand löschen?"))return;state.history=state.history.filter(x=>x.date!==btn.dataset.hdelete);persist();render();openHistoryManager()});historyDialog.showModal();
 }
 function renderSystemSummary(){const age=state.history.length?Math.floor((new Date(isoDate(new Date()))-new Date([...state.history].sort((a,b)=>a.date.localeCompare(b.date)).at(-1).date))/86400000):999;const cloud=cloudConfigured()?"Supabase Master · Auto-Sync":"Offline-Cache · Supabase nicht angemeldet";systemSummary.textContent=`${state.history.length} Tagesstände · letzter Stand ${age===0?"heute":age===1?"gestern":`vor ${age} Tagen`} · ${cloud}`}
-function forceVersionRefresh(){if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.update()))).finally(()=>location.reload(true));else location.reload(true)}
+async function forceVersionRefresh(){const meta=await checkForAppUpdate({manual:true});if(meta&&compareVersions(meta.version,APP_VERSION)<=0)setUpdateStatus(`Version ${APP_VERSION} ist aktuell.`)}
 let deferredInstallPrompt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;installApp.hidden=false});async function installPwa(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installApp.hidden=true}
 
 
@@ -1292,7 +1404,11 @@ function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<op
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});addAudit("Ausschüttung erfasst",euro.format(amount));persist();render()}
 function exportBackup(){const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ETF-Depot-Andreas-Backup.json";a.click();URL.revokeObjectURL(a.href)}
 function importBackup(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);persist();render()}catch{alert("Ungültige Backup-Datei")}};r.readAsText(f)}
-function toggleTheme(){state.theme=state.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=state.theme;persist();renderHistory()}
+function toggleTheme(){state.theme=state.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=state.theme;
+registerAppServiceWorker().then(()=>checkForAppUpdate()).catch(()=>{});
+scheduleAppUpdateChecks();
+navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateInstallInProgress)location.reload()});
+persist();renderHistory()}
 function allocationStatus(total){return state.funds.some(f=>f.value/total>.5)?"Gewichtung prüfen":"Depot läuft planmäßig"}
 function latestDate(){return state.funds.map(f=>f.date).sort().at(-1)}
 function formatDate(s){if(!s)return"–";const[y,m,d]=s.split("-");return`${d}.${m}.${y}`}
@@ -1335,6 +1451,8 @@ document.getElementById("addDividend").onclick=openDividendDialog;
 document.getElementById("saveDividend").onclick=saveDividendEntry;
 document.getElementById("openHistoryManager").onclick=openHistoryManager;
 document.getElementById("forceRefresh").onclick=forceVersionRefresh;
+document.getElementById("applyUpdate")?.addEventListener("click",applyAppUpdate);
+document.getElementById("dismissUpdate")?.addEventListener("click",dismissAppUpdate);
 document.getElementById("installApp").onclick=installPwa;
 document.getElementById("editTargets").onclick=openTargetsDialog;
 document.getElementById("saveTargets").onclick=saveTargetWeights;
@@ -1382,10 +1500,14 @@ if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
 persist();
 
-document.documentElement.dataset.theme=state.theme;restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
+document.documentElement.dataset.theme=state.theme;
+registerAppServiceWorker().then(()=>checkForAppUpdate()).catch(()=>{});
+scheduleAppUpdateChecks();
+navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateInstallInProgress)location.reload()});
+restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
 render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.3 Persistent Login";
+document.title="ETF Depot Andreas · Version 1.4 Auto-Update";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});
@@ -1400,10 +1522,10 @@ async function resumeCloudSync(){
     if(!pendingConflict)setSyncState("synced");
   }catch(e){handleCloudError(e)}
 }
-window.addEventListener("focus",resumeCloudSync);
+window.addEventListener("focus",()=>{resumeCloudSync();checkForAppUpdate().catch(()=>{})});
 window.addEventListener("online",()=>{pushSyncLog("info","Internetverbindung wiederhergestellt.");resumeCloudSync()});
 window.addEventListener("offline",()=>{setSyncState("offline");pushSyncLog("info","Offline – Änderungen bleiben lokal in der Warteschlange.")});
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeCloudSync()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){resumeCloudSync();checkForAppUpdate().catch(()=>{})}});
 window.addEventListener("storage",e=>{if(e.key===KEY&&!localDirty){state=load();render()}});
 setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},Math.max(10,Number(state.preferences?.autoPullSeconds||15))*1000);
 setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured())heartbeatDevice().catch(()=>{})},60000);
