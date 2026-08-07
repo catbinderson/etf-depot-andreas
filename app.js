@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.0.ultimate.cache";
+const KEY="etfDepotAndreas.v1.1.refined.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -220,6 +220,28 @@ function clearHistoryData(){
   persist();render();
 }
 
+
+
+function renderBenchmarkStrip(){
+  const el=document.getElementById("benchmarkStripText");
+  if(!el)return;
+  const hist=filteredHistoryByRange();
+  const bench=benchmarkSeries();
+  if(hist.length<2||bench.length<2){
+    el.textContent="Noch keine Benchmarkdaten importiert";
+    return;
+  }
+  const bmap=new Map(bench.map(x=>[x.date,Number(x.value)]));
+  const paired=hist.map(h=>({date:h.date,p:Number(h.value),b:bmap.get(h.date)})).filter(x=>x.b);
+  if(paired.length<2){
+    el.textContent="Keine gemeinsamen Datumswerte im aktuellen Zeitraum";
+    return;
+  }
+  const p0=paired[0].p,b0=paired[0].b;
+  const pr=paired.at(-1).p/p0-1,br=paired.at(-1).b/b0-1,alpha=pr-br;
+  const name=benchmarkSelect?.options?.[benchmarkSelect.selectedIndex]?.text || "Benchmark";
+  el.textContent=`Depot ${pct.format(pr)} · ${name} ${pct.format(br)} · ${alpha>=0?"Vorsprung ":"Rückstand "}${pct.format(Math.abs(alpha))}`;
+}
 
 function renderBenchmark(){
   const b=state.benchmark||{};
@@ -511,7 +533,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.0";
+  copy.schemaVersion="1.1";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -623,10 +645,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.0"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.1"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.0");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.1");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -634,7 +656,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.0 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.1 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -990,7 +1012,7 @@ function saveBenchmarkCsv(){
   state.benchmarks[benchmarkSelect.value]=data;persist();benchmarkImportMessage.textContent=`${data.length} Benchmarkwerte importiert.`;renderBenchmark();
 }
 function renderV14Pro(){
-  renderProRisk();renderSmartInsights();renderBenchmark();
+  renderProRisk();renderSmartInsights();renderBenchmark();renderBenchmarkStrip();
 }
 
 function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value),ath=peak,maxDD=0;for(const x of hist){const v=Number(x.value);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const d=ath?totals().value/ath-1:0;distanceToHigh.textContent=pct.format(d);distanceToHigh.className=d>=0?"positive":"negative"}
@@ -1206,7 +1228,8 @@ document.getElementById("refreshInsights")?.addEventListener("click",renderSmart
 document.getElementById("askAssistant")?.addEventListener("click",()=>askDepotAssistant());
 document.getElementById("assistantInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")askDepotAssistant()});
 document.querySelectorAll(".assistant-chips button").forEach(b=>b.addEventListener("click",()=>askDepotAssistant(b.dataset.question)));
-document.getElementById("benchmarkSelect")?.addEventListener("change",renderBenchmark);
+document.getElementById("benchmarkSelect")?.addEventListener("change",()=>{renderBenchmark();renderBenchmarkStrip()});
+document.getElementById("benchmarkStripButton")?.addEventListener("click",()=>document.getElementById("benchmarkSection")?.scrollIntoView({behavior:"smooth",block:"start"}));
 document.getElementById("openBenchmarkImport")?.addEventListener("click",()=>benchmarkDialog.showModal());
 document.getElementById("closeBenchmarkDialog")?.addEventListener("click",()=>benchmarkDialog.close());
 document.getElementById("saveBenchmarkCsv")?.addEventListener("click",saveBenchmarkCsv);
@@ -1234,7 +1257,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.0 ULTIMATE";
+document.title="ETF Depot Andreas · Version 1.1";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

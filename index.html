@@ -9,17 +9,17 @@
 <meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=1.0.0" rel="stylesheet"/>
-<title>ETF Depot Andreas · Version 1.0 ULTIMATE FINAL</title>
+<link href="styles.css?v=1.1.0" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 1.1</title>
 </head>
 <body>
 <div class="app">
 <header class="hero">
 <div>
-<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.0 ULTIMATE</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Stable</span></div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.1</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Refined</span></div>
 <h1>ETF Depot Andreas</h1>
 <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
-<div class="hero-dashboard-summary">
+<div class="hero-dashboard-summary hero-dashboard-summary-right">
 <div class="hero-stat hero-stat-main">
 <span>Depotwert</span><strong id="heroDepotValue">–</strong>
 </div>
@@ -59,30 +59,21 @@
 <button class="secondary" id="refreshFx">Kurs aktualisieren</button>
 </div>
 </section><section class="kpi-grid" id="dashboardKpis">
-<article class="card kpi main-kpi kpi-compact-primary">
+<article class="card kpi main-kpi kpi-compact-primary kpi-xl">
 <span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
 </article>
-<article class="card kpi">
+<article class="card kpi kpi-md">
 <span>Gewinn seit Eröffnung</span><strong id="totalGain">–</strong><small id="totalGainPct">–</small>
 </article>
-<article class="card kpi">
+<article class="card kpi kpi-md">
 <span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
 </article>
-</section><section class="daily-grid" id="dailySection">
-<article class="card daily-card"><span>Tagesgewinn</span><strong id="dailyGainEuro">–</strong><small>Gegenüber dem letzten gespeicherten Stand</small></article>
-<article class="card daily-card"><span>Tagesrendite</span><strong id="dailyGainPct">–</strong><small>Einzahlungen werden soweit möglich herausgerechnet</small></article>
-<article class="card daily-card"><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
-<article class="card daily-card"><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
-</section><div class="dashboard-section-heading" id="performanceHeading">
-<div><span class="eyebrow">Performance</span><h2>Performance</h2></div>
-<small>Heute · Woche · Monat · Jahr</small>
-</div><section class="performance-grid" id="performanceSection">
-<article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
-<article class="card performance"><span>Letzte 7 Tage</span><strong id="return7d">–</strong><small id="return7dInfo">Stand von vor 7 Tagen erforderlich</small></article>
-<article class="card performance"><span>Aktuelle Woche</span><strong id="returnWeek">–</strong><small id="returnWeekInfo">Stand vom Wochenbeginn erforderlich</small></article>
-<article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
-<article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
-<article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
+</section><section class="benchmark-strip" id="benchmarkStrip">
+<div>
+<span class="eyebrow">Benchmark-Schnellvergleich</span>
+<strong id="benchmarkStripText">Noch keine Benchmarkdaten importiert</strong>
+</div>
+<button class="secondary" id="benchmarkStripButton">Benchmark öffnen</button>
 </section><section class="card chart-dashboard-card" id="chartsSection">
 <div class="section-head">
 <div><span class="eyebrow">Performance-Charts</span><h2>Depotentwicklung &amp; Analyse</h2></div>
@@ -121,6 +112,21 @@
 <div class="fund-heatmap" id="fundHeatmap"></div>
 <p class="hint">Je kräftiger die Fläche, desto stärker die absolute Performance. Grün steht für Gewinn, Rot für Verlust; neutral bleibt dunkel.</p>
 </div>
+</section><section class="daily-grid" id="dailySection">
+<article class="card daily-card"><span>Tagesgewinn</span><strong id="dailyGainEuro">–</strong><small>Gegenüber dem letzten gespeicherten Stand</small></article>
+<article class="card daily-card"><span>Tagesrendite</span><strong id="dailyGainPct">–</strong><small>Einzahlungen werden soweit möglich herausgerechnet</small></article>
+<article class="card daily-card etf-highlight etf-best"><span class="etf-card-icon">↗</span><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
+<article class="card daily-card etf-highlight etf-worst"><span class="etf-card-icon">↘</span><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
+</section><div class="dashboard-section-heading" id="performanceHeading">
+<div><span class="eyebrow">Performance</span><h2>Performance</h2></div>
+<small>Heute · Woche · Monat · Jahr</small>
+</div><section class="performance-grid" id="performanceSection">
+<article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
+<article class="card performance"><span>Letzte 7 Tage</span><strong id="return7d">–</strong><small id="return7dInfo">Stand von vor 7 Tagen erforderlich</small></article>
+<article class="card performance"><span>Aktuelle Woche</span><strong id="returnWeek">–</strong><small id="returnWeekInfo">Stand vom Wochenbeginn erforderlich</small></article>
+<article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
+<article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
+<article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
 </section><section class="two-col wide-left" id="portfolioSection">
 <article class="card">
 <div class="section-head"><div><span class="eyebrow">Portfolio</span><h2>Deine Positionen</h2></div><span class="status" id="statusBadge">Planmäßig</span></div>
@@ -554,6 +560,6 @@
 <button id="closeVersionInfoBottom">Schließen</button>
 </div>
 </dialog>
-<script src="app.js?v=1.0.0"></script>
+<script src="app.js?v=1.1.0"></script>
 </body>
 </html>

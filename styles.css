@@ -677,3 +677,120 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
     grid-template-columns:1fr 1fr!important;
   }
 }
+
+
+/* ==========================================================
+   VERSION 1.1 – REFINED DASHBOARD
+   ========================================================== */
+
+/* Header niedriger und Kennzahlen rechts */
+.hero{
+  grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr) auto!important;
+  padding:13px 18px!important;
+  min-height:0!important;
+}
+.hero h1{font-size:36px!important}
+.hero-dashboard-summary-right{
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  max-width:none!important;
+  margin:0!important;
+  grid-template-columns:1fr 1fr!important;
+}
+.hero-dashboard-summary-right .hero-stat{padding:7px 9px!important}
+.hero-dashboard-summary-right .hero-stat-main strong{font-size:18px!important}
+.hero-dashboard-summary-right .hero-stat strong{font-size:14px!important}
+
+/* KPI-Hierarchie */
+#dashboardKpis{
+  grid-template-columns:1.25fr .95fr .95fr!important;
+}
+#dashboardKpis .kpi-xl{
+  min-height:136px!important;
+  background:linear-gradient(135deg,#17365D,#2c6ca6)!important;
+  box-shadow:0 18px 42px rgba(23,54,93,.20)!important;
+}
+#dashboardKpis .kpi-xl strong{font-size:38px!important}
+#dashboardKpis .kpi-md{min-height:126px!important}
+#dashboardKpis .kpi-md strong{font-size:32px!important}
+
+/* ETF-Karten lebendiger */
+.etf-highlight{position:relative;overflow:hidden}
+.etf-card-icon{
+  position:absolute;
+  top:10px;right:12px;
+  width:28px;height:28px;
+  display:grid;place-items:center;
+  border-radius:50%;
+  font-size:15px;font-weight:900;
+}
+.etf-best .etf-card-icon{background:rgba(34,197,94,.14);color:#22c55e}
+.etf-worst .etf-card-icon{background:rgba(239,68,68,.12);color:#ef4444}
+
+/* Benchmark-Schnellvergleich */
+.benchmark-strip{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:16px 0 10px;
+  padding:11px 14px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:linear-gradient(90deg,var(--panel2),var(--card));
+}
+.benchmark-strip strong{
+  display:block;
+  margin-top:2px;
+  font-size:13px;
+}
+.benchmark-strip button{flex:0 0 auto}
+
+/* Charts früher und prominenter */
+#chartsSection{
+  margin-top:10px!important;
+  box-shadow:0 18px 45px rgba(15,23,42,.08)!important;
+}
+
+/* Rahmen sanfter, Schatten subtiler */
+.card,
+#performanceSection,
+.benchmark-strip{
+  border-color:color-mix(in srgb,var(--line) 72%,transparent)!important;
+}
+.card{
+  box-shadow:0 10px 28px rgba(15,23,42,.035);
+}
+
+/* Mobile */
+@media(max-width:600px){
+  .hero{
+    grid-template-columns:1fr!important;
+    padding:12px!important;
+  }
+  .hero-dashboard-summary-right{
+    grid-column:1!important;
+    grid-row:auto!important;
+    margin-top:9px!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+  .hero h1{font-size:28px!important}
+  #dashboardKpis{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #dashboardKpis .kpi-xl{
+    grid-column:1/-1!important;
+    min-height:104px!important;
+  }
+  #dashboardKpis .kpi-xl strong{font-size:28px!important}
+  #dashboardKpis .kpi-md{min-height:94px!important}
+  #dashboardKpis .kpi-md strong{font-size:22px!important}
+  .benchmark-strip{
+    align-items:flex-start;
+    padding:10px 11px;
+  }
+  .benchmark-strip strong{font-size:11px}
+  .benchmark-strip button{padding:7px 8px!important;font-size:10px!important}
+}

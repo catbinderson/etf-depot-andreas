@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 1.0 ULTIMATE",
-  "short_name": "ETF Depot 1.0",
+  "name": "ETF Depot Andreas Version 1.1",
+  "short_name": "ETF Depot 1.1",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "First Stable Release: Cloud-Depot mit Supabase-Sync, Analytics, Charts, Smart Insights, Depot-Assistent, Benchmark und optimiertem Mac/iPhone/iPad-Layout."
+  "description": "Refined Release mit kompakterem Header, stärkerer KPI-Hierarchie, früher platzierten Charts, ETF-Hervorhebung und Benchmark-Schnellvergleich."
 }
