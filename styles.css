@@ -107,3 +107,36 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
 .cloud-master-note{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:13px;background:var(--blue2);color:var(--muted);font-size:12px;line-height:1.45}
 .cloud-master-note strong{color:var(--ink)}
 .cloud-card{border-color:color-mix(in srgb,var(--green) 26%,var(--line))}
+
+
+/* Version 10 Professional Cloud */
+.v10-grid .card{min-height:260px}
+.rebalance-list{display:grid;gap:10px;margin-top:14px}
+.rebalance-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.rebalance-row strong{display:block}.rebalance-row small{display:block;color:var(--muted);margin-top:4px}
+.drift{font-weight:800;white-space:nowrap}.drift.over{color:#b45309}.drift.under{color:#2563eb}.drift.ok{color:var(--green)}
+.rebalance-summary{display:flex;justify-content:space-between;gap:12px;padding:14px;margin-top:12px;border-radius:14px;background:var(--blue2)}
+.rebalance-summary strong{text-align:right}
+.v10-analytics{margin-top:14px}
+.target-rows{display:grid;gap:10px;margin:16px 0}
+.target-row{display:grid;grid-template-columns:1fr 110px 20px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.target-row input{width:100%}
+.audit-item .fund{font-weight:700}
+.report-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.report-preview>div{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.report-preview span{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.report-preview strong{font-size:20px}
+@media(max-width:720px){
+  .rebalance-row{align-items:flex-start;flex-direction:column}
+  .target-row{grid-template-columns:1fr 90px 16px}
+  .report-preview{grid-template-columns:1fr}
+}
+@media print{
+  nav.actions,.round,.secondary,.primary,.danger-button,.dialog-actions,.upload,.release-actions,#cloudSettings,#syncNow,#openEdit,#saveSnapshot,#exportBtn,#exportCsv,#printReport,#refreshFx,#editTargets,#clearAudit,#printReportCard{display:none!important}
+  body{background:#fff!important;color:#111!important}
+  .app{max-width:none!important;padding:0!important}
+  .hero,.card{break-inside:avoid;box-shadow:none!important;border:1px solid #bbb!important;background:#fff!important;color:#111!important}
+  .hero{background:#17365D!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card strong,.card h2,.card span,.card p,.card small{color:inherit}
+  .positive{color:#087f3d!important}.negative{color:#b42318!important}
+}

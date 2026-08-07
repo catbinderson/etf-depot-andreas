@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v9_1.cache";
+const KEY="etfDepotAndreas.v10.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -12,9 +12,12 @@ const DEFAULTS={
   {name:"Dimensional World Equity",isin:"IE00B53RD369",units:1191.018192,value:46652.18,gain:13652.18,ytd:6672.54,monthly:600,date:"2026-08-04",costBasis:33000.00,ytdBasis:39979.64},
   {name:"Amundi Robotics & AI",isin:"LU1861132840",units:179.753899,value:26136.49,gain:9665.62,ytd:5692.59,monthly:300,date:"2026-08-04",costBasis:16470.87,ytdBasis:20443.90}
  ],
- history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0
+ history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0,
+ targets:[40,40,20],
+ audit:[],
+ preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15}
 };
-const old=localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -27,7 +30,7 @@ const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})},targets:Array.isArray(x.targets)?x.targets:[40,40,20],audit:Array.isArray(x.audit)?x.audit:[],preferences:{...DEFAULTS.preferences,...(x.preferences||{})}}}catch{return clone(DEFAULTS)}}
 function persist(options={}){
   localStorage.setItem(KEY,JSON.stringify(state));
   if(options.cloud===false||applyingRemote)return;
@@ -46,7 +49,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderSystemSummary();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSystemSummary();
 }
 
 function renderDailySummary(current){
@@ -206,7 +209,7 @@ function openBenchmarkDialog(){
 }
 function saveBenchmarkData(){
   state.benchmark={name:benchmarkName.value||"MSCI World",start:Number(benchmarkStart.value||0),current:Number(benchmarkCurrent.value||0),date:benchmarkDate.value};
-  persist();render();
+  addAudit("Benchmark aktualisiert",state.benchmark.name);persist();render();
 }
 function renderMonthlyReport(){
   const now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),1),hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
@@ -234,7 +237,7 @@ function saveContributionData(){
   const amount=Number(contributionAmount.value||0);if(amount<=0)return;
   state.contributions=state.contributions||[];
   state.contributions.push({amount,date:contributionDate.value,note:contributionNote.value});
-  persist();render();
+  addAudit("Einzahlung erfasst",euro.format(amount));persist();render();
 }
 function renderHealth(){
   const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
@@ -397,7 +400,7 @@ async function loginCloud(){
     cloudDialogMessage.textContent="Angemeldet. Der zentrale Cloud-Datenstand wird geladen …";
     await bootstrapCloud(true);
     render();
-    cloudDialogMessage.textContent="Verbunden. Künftige Änderungen werden automatisch synchronisiert.";
+    addAudit("Supabase verbunden",state.cloud.email);persist();cloudDialogMessage.textContent="Verbunden. Künftige Änderungen werden automatisch synchronisiert.";
   }catch(e){cloudDialogMessage.textContent="Fehler: "+e.message}
 }
 function storeSession(body){
@@ -408,6 +411,7 @@ function storeSession(body){
   persist({cloud:false});
 }
 function logoutCloud(){
+  addAudit("Supabase abgemeldet",state.cloud.email||"");
   state.cloud.accessToken="";state.cloud.refreshToken="";state.cloud.userId="";state.cloud.lastSync="";
   localDirty=false;
   persist({cloud:false});renderCloudStatus();cloudDialogMessage.textContent="Abgemeldet. Der letzte Datenstand bleibt nur als Offline-Cache auf diesem Gerät.";
@@ -421,7 +425,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="9.1";
+  copy.schemaVersion="10.0";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -582,6 +586,86 @@ function renderSystemSummary(){const age=state.history.length?Math.floor((new Da
 function forceVersionRefresh(){if("serviceWorker" in navigator)navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.update()))).finally(()=>location.reload(true));else location.reload(true)}
 let deferredInstallPrompt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;installApp.hidden=false});async function installPwa(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;installApp.hidden=true}
 
+
+function addAudit(action,detail=""){
+  state.audit=Array.isArray(state.audit)?state.audit:[];
+  state.audit.unshift({ts:new Date().toISOString(),action,detail});
+  state.audit=state.audit.slice(0,80);
+}
+function renderAudit(){
+  const items=(state.audit||[]).slice(0,12);
+  auditList.innerHTML=items.length?items.map(x=>`<div class="calendar-item audit-item"><div class="date">${new Date(x.ts).toLocaleString("de-DE")}</div><div class="fund">${x.action}${x.detail?` · ${x.detail}`:""}</div></div>`).join(""):'<div class="calendar-empty">Noch keine Änderungen protokolliert.</div>';
+}
+function clearAuditLog(){
+  if(!confirm("Änderungsprotokoll wirklich leeren?"))return;
+  state.audit=[];persist();renderAudit();
+}
+function ensureTargets(){
+  if(!Array.isArray(state.targets)||state.targets.length!==state.funds.length){
+    state.targets=state.funds.map((_,i)=>i===0?40:i===1?40:20);
+  }
+}
+function openTargetsDialog(){
+  ensureTargets();
+  targetRows.innerHTML=state.funds.map((f,i)=>`<label class="target-row"><span>${f.name}</span><input data-target-i="${i}" type="number" min="0" max="100" step="0.1" value="${Number(state.targets[i]||0).toFixed(1)}"><b>%</b></label>`).join("");
+  targetsDialog.showModal();
+}
+function saveTargetWeights(){
+  const vals=[...targetRows.querySelectorAll("input[data-target-i]")].map(x=>Number(x.value||0));
+  const sum=vals.reduce((a,b)=>a+b,0);
+  if(Math.abs(sum-100)>0.11){alert(`Die Zielgewichtungen ergeben ${sum.toFixed(1)} %. Bitte auf 100 % korrigieren.`);return}
+  state.targets=vals;
+  addAudit("Zielgewichtungen geändert",vals.map(v=>v.toFixed(1)+" %").join(" / "));
+  persist();render();
+}
+function renderV10Intelligence(){
+  ensureTargets();
+  const t=totals(), total=t.value||1;
+  const rows=state.funds.map((f,i)=>{
+    const actual=Number(f.value||0)/total*100,target=Number(state.targets[i]||0),drift=actual-target;
+    return{f,i,actual,target,drift};
+  });
+  rebalanceList.innerHTML=rows.map(r=>`<div class="rebalance-row">
+    <div><strong>${r.f.name}</strong><small>Ziel ${r.target.toFixed(1)} % · Ist ${r.actual.toFixed(1)} %</small></div>
+    <div class="drift ${r.drift>0.5?"over":r.drift<-0.5?"under":"ok"}">${r.drift>0?"+":""}${r.drift.toFixed(2)} %-Pkt.</div>
+  </div>`).join("");
+  const worst=[...rows].sort((a,b)=>Math.abs(b.drift)-Math.abs(a.drift))[0];
+  maxAllocationDrift.textContent=worst?`${worst.f.name}: ${worst.drift>0?"+":""}${worst.drift.toFixed(2)} %-Pkt.`:"–";
+  const under=[...rows].sort((a,b)=>a.drift-b.drift)[0];
+  const monthly=state.funds.reduce((s,f)=>s+Number(f.monthly||0),0);
+  nextSavingsRecommendation.textContent=under&&monthly?`${euro.format(monthly)} bevorzugt in ${under.f.name}`:"–";
+  rebalanceHint.textContent=under&&under.drift<-.5?`${under.f.name} ist am stärksten untergewichtet. Eine zusätzliche Sparrate würde die Zielverteilung annähern.`:"Die aktuelle Verteilung liegt nahe an deinen Zielgewichten.";
+
+  const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  if(hist.length){
+    const first=Number(hist[0].value||0),current=t.value, startDate=new Date(hist[0].date+"T12:00:00");
+    const years=Math.max((Date.now()-startDate.getTime())/(365.25*86400000),1/365.25);
+    const since=first?current/first-1:null;
+    const cagr=first&&years>0?Math.pow(current/first,1/years)-1:null;
+    setReturn(v10SinceStart,since);
+    setReturn(v10Cagr,cagr);
+    const ath=Math.max(current,...hist.map(x=>Number(x.value||0)));
+    v10Ath.textContent=euro.format(ath);
+    setReturn(v10AthDistance,ath?current/ath-1:null);
+  }else{
+    v10SinceStart.textContent=v10Cagr.textContent=v10Ath.textContent=v10AthDistance.textContent="–";
+  }
+}
+function renderReportPreview(){
+  const t=totals();
+  reportDepotValue.textContent=euro.format(t.value);
+  reportTotalGain.textContent=euro.format(t.gain);reportTotalGain.className=t.gain>=0?"positive":"negative";
+  reportTotalReturn.textContent=pct.format(t.ret);reportTotalReturn.className=t.ret>=0?"positive":"negative";
+  reportCloudState.textContent=cloudConfigured()?(localDirty?"Synchronisierung läuft":"Synchronisiert"):"Offline";
+}
+function printDepotReport(){
+  addAudit("Depotbericht erstellt",euro.format(totals().value));
+  persist();
+  document.documentElement.classList.add("printing-report");
+  window.print();
+  setTimeout(()=>document.documentElement.classList.remove("printing-report"),300);
+}
+
 function openEditor(){
   document.getElementById("simpleValueRows").innerHTML=state.funds.map((f,i)=>`
     <section class="simple-value-row">
@@ -612,13 +696,14 @@ function applyEditor(){
     state.funds[i][k]=k==="date"?inp.value:Number(inp.value||0);
   });
   recalculateFundMetrics();
+  addAudit("Depotwerte aktualisiert",euro.format(totals().value));
   persist();
   render();
   if(cloudConfigured())syncToCloud().catch(()=>{});
 }
-function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")}
+function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});addAudit("Tagesstand gespeichert",`${formatDate(today)} · ${euro.format(value)}`);persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")}
 function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());document.getElementById("dividendDialog").showModal()}
-function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});persist();render()}
+function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});addAudit("Ausschüttung erfasst",euro.format(amount));persist();render()}
 function exportBackup(){const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ETF-Depot-Andreas-Backup.json";a.click();URL.revokeObjectURL(a.href)}
 function importBackup(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);persist();render()}catch{alert("Ungültige Backup-Datei")}};r.readAsText(f)}
 function toggleTheme(){state.theme=state.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=state.theme;persist();renderHistory()}
@@ -657,6 +742,11 @@ document.getElementById("saveDividend").onclick=saveDividendEntry;
 document.getElementById("openHistoryManager").onclick=openHistoryManager;
 document.getElementById("forceRefresh").onclick=forceVersionRefresh;
 document.getElementById("installApp").onclick=installPwa;
+document.getElementById("editTargets").onclick=openTargetsDialog;
+document.getElementById("saveTargets").onclick=saveTargetWeights;
+document.getElementById("clearAudit").onclick=clearAuditLog;
+document.getElementById("printReport").onclick=printDepotReport;
+document.getElementById("printReportCard").onclick=printDepotReport;
 document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
 document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
 document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
@@ -667,7 +757,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 9.1";
+document.title="ETF Depot Andreas · Version 10.0";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});
@@ -683,5 +773,5 @@ window.addEventListener("focus",resumeCloudSync);
 window.addEventListener("online",resumeCloudSync);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeCloudSync()});
 window.addEventListener("storage",e=>{if(e.key===KEY&&!localDirty){state=load();render()}});
-setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},30000);
+setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},15000);
 bootstrapCloud(false);

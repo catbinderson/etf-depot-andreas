@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=9.1.0">
-  <title>ETF Depot Andreas · Version 9.1</title>
+  <link rel="stylesheet" href="styles.css?v=10.0.0">
+  <title>ETF Depot Andreas · Version 10.0</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 9.1</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V9.1 Cloud First</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10 Professional Cloud</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -25,18 +25,18 @@
   <nav class="actions">
     <button id="openEdit" class="primary">Werte aktualisieren</button>
     <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt abgleichen</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button>
+    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt abgleichen</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
 
   <main>
     <section class="card automation-note">
-      <div><span class="eyebrow">Version 9.1 – Cloud First</span><h2>Einmal erfassen – auf allen Geräten aktuell</h2></div>
+      <div><span class="eyebrow">Version 10 – Professional Cloud</span><h2>Dein Depot als professionelle Cloud-App</h2></div>
       <div class="automation-steps">
-        <span>1. Auf einem Gerät erfassen</span><span>2. Automatisch zu Supabase</span><span>3. Mac & iPhone gleichen sich ab</span>
+        <span>1. Einmal erfassen</span><span>2. Supabase synchronisiert</span><span>3. Analyse & Rebalancing automatisch</span>
       </div>
-      <p>Supabase ist nach der Anmeldung die führende Datenquelle. Änderungen werden automatisch gespeichert und auf Mac, iPhone und iPad geladen. Der lokale Speicher dient nur noch als Offline-Zwischenspeicher.</p>
-      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Offline-Cache</span><span>Session-Refresh</span><span>Retina-Charts</span></div>
+      <p>Supabase bleibt die führende Datenquelle. Version 10 ergänzt Zielgewichtungen, Rebalancing-Hilfe, Performance-Analyse, Änderungsprotokoll und druckbare Monats-/Depotberichte – mit demselben Datenstand auf Mac, iPhone und iPad.</p>
+      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Rebalancing</span><span>Performance</span><span>Audit-Log</span><span>PDF-Druck</span><span>Retina-Charts</span></div>
     </section>
     <section class="fx-strip card">
       <div>
@@ -267,13 +267,62 @@
       </article>
     </section>
 
+
+    <section class="two-col v10-grid">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Version 10 · Rebalancing</span><h2>Zielgewichtungen</h2></div>
+          <button id="editTargets" class="secondary">Ziele bearbeiten</button>
+        </div>
+        <div id="rebalanceList" class="rebalance-list"></div>
+        <div class="rebalance-summary">
+          <span>Größte Abweichung</span><strong id="maxAllocationDrift">–</strong>
+        </div>
+        <p id="rebalanceHint" class="hint">Die nächste Sparrate kann gezielt in untergewichtete Positionen fließen.</p>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">Portfolio Intelligence</span><h2>Performance auf einen Blick</h2>
+        <div class="analytics-grid v10-analytics">
+          <div><span>Seit Start</span><strong id="v10SinceStart">–</strong></div>
+          <div><span>CAGR</span><strong id="v10Cagr">–</strong></div>
+          <div><span>Allzeithoch</span><strong id="v10Ath">–</strong></div>
+          <div><span>Abstand ATH</span><strong id="v10AthDistance">–</strong></div>
+        </div>
+        <div class="info-box"><span>Empfohlene nächste Sparrate</span><strong id="nextSavingsRecommendation">–</strong></div>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Cloud-Aktivität</span><h2>Änderungsprotokoll</h2></div>
+          <button id="clearAudit" class="secondary">Protokoll leeren</button>
+        </div>
+        <div id="auditList" class="calendar-list"></div>
+        <p class="hint">Wichtige Änderungen werden im gemeinsamen Supabase-Datenstand mitgeführt.</p>
+      </article>
+
+      <article class="card">
+        <span class="eyebrow">Bericht</span><h2>Depotbericht erstellen</h2>
+        <div class="report-preview">
+          <div><span>Depotwert</span><strong id="reportDepotValue">–</strong></div>
+          <div><span>Gesamtgewinn</span><strong id="reportTotalGain">–</strong></div>
+          <div><span>Gesamtrendite</span><strong id="reportTotalReturn">–</strong></div>
+          <div><span>Cloud-Stand</span><strong id="reportCloudState">–</strong></div>
+        </div>
+        <button id="printReportCard" class="primary">Bericht drucken / als PDF sichern</button>
+        <p class="hint">Im Druckdialog des Browsers kannst du „Als PDF sichern“ auswählen.</p>
+      </article>
+    </section>
+
     <section class="card release-card">
-      <div><span class="eyebrow">Version 9.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+      <div><span class="eyebrow">Version 10.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
       <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
     </section>
   </main>
 
-  <footer>ETF Depot Andreas · Version 9.1 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 10.0 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
 </div>
 
 <dialog id="editDialog">
@@ -335,6 +384,16 @@
 </dialog>
 
 
+
+<dialog id="targetsDialog">
+  <form method="dialog" class="dialog-card">
+    <div class="section-head"><div><span class="eyebrow">Version 10</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
+    <p class="hint">Die Summe sollte 100 % ergeben. Version 10 berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
+    <div id="targetRows" class="target-rows"></div>
+    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveTargets" value="default" class="primary">Ziele speichern</button></div>
+  </form>
+</dialog>
+
 <dialog id="cloudDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head">
@@ -367,6 +426,6 @@
     <div class="dialog-actions"><button value="cancel">Schließen</button></div>
   </form>
 </dialog>
-<script src="app.js?v=9.1.0"></script>
+<script src="app.js?v=10.0.0"></script>
 </body>
 </html>

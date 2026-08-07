@@ -1,4 +1,4 @@
--- ETF Depot Andreas Version 9.1 – Cloud-First Supabase Einrichtung
+-- ETF Depot Andreas Version 10.0 – Cloud-First Supabase Einrichtung
 -- Ein Datensatz pro angemeldetem Benutzer ist der zentrale Master-Datenstand.
 -- Das Skript kann erneut ausgeführt werden.
 
@@ -9,7 +9,7 @@ create table if not exists public.portfolio_sync (
 );
 
 alter table public.portfolio_sync
-  add column if not exists schema_version text not null default '9.1';
+  add column if not exists schema_version text not null default '10.0';
 
 alter table public.portfolio_sync enable row level security;
 
@@ -36,3 +36,5 @@ using (auth.uid() = user_id);
 
 create index if not exists portfolio_sync_updated_at_idx
 on public.portfolio_sync(updated_at desc);
+
+-- Version 10 speichert Zielgewichtungen und Audit-Protokoll innerhalb von portfolio_data (JSONB).
