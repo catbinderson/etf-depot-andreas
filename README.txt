@@ -1,34 +1,21 @@
-ETF DEPOT ANDREAS – VERSION 14 PRO
-Analytics & Intelligence
+ETF DEPOT ANDREAS – VERSION 14 PRO · DASHBOARD 2.0
 
-Neu
----
-- alle Charts und Cloud-Funktionen aus Version 13
-- Profi-Risikokennzahlen: Volatilität, Sharpe Ratio, Gewinntage, bester/schlechtester Tag
-- Smart Insights: automatische lokale Auswertung des Depots
-- Depot-Assistent für Fragen zu Rendite, ETFs, Drawdown, Volatilität, Sharpe Ratio, Kapital und Zielprognosen
-- Benchmark-Vergleich gegen MSCI World, MSCI ACWI oder S&P 500
-- Benchmarkdaten werden bewusst nicht erfunden: Import als CSV date,value
-- mobile Bottom-Navigation für iPhone
-- nochmals verkleinerter Synchronisationsstatus auf dem iPhone
-- Supabase bleibt zentraler Master-Datenstand
-- Benchmarkdaten werden im bestehenden Portfolio-JSON mit synchronisiert
+Neu strukturiert:
+- kompakter Header mit Depotwert, Gesamtgewinn und Cloudstatus
+- Versionsdetails nur noch über „Was ist neu?“
+- Performance als eigener kompakter Bereich
+- Charts deutlich weiter oben
+- Portfolio direkt nach den Charts
+- Smart Insights und Depot-Assistent als klarer Analyseblock
+- großer Benchmarkbereich
+- Cloudtechnik weiter unten
+- aufgeräumte Aktionsleiste
+- iPhone: kompakter Header, kleine Sync-Anzeige, Bottom Navigation
 
-Wichtig
--------
-Der Depot-Assistent arbeitet lokal und regelbasiert mit den eigenen Depotdaten.
-Er sendet keine Depotdaten an einen externen KI-Dienst.
+Technische Bereinigung:
+- doppelte HTML-IDs aus Risiko- und Benchmarkbereichen beseitigt
+- neuer Cache-Key / Service-Worker-Cache
+- bestehende Supabase-Daten bleiben kompatibel
 
-Benchmark-CSV
--------------
-Beispiel:
-date,value
-2026-01-02,100
-2026-01-03,100.6
-
-Es ist kein neues Supabase-SQL erforderlich.
-
-Installation
-------------
-ZIP entpacken, Inhalt ins Root des GitHub-Repositories hochladen, vorhandene Dateien ersetzen,
-Commit durchführen und GitHub Pages Deployment abwarten.
+Supabase:
+Keine neue SQL-Einrichtung erforderlich.

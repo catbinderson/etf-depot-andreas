@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v14pro.cache";
+const KEY="etfDepotAndreas.v14pro.dashboard2.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -63,7 +63,18 @@ function totals(){
   const cost=state.funds.reduce((s,f)=>s+Number(f.costBasis||0),0);
   return{value,gain,ytd,cost,ret:cost?gain/cost:0}
 }
-function render(){
+
+function renderHeroDashboard(){
+  const t=totals();
+  const valueEl=document.getElementById("heroDepotValue");
+  const gainEl=document.getElementById("heroGainValue");
+  const pctEl=document.getElementById("heroGainPct");
+  if(valueEl)valueEl.textContent=euro.format(t.value);
+  if(gainEl){gainEl.textContent=euro.format(t.gain);gainEl.className=t.gain>=0?"positive":"negative";}
+  if(pctEl)pctEl.textContent=t.cost?pct.format(t.gain/t.cost):"–";
+}
+
+function render(){renderHeroDashboard();
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
@@ -897,10 +908,10 @@ function advancedRiskMetrics(){
 function renderProRisk(){
   const m=advancedRiskMetrics();
   annualVolatility.textContent=m.vol==null?"–":pct.format(m.vol);
-  sharpeRatio.textContent=m.sharpe==null?"–":m.sharpe.toFixed(2);
+  proSharpeRatio.textContent=m.sharpe==null?"–":m.sharpe.toFixed(2);
   winDayRate.textContent=m.winRate==null?"–":pct.format(m.winRate);
-  bestDay.textContent=m.best?`${pct.format(m.best.r)} · ${formatDate(m.best.date)}`:"–";
-  worstDay.textContent=m.worst?`${pct.format(m.worst.r)} · ${formatDate(m.worst.date)}`:"–";
+  proBestDay.textContent=m.best?`${pct.format(m.best.r)} · ${formatDate(m.best.date)}`:"–";
+  proWorstDay.textContent=m.worst?`${pct.format(m.worst.r)} · ${formatDate(m.worst.date)}`:"–";
   riskDataPoints.textContent=String(m.n);
 }
 function insightData(){
@@ -957,7 +968,7 @@ function renderBenchmark(){
   const hist=filteredHistoryByRange(),bench=benchmarkSeries();
   if(hist.length<2||bench.length<2){
     drawEmptyChart(canvas,"Benchmarkdaten importieren, um den Vergleich zu aktivieren");
-    portfolioBenchmarkReturn.textContent=benchmarkReturn.textContent=benchmarkAlpha.textContent="–";
+    proPortfolioBenchmarkReturn.textContent=proBenchmarkReturn.textContent=benchmarkAlpha.textContent="–";
     benchmarkHint.textContent="Für einen echten Vergleich importierst du Benchmarkdaten als CSV mit den Spalten date,value. Die App erfindet keine historischen Indexwerte.";
     return;
   }
@@ -967,7 +978,7 @@ function renderBenchmark(){
   const p0=paired[0].p,b0=paired[0].b;
   const norm=paired.map(x=>({date:x.date,p:x.p/p0*100,b:x.b/b0*100}));
   const pr=norm.at(-1).p/100-1,br=norm.at(-1).b/100-1,alpha=pr-br;
-  portfolioBenchmarkReturn.textContent=pct.format(pr);benchmarkReturn.textContent=pct.format(br);benchmarkAlpha.textContent=(alpha>=0?"+":"")+pct.format(alpha);benchmarkAlpha.className=alpha>=0?"positive":"negative";
+  proPortfolioBenchmarkReturn.textContent=pct.format(pr);proBenchmarkReturn.textContent=pct.format(br);benchmarkAlpha.textContent=(alpha>=0?"+":"")+pct.format(alpha);benchmarkAlpha.className=alpha>=0?"positive":"negative";
   benchmarkHint.textContent=`Vergleich ab ${formatDate(norm[0].date)} · Startwert beider Reihen = 100`;
   const {ctx,w,h}=canvasSetup(canvas),th=chartTheme(),p=54,vals=norm.flatMap(x=>[x.p,x.b]),min=Math.min(...vals),max=Math.max(...vals),span=Math.max(1,max-min);
   ctx.clearRect(0,0,w,h);drawGrid(ctx,w,h,p,min,max,v=>v.toFixed(0));
@@ -1223,7 +1234,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 14 PRO";
+document.title="ETF Depot Andreas · Version 14 PRO Dashboard 2.0";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

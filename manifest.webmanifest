@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 14 PRO",
-  "short_name": "ETF Depot V14",
+  "name": "ETF Depot Andreas Version 14 PRO Dashboard 2.0",
+  "short_name": "ETF Depot PRO",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Cloud-Portfolio-App mit Charts, Profi-Risikokennzahlen, Smart Insights, lokalem Depot-Assistenten, Benchmark-Vergleich und Supabase-Sync."
+  "description": "Neu strukturiertes Portfolio-Dashboard mit Cloud-Sync, Charts, Analytics, Smart Insights, Depot-Assistent und Benchmark."
 }

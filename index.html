@@ -1,623 +1,570 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#17365D">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=14.0.0">
-  <title>ETF Depot Andreas · Version 14 PRO</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#17365D" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="icon-192.png" rel="apple-touch-icon"/>
+<link href="styles.css?v=14.1.0" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 14 PRO Dashboard 2.0</title>
 </head>
 <body>
 <div class="app">
-  <header class="hero">
-    <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 14 PRO</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V14 PRO Analytics & Intelligence</span></div>
-      <h1>ETF Depot Andreas</h1>
-      <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
-    </div>
-    <div id="liveCloudStatus" class="live-cloud-status offline" title="Cloud-Status">
-        <span class="cloud-dot"></span>
-        <span id="liveCloudLabel">Offline</span>
-        <small id="liveCloudTime">–</small>
-      </div>
-      <button id="themeToggle" class="round" aria-label="Darstellung wechseln">◐</button>
-  </header>
-
-  <nav class="actions">
-    <button id="openEdit" class="primary">Werte aktualisieren</button>
-    <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt synchronisieren</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
-    <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
-  </nav>
-  <div id="conflictBanner" class="conflict-banner hidden">
-    <div><strong>Cloud-Konflikt erkannt</strong><span id="conflictText">Auf einem anderen Gerät wurde der Depotstand geändert.</span></div>
-    <button id="useCloudVersion">Cloud übernehmen</button>
-    <button id="keepLocalVersion" class="danger-button">Lokalen Stand hochladen</button>
-  </div>
-
-
-  <main>
-    <section class="version-compact-bar">
-      <div>
-        <span class="eyebrow">Version 14 PRO</span>
-        <strong>Analytics & Intelligence</strong>
-      </div>
-      <button id="openVersionInfo" class="secondary compact-info-button">Was ist neu?</button>
-    </section>
-    <section class="fx-strip card">
-      <div>
-        <span class="eyebrow">Währungsumrechnung</span>
-        <h2>USD → EUR</h2>
-      </div>
-      <div class="fx-value">
-        <strong id="usdEurRate">–</strong>
-        <small id="usdEurDate">Wird geladen …</small>
-      </div>
-      <div class="fx-status">
-        <span id="fxStatus">Automatischer Tageskurs</span>
-        <button id="refreshFx" class="secondary">Kurs aktualisieren</button>
-      </div>
-    </section>
-    <section class="kpi-grid">
-      <article class="card kpi main-kpi">
-        <span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
-      </article>
-      <article class="card kpi">
-        <span>Gewinn seit Eröffnung</span><strong id="totalGain">–</strong><small id="totalGainPct">–</small>
-      </article>
-      <article class="card kpi">
-        <span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
-      </article>
-    </section>
-
-    <section class="daily-grid">
-      <article class="card daily-card"><span>Tagesgewinn</span><strong id="dailyGainEuro">–</strong><small>Gegenüber dem letzten gespeicherten Stand</small></article>
-      <article class="card daily-card"><span>Tagesrendite</span><strong id="dailyGainPct">–</strong><small>Einzahlungen werden soweit möglich herausgerechnet</small></article>
-      <article class="card daily-card"><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
-      <article class="card daily-card"><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
-    </section>
-
-    <section class="performance-grid">
-      <article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
-      <article class="card performance"><span>Letzte 7 Tage</span><strong id="return7d">–</strong><small id="return7dInfo">Stand von vor 7 Tagen erforderlich</small></article>
-      <article class="card performance"><span>Aktuelle Woche</span><strong id="returnWeek">–</strong><small id="returnWeekInfo">Stand vom Wochenbeginn erforderlich</small></article>
-      <article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
-      <article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
-      <article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
-    </section>
-
-    <section class="card cloud-card">
-      <div>
-        <span class="eyebrow">Cloud-First Synchronisation</span>
-        <h2>Ein Datenbestand für Mac, iPhone und iPad</h2>
-        <p id="cloudMessage">Supabase ist noch nicht verbunden.</p>
-      </div>
-      <div class="cloud-status">
-        <span id="cloudBadge" class="status cloud-off">Nicht verbunden</span>
-        <small id="cloudLastSync">Noch nie synchronisiert</small>
-      </div>
-    </section>
-
-    <section class="three-col">
-      <article class="card mini-summary"><span>Automatisch erfasste Sparraten</span><strong id="autoContributions">–</strong><small id="lastContributionMonth">–</small></article>
-      <article class="card mini-summary"><span>Einstandskapital gesamt</span><strong id="automaticCostBasis">–</strong><small>Basis der automatischen Gewinnberechnung</small></article>
-      <article class="card mini-summary"><span>Nächste automatische Buchung</span><strong id="nextAutoContribution">–</strong><small>Jeweils am 1. des Monats</small></article>
-    </section>
-
-    <section class="two-col wide-left">
-      <article class="card">
-        <div class="section-head"><div><span class="eyebrow">Portfolio</span><h2>Deine Positionen</h2></div><span id="statusBadge" class="status">Planmäßig</span></div>
-        <div id="fundList"></div>
-      </article>
-      <article class="card">
-        <span class="eyebrow">Gewichtung</span><h2>Depotverteilung</h2>
-        <div class="donut-wrap">
-          <div id="donut" class="donut"><div><strong id="donutValue">–</strong><span>Gesamt</span></div></div>
-          <div id="legend" class="legend"></div>
-        </div>
-      </article>
-    </section>
-
-    <section class="card chart-dashboard-card">
-      <div class="section-head">
-        <div><span class="eyebrow">Version 14 PRO · Charts</span><h2>Depot-Analyse</h2></div>
-        <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
-      </div>
-
-      <div class="chart-tabs" role="tablist" aria-label="Diagramme">
-        <button class="chart-tab active" data-chart-tab="portfolio">Depotentwicklung</button>
-        <button class="chart-tab" data-chart-tab="gain">Gewinnverlauf</button>
-        <button class="chart-tab" data-chart-tab="funds">ETF-Performance</button>
-        <button class="chart-tab" data-chart-tab="heatmap">Heatmap</button>
-      </div>
-
-      <div class="chart-panel active" data-chart-panel="portfolio">
-        <div class="chart-kpis">
-          <div><span>Aktuell</span><strong id="chartCurrentValue">–</strong></div>
-          <div><span>Änderung im Zeitraum</span><strong id="chartPeriodChange">–</strong></div>
-          <div><span>Spanne</span><strong id="chartRangeValue">–</strong></div>
-        </div>
-        <div class="chart-shell chart-large"><canvas id="historyChart" width="1100" height="390"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
-        <div class="chart-footer"><p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p><button id="openHistoryManager" class="secondary">Tagesstände verwalten</button></div>
-      </div>
-
-      <div class="chart-panel" data-chart-panel="gain">
-        <div class="chart-kpis">
-          <div><span>Gesamtgewinn</span><strong id="gainChartCurrent">–</strong></div>
-          <div><span>Seit erstem V13-Snapshot</span><strong id="gainChartDelta">–</strong></div>
-          <div><span>Datenpunkte</span><strong id="gainChartPoints">–</strong></div>
-        </div>
-        <div class="chart-shell chart-large"><canvas id="gainHistoryChart" width="1100" height="390"></canvas><div id="gainChartTooltip" class="chart-tooltip" hidden></div></div>
-        <p class="hint">Der historische Gewinn wird ab Version 14 PRO mit jedem Tagesstand gespeichert. Ältere Tagesstände enthalten nur den Depotwert und werden nicht künstlich rückgerechnet.</p>
-      </div>
-
-      <div class="chart-panel" data-chart-panel="funds">
-        <div class="fund-performance-legend"><span>Seit Kauf</span><span>Seit Jahresbeginn</span></div>
-        <div class="chart-shell chart-large"><canvas id="fundPerformanceChart" width="1100" height="420"></canvas><div id="fundChartTooltip" class="chart-tooltip" hidden></div></div>
-        <p class="hint">Vergleich der prozentualen Rendite deiner drei ETF-Positionen. Einzahlungen werden über die gespeicherten Einstandswerte berücksichtigt.</p>
-      </div>
-
-      <div class="chart-panel" data-chart-panel="heatmap">
-        <div id="fundHeatmap" class="fund-heatmap"></div>
-        <p class="hint">Je kräftiger die Fläche, desto stärker die absolute Performance. Grün steht für Gewinn, Rot für Verlust; neutral bleibt dunkel.</p>
-      </div>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
-        <div id="savingsList"></div>
-        <div class="info-box"><span>Jährliche Sparleistung</span><strong>18.000 €</strong></div>
-        <div class="info-box"><span>Nächste Ausführung</span><strong id="nextSavingsDate">–</strong></div>
-      </article>
-      <article class="card">
-        <span class="eyebrow">Chart-Datenbasis</span><h2>Historie für Version 14 PRO</h2>
-        <div class="chart-data-quality">
-          <div><span>Gespeicherte Tagesstände</span><strong id="v13SnapshotCount">–</strong></div>
-          <div><span>Mit Gewinnhistorie</span><strong id="v13GainSnapshotCount">–</strong></div>
-          <div><span>Mit ETF-Snapshot</span><strong id="v13FundSnapshotCount">–</strong></div>
-        </div>
-        <p class="hint">Ab Version 14 PRO speichert jeder neue Tagesstand Depotwert, Gewinn, Einstandskapital und die Werte jeder ETF-Position. So werden die Charts mit der Zeit immer aussagekräftiger.</p>
-      </article>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head"><div><span class="eyebrow">Prognose</span><h2>Vermögensentwicklung</h2></div>
-          <label class="rate">Rendite <select id="forecastRate"><option value="0.05">5 %</option><option value="0.07" selected>7 %</option><option value="0.09">9 %</option></select></label>
-        </div>
-        <div id="forecastGrid" class="forecast-grid"></div>
-      </article>
-      <article class="card">
-        <span class="eyebrow">Zielvermögen</span><h2>Wann erreichst du deine Ziele?</h2>
-        <div id="goalGrid" class="goal-grid"></div>
-      </article>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <span class="eyebrow">Risikoblick</span><h2>Verlaufsauswertung</h2>
-        <div class="risk-grid">
-          <div><span>Max. Drawdown</span><strong id="maxDrawdown">–</strong></div>
-          <div><span>Allzeithoch</span><strong id="allTimeHigh">–</strong></div>
-          <div><span>Abstand zum Hoch</span><strong id="distanceToHigh">–</strong></div>
-        </div>
-        <div class="risk-grid pro-risk-grid">
-          <div><span>Volatilität p.a.</span><strong id="annualVolatility">–</strong></div>
-          <div><span>Sharpe Ratio</span><strong id="sharpeRatio">–</strong></div>
-          <div><span>Gewinntage</span><strong id="winDayRate">–</strong></div>
-          <div><span>Bester Tag</span><strong id="bestDay">–</strong></div>
-          <div><span>Schlechtester Tag</span><strong id="worstDay">–</strong></div>
-          <div><span>Datenpunkte</span><strong id="riskDataPoints">–</strong></div>
-        </div>
-      </article>
-      <article class="card">
-        <span class="eyebrow">Ausschüttungen</span><h2>Erfasste Erträge</h2>
-        <div class="dividend-box"><strong id="totalDividends">0,00 €</strong><span>Gesamt erfasst</span></div>
-        <button id="addDividend" class="secondary">Ausschüttung erfassen</button>
-      </article>
-    </section>
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head"><div><span class="eyebrow">Ausschüttungskalender</span><h2>Erfasste Zahlungen</h2></div></div>
-        <div id="dividendCalendar" class="calendar-list"></div>
-        <p class="hint">Neue Ausschüttungen kannst du weiterhin über „Ausschüttung erfassen“ hinzufügen.</p>
-      </article>
-      <article class="card">
-        <span class="eyebrow">FIRE-Rechner</span><h2>Finanzielle Freiheit</h2>
-        <div class="fire-form">
-          <label>Monatliche Ausgaben €<input id="monthlyExpenses" type="number" step="50" min="0" value="3000"></label>
-          <label>Entnahmerate<select id="withdrawalRate"><option value="0.03">3 %</option><option value="0.035">3,5 %</option><option value="0.04" selected>4 %</option></select></label>
-        </div>
-        <div class="fire-result">
-          <span>Benötigtes Vermögen</span><strong id="fireTarget">–</strong>
-          <small id="fireDate">–</small>
-        </div>
-      </article>
-    </section>
-
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Performance-Analyse</span><h2>Risiko & Qualität</h2></div>
-          <select id="analyticsRange">
-            <option value="30">30 Tage</option>
-            <option value="90" selected>90 Tage</option>
-            <option value="365">1 Jahr</option>
-            <option value="all">Gesamt</option>
-          </select>
-        </div>
-        <div class="analytics-grid">
-          <div><span>Volatilität p. a.</span><strong id="volatility">–</strong></div>
-          <div><span>Sharpe Ratio</span><strong id="sharpeRatio">–</strong></div>
-          <div><span>Bester Tag</span><strong id="bestDay">–</strong><small id="bestDayDate">–</small></div>
-          <div><span>Schwächster Tag</span><strong id="worstDay">–</strong><small id="worstDayDate">–</small></div>
-        </div>
-        <p class="hint">Diese Kennzahlen werden aus deinen gespeicherten Tagesständen berechnet. Je mehr Tagesstände vorhanden sind, desto aussagekräftiger sind sie.</p>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">Ziel-Fortschritt</span><h2>Auf dem Weg zum Vermögen</h2>
-        <div id="progressGoals" class="progress-list"></div>
-      </article>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Zeiträume</span><h2>Monat, Quartal & Jahr</h2></div>
-        </div>
-        <div class="period-grid">
-          <div><span>Monat</span><strong id="monthPerformance">–</strong></div>
-          <div><span>Quartal</span><strong id="quarterPerformance">–</strong></div>
-          <div><span>Jahr</span><strong id="yearPerformance">–</strong></div>
-        </div>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">Datenqualität</span><h2>Historie & Sicherung</h2>
-        <div class="data-quality">
-          <div><span>Gespeicherte Tagesstände</span><strong id="snapshotCount">0</strong></div>
-          <div><span>Erster Stand</span><strong id="firstSnapshotDate">–</strong></div>
-          <div><span>Letzter Stand</span><strong id="lastSnapshotDate">–</strong></div>
-        </div>
-        <button id="clearHistory" class="danger-button">Verlauf zurücksetzen</button>
-      </article>
-    </section>
-
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Benchmark</span><h2>Vergleich zum Weltindex</h2></div>
-          <button id="editBenchmark" class="secondary">Benchmark bearbeiten</button>
-        </div>
-        <div class="benchmark-grid">
-          <div><span>Depotperformance</span><strong id="portfolioBenchmarkReturn">–</strong></div>
-          <div><span>Benchmarkperformance</span><strong id="benchmarkReturn">–</strong></div>
-          <div><span>Mehr-/Minderrendite</span><strong id="benchmarkDifference">–</strong></div>
-        </div>
-        <p id="benchmarkInfo" class="hint">Benchmarkwerte noch nicht hinterlegt.</p>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">Monatsbericht</span><h2>Aktueller Monat</h2>
-        <div class="report-grid">
-          <div><span>Startwert</span><strong id="monthStartValue">–</strong></div>
-          <div><span>Aktueller Wert</span><strong id="monthCurrentValue">–</strong></div>
-          <div><span>Einzahlungen</span><strong id="monthContributions">–</strong></div>
-          <div><span>Wertentwicklung</span><strong id="monthGainEuro">–</strong></div>
-        </div>
-      </article>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Einzahlungen</span><h2>Cashflow-Protokoll</h2></div>
-          <button id="addContribution" class="secondary">Einzahlung erfassen</button>
-        </div>
-        <div id="contributionList" class="calendar-list"></div>
-        <div class="info-box"><span>Zusätzlich erfasste Einzahlungen</span><strong id="extraContributionsTotal">0,00 €</strong></div>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">App-Status</span><h2>Datenprüfung</h2>
-        <div id="healthList" class="health-list"></div>
-      </article>
-    </section>
-
-
-
-
-
-    <section id="intelligenceSection" class="two-col pro-intelligence">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Version 14 PRO · Smart Insights</span><h2>Automatische Depotanalyse</h2></div>
-          <button id="refreshInsights" class="secondary">Neu analysieren</button>
-        </div>
-        <div id="smartInsights" class="insight-list"></div>
-        <p class="hint">Die Hinweise werden lokal aus deinen eigenen Depotdaten berechnet. Es werden dafür keine zusätzlichen Depotdaten an einen KI-Dienst übertragen.</p>
-      </article>
-      <article class="card assistant-card">
-        <div class="section-head">
-          <div><span class="eyebrow">Depot-Assistent</span><h2>Frag dein Depot</h2></div>
-          <span class="assistant-badge">lokal</span>
-        </div>
-        <div id="assistantConversation" class="assistant-conversation">
-          <div class="assistant-answer">Frag mich zum Beispiel: „Welcher ETF ist am besten?“, „Wie hoch ist meine Rendite?“, „Wie groß war mein Drawdown?“ oder „Wann erreiche ich 500.000 €?“</div>
-        </div>
-        <div class="assistant-input-row">
-          <input id="assistantInput" type="text" placeholder="Frage zu deinem Depot …" autocomplete="off">
-          <button id="askAssistant">Fragen</button>
-        </div>
-        <div class="assistant-chips">
-          <button data-question="Welcher ETF ist am besten?">Bester ETF</button>
-          <button data-question="Wie hoch ist meine Rendite?">Rendite</button>
-          <button data-question="Wie groß war mein Drawdown?">Drawdown</button>
-          <button data-question="Wann erreiche ich 500000 Euro?">500.000 €</button>
-        </div>
-      </article>
-    </section>
-
-    <section id="benchmarkSection" class="card benchmark-card">
-      <div class="section-head">
-        <div><span class="eyebrow">Benchmark</span><h2>Depot gegen Vergleichsindex</h2></div>
-        <div class="benchmark-actions">
-          <select id="benchmarkSelect">
-            <option value="msci_world">MSCI World</option>
-            <option value="acwi">MSCI ACWI</option>
-            <option value="sp500">S&amp;P 500</option>
-          </select>
-          <button id="openBenchmarkImport" class="secondary">Benchmark-CSV importieren</button>
-        </div>
-      </div>
-      <div class="chart-kpis">
-        <div><span>Depot im Zeitraum</span><strong id="portfolioBenchmarkReturn">–</strong></div>
-        <div><span>Benchmark</span><strong id="benchmarkReturn">–</strong></div>
-        <div><span>Vorsprung / Rückstand</span><strong id="benchmarkAlpha">–</strong></div>
-      </div>
-      <div class="chart-shell chart-large">
-        <canvas id="benchmarkChart" width="1100" height="390"></canvas>
-        <div id="benchmarkTooltip" class="chart-tooltip" hidden></div>
-      </div>
-      <p id="benchmarkHint" class="hint">Für einen echten Vergleich importierst du Benchmarkdaten als CSV mit den Spalten date,value. Die App erfindet keine historischen Indexwerte.</p>
-    </section>
-
-    <section class="card">
-      <div class="section-head">
-        <div><span class="eyebrow">Version 14 PRO · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
-        <button id="clearSyncLog" class="secondary">Protokoll leeren</button>
-      </div>
-      <div class="sync-proof">
-          <span>Cloud-Schreibstatus</span>
-          <strong id="cloudWriteProof">Noch nicht geprüft</strong>
-          <small id="cloudWriteProofDetail">Die App bestätigt erfolgreiche Schreibvorgänge direkt aus Supabase.</small>
-        </div>
-        <div class="sync-status-panel">
-        <div><span>Status</span><strong id="syncStateText">–</strong></div>
-        <div><span>Letzter erfolgreicher Sync</span><strong id="syncLastSuccess">–</strong></div>
-        <div><span>Offene lokale Änderung</span><strong id="syncPendingState">–</strong></div><div><span>Cloud-Schema</span><strong id="syncCloudSchema">–</strong></div>
-      </div>
-      <div id="syncLogList" class="sync-log-list"></div>
-    </section>
-
-    <section class="two-col cloud-ops-grid">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Cloud Pro · Geräte</span><h2>Angemeldete Geräte</h2></div>
-          <button id="refreshDevices" class="secondary">Aktualisieren</button>
-        </div>
-        <div id="deviceList" class="device-list"></div>
-        <p class="hint">Jedes Gerät erhält eine lokale Geräte-ID. Es werden nur Gerätename und letzter Kontakt gespeichert.</p>
-      </article>
-
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Cloud Pro · Sicherheit</span><h2>Cloud-Versionen</h2></div>
-          <button id="refreshVersions" class="secondary">Aktualisieren</button>
-        </div>
-        <div id="versionList" class="version-list"></div>
-        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 14 PRO automatisch einen Wiederherstellungspunkt an.</p>
-      </article>
-    </section>
-
-    <section class="two-col v10-grid">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Version 14 PRO · Rebalancing</span><h2>Zielgewichtungen</h2></div>
-          <button id="editTargets" class="secondary">Ziele bearbeiten</button>
-        </div>
-        <div id="rebalanceList" class="rebalance-list"></div>
-        <div class="rebalance-summary">
-          <span>Größte Abweichung</span><strong id="maxAllocationDrift">–</strong>
-        </div>
-        <p id="rebalanceHint" class="hint">Die nächste Sparrate kann gezielt in untergewichtete Positionen fließen.</p>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">Portfolio Intelligence</span><h2>Performance auf einen Blick</h2>
-        <div class="analytics-grid v10-analytics">
-          <div><span>Seit Start</span><strong id="v10SinceStart">–</strong></div>
-          <div><span>CAGR</span><strong id="v10Cagr">–</strong></div>
-          <div><span>Allzeithoch</span><strong id="v10Ath">–</strong></div>
-          <div><span>Abstand ATH</span><strong id="v10AthDistance">–</strong></div>
-        </div>
-        <div class="info-box"><span>Empfohlene nächste Sparrate</span><strong id="nextSavingsRecommendation">–</strong></div>
-      </article>
-    </section>
-
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head">
-          <div><span class="eyebrow">Cloud-Aktivität</span><h2>Änderungsprotokoll</h2></div>
-          <button id="clearAudit" class="secondary">Protokoll leeren</button>
-        </div>
-        <div id="auditList" class="calendar-list"></div>
-        <p class="hint">Wichtige Änderungen werden im gemeinsamen Supabase-Datenstand mitgeführt.</p>
-      </article>
-
-      <article class="card">
-        <span class="eyebrow">Bericht</span><h2>Depotbericht erstellen</h2>
-        <div class="report-preview">
-          <div><span>Depotwert</span><strong id="reportDepotValue">–</strong></div>
-          <div><span>Gesamtgewinn</span><strong id="reportTotalGain">–</strong></div>
-          <div><span>Gesamtrendite</span><strong id="reportTotalReturn">–</strong></div>
-          <div><span>Cloud-Stand</span><strong id="reportCloudState">–</strong></div>
-        </div>
-        <button id="printReportCard" class="primary">Bericht drucken / als PDF sichern</button>
-        <p class="hint">Im Druckdialog des Browsers kannst du „Als PDF sichern“ auswählen.</p>
-      </article>
-    </section>
-
-    <section class="card release-card">
-      <div><span class="eyebrow">Version 14 PRO</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
-      <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
-    </section>
-  </main>
-
-  <footer>ETF Depot Andreas · Version 14 PRO · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
-
-  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
-    <button data-scroll-target="top"><span>⌂</span><small>Übersicht</small></button>
-    <button data-scroll-target="portfolioSection"><span>◔</span><small>Depot</small></button>
-    <button data-scroll-target="intelligenceSection"><span>✦</span><small>Analyse</small></button>
-    <button data-scroll-target="benchmarkSection"><span>↗</span><small>Benchmark</small></button>
-    <button data-action="cloud"><span>☁</span><small>Cloud</small></button>
-  </nav>
-
+<header class="hero">
+<div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 14 PRO</span><span class="build-stamp" id="buildStamp">V14 PRO · Dashboard 2.0</span></div>
+<h1>ETF Depot Andreas</h1>
+<p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
+<div class="hero-dashboard-summary">
+<div class="hero-stat hero-stat-main">
+<span>Depotwert</span><strong id="heroDepotValue">–</strong>
 </div>
+<div class="hero-stat">
+<span>Gesamtgewinn</span><strong id="heroGainValue">–</strong><small id="heroGainPct">–</small>
+</div>
+</div></div>
+<div class="live-cloud-status offline" id="liveCloudStatus" title="Cloud-Status">
+<span class="cloud-dot"></span>
+<span id="liveCloudLabel">Offline</span>
+<small id="liveCloudTime">–</small>
+</div>
+<button aria-label="Darstellung wechseln" class="round hero-tool" id="themeToggle">◐</button>
+<button aria-label="Neuigkeiten in Version 14 PRO" class="hero-info-button" id="openVersionInfo">Was ist neu?</button></header>
+<nav class="actions actions-pro">
+<button class="primary" id="openEdit">Werte aktualisieren</button>
+<button id="saveSnapshot">Tagesstand speichern</button>
+<button id="exportBtn">Backup</button><button class="secondary-action" id="syncNow">Jetzt synchronisieren</button><button class="secondary-action" id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
+<label class="upload">Backup laden<input accept=".json" hidden="" id="importInput" type="file"/></label>
+</nav>
+<div class="conflict-banner hidden" id="conflictBanner">
+<div><strong>Cloud-Konflikt erkannt</strong><span id="conflictText">Auf einem anderen Gerät wurde der Depotstand geändert.</span></div>
+<button id="useCloudVersion">Cloud übernehmen</button>
+<button class="danger-button" id="keepLocalVersion">Lokalen Stand hochladen</button>
+</div>
+<main><section class="fx-strip card" id="fxSection">
+<div>
+<span class="eyebrow">Währungsumrechnung</span>
+<h2>USD → EUR</h2>
+</div>
+<div class="fx-value">
+<strong id="usdEurRate">–</strong>
+<small id="usdEurDate">Wird geladen …</small>
+</div>
+<div class="fx-status">
+<span id="fxStatus">Automatischer Tageskurs</span>
+<button class="secondary" id="refreshFx">Kurs aktualisieren</button>
+</div>
+</section><section class="kpi-grid" id="dashboardKpis">
+<article class="card kpi main-kpi">
+<span>Aktueller Depotwert</span><strong id="totalValue">–</strong><small id="lastUpdated">–</small>
+</article>
+<article class="card kpi">
+<span>Gewinn seit Eröffnung</span><strong id="totalGain">–</strong><small id="totalGainPct">–</small>
+</article>
+<article class="card kpi">
+<span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
+</article>
+</section><section class="daily-grid" id="dailySection">
+<article class="card daily-card"><span>Tagesgewinn</span><strong id="dailyGainEuro">–</strong><small>Gegenüber dem letzten gespeicherten Stand</small></article>
+<article class="card daily-card"><span>Tagesrendite</span><strong id="dailyGainPct">–</strong><small>Einzahlungen werden soweit möglich herausgerechnet</small></article>
+<article class="card daily-card"><span>Bester ETF seit Kauf</span><strong id="bestSincePurchase">–</strong><small id="bestSincePurchaseInfo">–</small></article>
+<article class="card daily-card"><span>Schwächster ETF seit Kauf</span><strong id="worstSincePurchase">–</strong><small id="worstSincePurchaseInfo">–</small></article>
+</section><div class="dashboard-section-heading" id="performanceHeading">
+<div><span class="eyebrow">Performance</span><h2>Dein Depot auf einen Blick</h2></div>
+<small>Heute · Woche · Monat · Jahr</small>
+</div><section class="performance-grid" id="performanceSection">
+<article class="card performance"><span>Heute</span><strong id="returnToday">–</strong><small id="returnTodayInfo">Stand von gestern erforderlich</small></article>
+<article class="card performance"><span>Letzte 7 Tage</span><strong id="return7d">–</strong><small id="return7dInfo">Stand von vor 7 Tagen erforderlich</small></article>
+<article class="card performance"><span>Aktuelle Woche</span><strong id="returnWeek">–</strong><small id="returnWeekInfo">Stand vom Wochenbeginn erforderlich</small></article>
+<article class="card performance"><span>Aktueller Monat</span><strong id="returnMonth">–</strong><small id="returnMonthInfo">Stand vom Monatsbeginn erforderlich</small></article>
+<article class="card performance"><span>Aktuelles Jahr</span><strong id="returnYear">–</strong><small id="returnYearInfo">Stand vom Jahresbeginn erforderlich</small></article>
+<article class="card performance"><span>Eingezahltes Kapital</span><strong id="investedCapital">–</strong><small>Depotwert minus Gesamtgewinn</small></article>
+</section><section class="card chart-dashboard-card" id="chartsSection">
+<div class="section-head">
+<div><span class="eyebrow">Performance-Charts</span><h2>Depotentwicklung &amp; Analyse</h2></div>
+<select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
+</div>
+<div aria-label="Diagramme" class="chart-tabs" role="tablist">
+<button class="chart-tab active" data-chart-tab="portfolio">Depotentwicklung</button>
+<button class="chart-tab" data-chart-tab="gain">Gewinnverlauf</button>
+<button class="chart-tab" data-chart-tab="funds">ETF-Performance</button>
+<button class="chart-tab" data-chart-tab="heatmap">Heatmap</button>
+</div>
+<div class="chart-panel active" data-chart-panel="portfolio">
+<div class="chart-kpis">
+<div><span>Aktuell</span><strong id="chartCurrentValue">–</strong></div>
+<div><span>Änderung im Zeitraum</span><strong id="chartPeriodChange">–</strong></div>
+<div><span>Spanne</span><strong id="chartRangeValue">–</strong></div>
+</div>
+<div class="chart-shell chart-large"><canvas height="390" id="historyChart" width="1100"></canvas><div class="chart-tooltip" hidden="" id="chartTooltip"></div></div>
+<div class="chart-footer"><p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p><button class="secondary" id="openHistoryManager">Tagesstände verwalten</button></div>
+</div>
+<div class="chart-panel" data-chart-panel="gain">
+<div class="chart-kpis">
+<div><span>Gesamtgewinn</span><strong id="gainChartCurrent">–</strong></div>
+<div><span>Seit erstem V13-Snapshot</span><strong id="gainChartDelta">–</strong></div>
+<div><span>Datenpunkte</span><strong id="gainChartPoints">–</strong></div>
+</div>
+<div class="chart-shell chart-large"><canvas height="390" id="gainHistoryChart" width="1100"></canvas><div class="chart-tooltip" hidden="" id="gainChartTooltip"></div></div>
+<p class="hint">Der historische Gewinn wird ab Version 14 PRO mit jedem Tagesstand gespeichert. Ältere Tagesstände enthalten nur den Depotwert und werden nicht künstlich rückgerechnet.</p>
+</div>
+<div class="chart-panel" data-chart-panel="funds">
+<div class="fund-performance-legend"><span>Seit Kauf</span><span>Seit Jahresbeginn</span></div>
+<div class="chart-shell chart-large"><canvas height="420" id="fundPerformanceChart" width="1100"></canvas><div class="chart-tooltip" hidden="" id="fundChartTooltip"></div></div>
+<p class="hint">Vergleich der prozentualen Rendite deiner drei ETF-Positionen. Einzahlungen werden über die gespeicherten Einstandswerte berücksichtigt.</p>
+</div>
+<div class="chart-panel" data-chart-panel="heatmap">
+<div class="fund-heatmap" id="fundHeatmap"></div>
+<p class="hint">Je kräftiger die Fläche, desto stärker die absolute Performance. Grün steht für Gewinn, Rot für Verlust; neutral bleibt dunkel.</p>
+</div>
+</section><section class="two-col wide-left" id="portfolioSection">
+<article class="card">
+<div class="section-head"><div><span class="eyebrow">Portfolio</span><h2>Deine Positionen</h2></div><span class="status" id="statusBadge">Planmäßig</span></div>
+<div id="fundList"></div>
+</article>
+<article class="card">
+<span class="eyebrow">Gewichtung</span><h2>Depotverteilung</h2>
+<div class="donut-wrap">
+<div class="donut" id="donut"><div><strong id="donutValue">–</strong><span>Gesamt</span></div></div>
+<div class="legend" id="legend"></div>
+</div>
+</article>
+</section><section class="two-col pro-intelligence" id="intelligenceSection">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Version 14 PRO · Smart Insights</span><h2>Automatische Depotanalyse</h2></div>
+<button class="secondary" id="refreshInsights">Neu analysieren</button>
+</div>
+<div class="insight-list" id="smartInsights"></div>
+<p class="hint">Die Hinweise werden lokal aus deinen eigenen Depotdaten berechnet. Es werden dafür keine zusätzlichen Depotdaten an einen KI-Dienst übertragen.</p>
+</article>
+<article class="card assistant-card">
+<div class="section-head">
+<div><span class="eyebrow">Depot-Assistent</span><h2>Frag dein Depot</h2></div>
+<span class="assistant-badge">lokal</span>
+</div>
+<div class="assistant-conversation" id="assistantConversation">
+<div class="assistant-answer">Frag mich zum Beispiel: „Welcher ETF ist am besten?“, „Wie hoch ist meine Rendite?“, „Wie groß war mein Drawdown?“ oder „Wann erreiche ich 500.000 €?“</div>
+</div>
+<div class="assistant-input-row">
+<input autocomplete="off" id="assistantInput" placeholder="Frage zu deinem Depot …" type="text"/>
+<button id="askAssistant">Fragen</button>
+</div>
+<div class="assistant-chips">
+<button data-question="Welcher ETF ist am besten?">Bester ETF</button>
+<button data-question="Wie hoch ist meine Rendite?">Rendite</button>
+<button data-question="Wie groß war mein Drawdown?">Drawdown</button>
+<button data-question="Wann erreiche ich 500000 Euro?">500.000 €</button>
+</div>
+</article>
+</section><section class="card benchmark-card" id="benchmarkSection">
+<div class="section-head">
+<div><span class="eyebrow">Benchmark</span><h2>Depot gegen Vergleichsindex</h2></div>
+<div class="benchmark-actions">
+<select id="benchmarkSelect">
+<option value="msci_world">MSCI World</option>
+<option value="acwi">MSCI ACWI</option>
+<option value="sp500">S&amp;P 500</option>
+</select>
+<button class="secondary" id="openBenchmarkImport">Benchmark-CSV importieren</button>
+</div>
+</div>
+<div class="chart-kpis">
+<div><span>Depot im Zeitraum</span><strong id="proPortfolioBenchmarkReturn">–</strong></div>
+<div><span>Benchmark</span><strong id="proBenchmarkReturn">–</strong></div>
+<div><span>Vorsprung / Rückstand</span><strong id="benchmarkAlpha">–</strong></div>
+</div>
+<div class="chart-shell chart-large">
+<canvas height="390" id="benchmarkChart" width="1100"></canvas>
+<div class="chart-tooltip" hidden="" id="benchmarkTooltip"></div>
+</div>
+<p class="hint" id="benchmarkHint">Für einen echten Vergleich importierst du Benchmarkdaten als CSV mit den Spalten date,value. Die App erfindet keine historischen Indexwerte.</p>
+</section><section class="two-col">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Performance-Analyse</span><h2>Risiko &amp; Qualität</h2></div>
+<select id="analyticsRange">
+<option value="30">30 Tage</option>
+<option selected="" value="90">90 Tage</option>
+<option value="365">1 Jahr</option>
+<option value="all">Gesamt</option>
+</select>
+</div>
+<div class="analytics-grid">
+<div><span>Volatilität p. a.</span><strong id="volatility">–</strong></div>
+<div><span>Sharpe Ratio</span><strong id="proSharpeRatio">–</strong></div>
+<div><span>Bester Tag</span><strong id="proBestDay">–</strong><small id="bestDayDate">–</small></div>
+<div><span>Schwächster Tag</span><strong id="proWorstDay">–</strong><small id="worstDayDate">–</small></div>
+</div>
+<p class="hint">Diese Kennzahlen werden aus deinen gespeicherten Tagesständen berechnet. Je mehr Tagesstände vorhanden sind, desto aussagekräftiger sind sie.</p>
+</article>
+<article class="card">
+<span class="eyebrow">Ziel-Fortschritt</span><h2>Auf dem Weg zum Vermögen</h2>
+<div class="progress-list" id="progressGoals"></div>
+</article>
+</section>
 
+
+
+
+
+
+<section class="three-col">
+<article class="card mini-summary"><span>Automatisch erfasste Sparraten</span><strong id="autoContributions">–</strong><small id="lastContributionMonth">–</small></article>
+<article class="card mini-summary"><span>Einstandskapital gesamt</span><strong id="automaticCostBasis">–</strong><small>Basis der automatischen Gewinnberechnung</small></article>
+<article class="card mini-summary"><span>Nächste automatische Buchung</span><strong id="nextAutoContribution">–</strong><small>Jeweils am 1. des Monats</small></article>
+</section>
+
+
+<section class="two-col">
+<article class="card">
+<span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
+<div id="savingsList"></div>
+<div class="info-box"><span>Jährliche Sparleistung</span><strong>18.000 €</strong></div>
+<div class="info-box"><span>Nächste Ausführung</span><strong id="nextSavingsDate">–</strong></div>
+</article>
+<article class="card">
+<span class="eyebrow">Chart-Datenbasis</span><h2>Historie für Version 14 PRO</h2>
+<div class="chart-data-quality">
+<div><span>Gespeicherte Tagesstände</span><strong id="v13SnapshotCount">–</strong></div>
+<div><span>Mit Gewinnhistorie</span><strong id="v13GainSnapshotCount">–</strong></div>
+<div><span>Mit ETF-Snapshot</span><strong id="v13FundSnapshotCount">–</strong></div>
+</div>
+<p class="hint">Ab Version 14 PRO speichert jeder neue Tagesstand Depotwert, Gewinn, Einstandskapital und die Werte jeder ETF-Position. So werden die Charts mit der Zeit immer aussagekräftiger.</p>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="section-head"><div><span class="eyebrow">Prognose</span><h2>Vermögensentwicklung</h2></div>
+<label class="rate">Rendite <select id="forecastRate"><option value="0.05">5 %</option><option selected="" value="0.07">7 %</option><option value="0.09">9 %</option></select></label>
+</div>
+<div class="forecast-grid" id="forecastGrid"></div>
+</article>
+<article class="card">
+<span class="eyebrow">Zielvermögen</span><h2>Wann erreichst du deine Ziele?</h2>
+<div class="goal-grid" id="goalGrid"></div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<span class="eyebrow">Risikoblick</span><h2>Verlaufsauswertung</h2>
+<div class="risk-grid">
+<div><span>Max. Drawdown</span><strong id="maxDrawdown">–</strong></div>
+<div><span>Allzeithoch</span><strong id="allTimeHigh">–</strong></div>
+<div><span>Abstand zum Hoch</span><strong id="distanceToHigh">–</strong></div>
+</div>
+<div class="risk-grid pro-risk-grid">
+<div><span>Volatilität p.a.</span><strong id="annualVolatility">–</strong></div>
+<div><span>Sharpe Ratio</span><strong id="sharpeRatio">–</strong></div>
+<div><span>Gewinntage</span><strong id="winDayRate">–</strong></div>
+<div><span>Bester Tag</span><strong id="bestDay">–</strong></div>
+<div><span>Schlechtester Tag</span><strong id="worstDay">–</strong></div>
+<div><span>Datenpunkte</span><strong id="riskDataPoints">–</strong></div>
+</div>
+</article>
+<article class="card">
+<span class="eyebrow">Ausschüttungen</span><h2>Erfasste Erträge</h2>
+<div class="dividend-box"><strong id="totalDividends">0,00 €</strong><span>Gesamt erfasst</span></div>
+<button class="secondary" id="addDividend">Ausschüttung erfassen</button>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="section-head"><div><span class="eyebrow">Ausschüttungskalender</span><h2>Erfasste Zahlungen</h2></div></div>
+<div class="calendar-list" id="dividendCalendar"></div>
+<p class="hint">Neue Ausschüttungen kannst du weiterhin über „Ausschüttung erfassen“ hinzufügen.</p>
+</article>
+<article class="card">
+<span class="eyebrow">FIRE-Rechner</span><h2>Finanzielle Freiheit</h2>
+<div class="fire-form">
+<label>Monatliche Ausgaben €<input id="monthlyExpenses" min="0" step="50" type="number" value="3000"/></label>
+<label>Entnahmerate<select id="withdrawalRate"><option value="0.03">3 %</option><option value="0.035">3,5 %</option><option selected="" value="0.04">4 %</option></select></label>
+</div>
+<div class="fire-result">
+<span>Benötigtes Vermögen</span><strong id="fireTarget">–</strong>
+<small id="fireDate">–</small>
+</div>
+</article>
+</section>
+
+<section class="two-col">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Zeiträume</span><h2>Monat, Quartal &amp; Jahr</h2></div>
+</div>
+<div class="period-grid">
+<div><span>Monat</span><strong id="monthPerformance">–</strong></div>
+<div><span>Quartal</span><strong id="quarterPerformance">–</strong></div>
+<div><span>Jahr</span><strong id="yearPerformance">–</strong></div>
+</div>
+</article>
+<article class="card">
+<span class="eyebrow">Datenqualität</span><h2>Historie &amp; Sicherung</h2>
+<div class="data-quality">
+<div><span>Gespeicherte Tagesstände</span><strong id="snapshotCount">0</strong></div>
+<div><span>Erster Stand</span><strong id="firstSnapshotDate">–</strong></div>
+<div><span>Letzter Stand</span><strong id="lastSnapshotDate">–</strong></div>
+</div>
+<button class="danger-button" id="clearHistory">Verlauf zurücksetzen</button>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Benchmark</span><h2>Vergleich zum Weltindex</h2></div>
+<button class="secondary" id="editBenchmark">Benchmark bearbeiten</button>
+</div>
+<div class="benchmark-grid">
+<div><span>Depotperformance</span><strong id="portfolioBenchmarkReturn">–</strong></div>
+<div><span>Benchmarkperformance</span><strong id="benchmarkReturn">–</strong></div>
+<div><span>Mehr-/Minderrendite</span><strong id="benchmarkDifference">–</strong></div>
+</div>
+<p class="hint" id="benchmarkInfo">Benchmarkwerte noch nicht hinterlegt.</p>
+</article>
+<article class="card">
+<span class="eyebrow">Monatsbericht</span><h2>Aktueller Monat</h2>
+<div class="report-grid">
+<div><span>Startwert</span><strong id="monthStartValue">–</strong></div>
+<div><span>Aktueller Wert</span><strong id="monthCurrentValue">–</strong></div>
+<div><span>Einzahlungen</span><strong id="monthContributions">–</strong></div>
+<div><span>Wertentwicklung</span><strong id="monthGainEuro">–</strong></div>
+</div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Einzahlungen</span><h2>Cashflow-Protokoll</h2></div>
+<button class="secondary" id="addContribution">Einzahlung erfassen</button>
+</div>
+<div class="calendar-list" id="contributionList"></div>
+<div class="info-box"><span>Zusätzlich erfasste Einzahlungen</span><strong id="extraContributionsTotal">0,00 €</strong></div>
+</article>
+<article class="card">
+<span class="eyebrow">App-Status</span><h2>Datenprüfung</h2>
+<div class="health-list" id="healthList"></div>
+</article>
+</section>
+
+
+<section class="card cloud-card">
+<div>
+<span class="eyebrow">Cloud-First Synchronisation</span>
+<h2>Ein Datenbestand für Mac, iPhone und iPad</h2>
+<p id="cloudMessage">Supabase ist noch nicht verbunden.</p>
+</div>
+<div class="cloud-status">
+<span class="status cloud-off" id="cloudBadge">Nicht verbunden</span>
+<small id="cloudLastSync">Noch nie synchronisiert</small>
+</div>
+</section><section class="card">
+<div class="section-head">
+<div><span class="eyebrow">Version 14 PRO · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
+<button class="secondary" id="clearSyncLog">Protokoll leeren</button>
+</div>
+<div class="sync-proof">
+<span>Cloud-Schreibstatus</span>
+<strong id="cloudWriteProof">Noch nicht geprüft</strong>
+<small id="cloudWriteProofDetail">Die App bestätigt erfolgreiche Schreibvorgänge direkt aus Supabase.</small>
+</div>
+<div class="sync-status-panel">
+<div><span>Status</span><strong id="syncStateText">–</strong></div>
+<div><span>Letzter erfolgreicher Sync</span><strong id="syncLastSuccess">–</strong></div>
+<div><span>Offene lokale Änderung</span><strong id="syncPendingState">–</strong></div><div><span>Cloud-Schema</span><strong id="syncCloudSchema">–</strong></div>
+</div>
+<div class="sync-log-list" id="syncLogList"></div>
+</section>
+<section class="two-col cloud-ops-grid">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Cloud Pro · Geräte</span><h2>Angemeldete Geräte</h2></div>
+<button class="secondary" id="refreshDevices">Aktualisieren</button>
+</div>
+<div class="device-list" id="deviceList"></div>
+<p class="hint">Jedes Gerät erhält eine lokale Geräte-ID. Es werden nur Gerätename und letzter Kontakt gespeichert.</p>
+</article>
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Cloud Pro · Sicherheit</span><h2>Cloud-Versionen</h2></div>
+<button class="secondary" id="refreshVersions">Aktualisieren</button>
+</div>
+<div class="version-list" id="versionList"></div>
+<p class="hint">Vor wichtigen Cloud-Änderungen legt Version 14 PRO automatisch einen Wiederherstellungspunkt an.</p>
+</article>
+</section>
+<section class="two-col v10-grid">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Version 14 PRO · Rebalancing</span><h2>Zielgewichtungen</h2></div>
+<button class="secondary" id="editTargets">Ziele bearbeiten</button>
+</div>
+<div class="rebalance-list" id="rebalanceList"></div>
+<div class="rebalance-summary">
+<span>Größte Abweichung</span><strong id="maxAllocationDrift">–</strong>
+</div>
+<p class="hint" id="rebalanceHint">Die nächste Sparrate kann gezielt in untergewichtete Positionen fließen.</p>
+</article>
+<article class="card">
+<span class="eyebrow">Portfolio Intelligence</span><h2>Performance auf einen Blick</h2>
+<div class="analytics-grid v10-analytics">
+<div><span>Seit Start</span><strong id="v10SinceStart">–</strong></div>
+<div><span>CAGR</span><strong id="v10Cagr">–</strong></div>
+<div><span>Allzeithoch</span><strong id="v10Ath">–</strong></div>
+<div><span>Abstand ATH</span><strong id="v10AthDistance">–</strong></div>
+</div>
+<div class="info-box"><span>Empfohlene nächste Sparrate</span><strong id="nextSavingsRecommendation">–</strong></div>
+</article>
+</section>
+<section class="two-col">
+<article class="card">
+<div class="section-head">
+<div><span class="eyebrow">Cloud-Aktivität</span><h2>Änderungsprotokoll</h2></div>
+<button class="secondary" id="clearAudit">Protokoll leeren</button>
+</div>
+<div class="calendar-list" id="auditList"></div>
+<p class="hint">Wichtige Änderungen werden im gemeinsamen Supabase-Datenstand mitgeführt.</p>
+</article>
+<article class="card">
+<span class="eyebrow">Bericht</span><h2>Depotbericht erstellen</h2>
+<div class="report-preview">
+<div><span>Depotwert</span><strong id="reportDepotValue">–</strong></div>
+<div><span>Gesamtgewinn</span><strong id="reportTotalGain">–</strong></div>
+<div><span>Gesamtrendite</span><strong id="reportTotalReturn">–</strong></div>
+<div><span>Cloud-Stand</span><strong id="reportCloudState">–</strong></div>
+</div>
+<button class="primary" id="printReportCard">Bericht drucken / als PDF sichern</button>
+<p class="hint">Im Druckdialog des Browsers kannst du „Als PDF sichern“ auswählen.</p>
+</article>
+</section>
+<section class="card release-card">
+<div><span class="eyebrow">Version 14 PRO</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+<div class="release-actions"><button class="secondary" hidden="" id="installApp">App installieren</button><button class="secondary" id="forceRefresh">Neue Version laden</button></div>
+</section>
+</main>
+<footer>ETF Depot Andreas · Version 14 PRO · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+<nav aria-label="Mobile Navigation" class="mobile-bottom-nav">
+<button data-scroll-target="top"><span>⌂</span><small>Übersicht</small></button>
+<button data-scroll-target="portfolioSection"><span>◔</span><small>Depot</small></button>
+<button data-scroll-target="chartsSection"><span>✦</span><small>Analyse</small></button>
+<button data-scroll-target="benchmarkSection"><span>↗</span><small>Benchmark</small></button>
+<button data-action="cloud"><span>☁</span><small>Cloud</small></button>
+</nav>
+</div>
 <dialog id="editDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head">
-      <div><span class="eyebrow">Tägliche Aktualisierung</span><h2>Nur drei Depotwerte eintragen</h2></div>
-      <button class="round close" value="cancel">×</button>
-    </div>
-    <p class="hint">Übernimm aus der FNZ-App nur den aktuellen Euro-Depotwert jeder Position. Gewinn, Rendite, GuV YTD und Gewichtung werden automatisch berechnet.</p>
-    <div id="simpleValueRows" class="simple-value-rows"></div>
-    <details class="advanced-box">
-      <summary>Erweiterte Angaben</summary>
-      <p class="hint">Die Anteile musst du nur nach einem Sparplankauf oder einer sonstigen Transaktion korrigieren, wenn dir die exakte Stückzahl vorliegt.</p>
-      <div id="advancedRows"></div>
-    </details>
-    <div class="dialog-actions">
-      <button value="cancel">Abbrechen</button>
-      <button id="applyEdit" value="default" class="primary">Werte übernehmen</button>
-    </div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head">
+<div><span class="eyebrow">Tägliche Aktualisierung</span><h2>Nur drei Depotwerte eintragen</h2></div>
+<button class="round close" value="cancel">×</button>
+</div>
+<p class="hint">Übernimm aus der FNZ-App nur den aktuellen Euro-Depotwert jeder Position. Gewinn, Rendite, GuV YTD und Gewichtung werden automatisch berechnet.</p>
+<div class="simple-value-rows" id="simpleValueRows"></div>
+<details class="advanced-box">
+<summary>Erweiterte Angaben</summary>
+<p class="hint">Die Anteile musst du nur nach einem Sparplankauf oder einer sonstigen Transaktion korrigieren, wenn dir die exakte Stückzahl vorliegt.</p>
+<div id="advancedRows"></div>
+</details>
+<div class="dialog-actions">
+<button value="cancel">Abbrechen</button>
+<button class="primary" id="applyEdit" value="default">Werte übernehmen</button>
+</div>
+</form>
 </dialog>
-
 <dialog id="dividendDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Ertrag erfassen</span><h2>Ausschüttung hinzufügen</h2></div><button class="round close" value="cancel">×</button></div>
-    <div class="edit-grid">
-      <label>Fonds<select id="dividendFund"></select></label>
-      <label>Betrag €<input id="dividendAmount" type="number" step="0.01" min="0"></label>
-      <label>Datum<input id="dividendDate" type="date"></label>
-    </div>
-    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveDividend" value="default" class="primary">Speichern</button></div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head"><div><span class="eyebrow">Ertrag erfassen</span><h2>Ausschüttung hinzufügen</h2></div><button class="round close" value="cancel">×</button></div>
+<div class="edit-grid">
+<label>Fonds<select id="dividendFund"></select></label>
+<label>Betrag €<input id="dividendAmount" min="0" step="0.01" type="number"/></label>
+<label>Datum<input id="dividendDate" type="date"/></label>
+</div>
+<div class="dialog-actions"><button value="cancel">Abbrechen</button><button class="primary" id="saveDividend" value="default">Speichern</button></div>
+</form>
 </dialog>
-
-
 <dialog id="benchmarkDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Benchmark</span><h2>Weltindex hinterlegen</h2></div><button class="round close" value="cancel">×</button></div>
-    <div class="edit-grid">
-      <label>Bezeichnung<input id="benchmarkName" type="text" value="MSCI World"></label>
-      <label>Startwert<input id="benchmarkStart" type="number" step="0.01"></label>
-      <label>Aktueller Wert<input id="benchmarkCurrent" type="number" step="0.01"></label>
-      <label>Startdatum<input id="benchmarkDate" type="date"></label>
-    </div>
-    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveBenchmark" value="default" class="primary">Speichern</button></div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head"><div><span class="eyebrow">Benchmark</span><h2>Weltindex hinterlegen</h2></div><button class="round close" value="cancel">×</button></div>
+<div class="edit-grid">
+<label>Bezeichnung<input id="benchmarkName" type="text" value="MSCI World"/></label>
+<label>Startwert<input id="benchmarkStart" step="0.01" type="number"/></label>
+<label>Aktueller Wert<input id="benchmarkCurrent" step="0.01" type="number"/></label>
+<label>Startdatum<input id="benchmarkDate" type="date"/></label>
+</div>
+<div class="dialog-actions"><button value="cancel">Abbrechen</button><button class="primary" id="saveBenchmark" value="default">Speichern</button></div>
+</form>
 </dialog>
-
 <dialog id="contributionDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Cashflow</span><h2>Einzahlung erfassen</h2></div><button class="round close" value="cancel">×</button></div>
-    <div class="edit-grid">
-      <label>Betrag €<input id="contributionAmount" type="number" step="0.01" min="0"></label>
-      <label>Datum<input id="contributionDate" type="date"></label>
-      <label>Notiz<input id="contributionNote" type="text" placeholder="z. B. Sonderzahlung"></label>
-    </div>
-    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveContribution" value="default" class="primary">Speichern</button></div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head"><div><span class="eyebrow">Cashflow</span><h2>Einzahlung erfassen</h2></div><button class="round close" value="cancel">×</button></div>
+<div class="edit-grid">
+<label>Betrag €<input id="contributionAmount" min="0" step="0.01" type="number"/></label>
+<label>Datum<input id="contributionDate" type="date"/></label>
+<label>Notiz<input id="contributionNote" placeholder="z. B. Sonderzahlung" type="text"/></label>
+</div>
+<div class="dialog-actions"><button value="cancel">Abbrechen</button><button class="primary" id="saveContribution" value="default">Speichern</button></div>
+</form>
 </dialog>
-
-
-
 <dialog id="targetsDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Version 14 PRO</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
-    <p class="hint">Die Summe sollte 100 % ergeben. Version 14 PRO berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
-    <div id="targetRows" class="target-rows"></div>
-    <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveTargets" value="default" class="primary">Ziele speichern</button></div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head"><div><span class="eyebrow">Version 14 PRO</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
+<p class="hint">Die Summe sollte 100 % ergeben. Version 14 PRO berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
+<div class="target-rows" id="targetRows"></div>
+<div class="dialog-actions"><button value="cancel">Abbrechen</button><button class="primary" id="saveTargets" value="default">Ziele speichern</button></div>
+</form>
 </dialog>
-
 <dialog id="cloudDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head">
-      <div><span class="eyebrow">Version 14 PRO · Cloud</span><h2>Supabase anmelden</h2></div>
-      <button class="round close" value="cancel">×</button>
-    </div>
-    <p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
-    <div class="cloud-form"><details class="advanced-box" open><summary>Supabase-Verbindung</summary>
-      <label>Supabase Project URL<input id="supabaseUrl" type="url" value="https://dgrulyvrxmughqgzherg.supabase.co" readonly></label>
-      <label>Supabase Publishable Key<input id="supabaseAnonKey" type="password" value="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2" readonly></label></details>
-      <label>E-Mail<input id="cloudEmail" type="email"></label>
-      <label>Passwort<input id="cloudPassword" type="password"></label>
-    </div>
-    <div class="cloud-actions">
-      <button id="cloudRegister" type="button">Konto erstellen</button>
-      <button id="cloudLogin" type="button" class="primary">Anmelden</button>
-      <button id="cloudLogout" type="button">Abmelden</button>
-    </div>
-    <p id="cloudDialogMessage" class="hint"></p>
-    <div class="cloud-master-note"><strong>Cloud Pro:</strong> URL und Publishable Key sind bereits vorkonfiguriert. Du meldest dich auf jedem Gerät nur einmal mit derselben E-Mail und demselben Passwort an.</div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head">
+<div><span class="eyebrow">Version 14 PRO · Cloud</span><h2>Supabase anmelden</h2></div>
+<button class="round close" value="cancel">×</button>
+</div>
+<p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
+<div class="cloud-form"><details class="advanced-box" open=""><summary>Supabase-Verbindung</summary>
+<label>Supabase Project URL<input id="supabaseUrl" readonly="" type="url" value="https://dgrulyvrxmughqgzherg.supabase.co"/></label>
+<label>Supabase Publishable Key<input id="supabaseAnonKey" readonly="" type="password" value="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2"/></label></details>
+<label>E-Mail<input id="cloudEmail" type="email"/></label>
+<label>Passwort<input id="cloudPassword" type="password"/></label>
+</div>
+<div class="cloud-actions">
+<button id="cloudRegister" type="button">Konto erstellen</button>
+<button class="primary" id="cloudLogin" type="button">Anmelden</button>
+<button id="cloudLogout" type="button">Abmelden</button>
+</div>
+<p class="hint" id="cloudDialogMessage"></p>
+<div class="cloud-master-note"><strong>Cloud Pro:</strong> URL und Publishable Key sind bereits vorkonfiguriert. Du meldest dich auf jedem Gerät nur einmal mit derselben E-Mail und demselben Passwort an.</div>
+</form>
 </dialog>
-
-
 <dialog id="historyDialog">
-  <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Historie</span><h2>Tagesstände verwalten</h2></div><button class="round close" value="cancel">×</button></div>
-    <p class="hint">Du kannst einzelne gespeicherte Tagesstände korrigieren oder löschen.</p>
-    <div id="historyManagerList" class="history-manager"></div>
-    <div class="dialog-actions"><button value="cancel">Schließen</button></div>
-  </form>
+<form class="dialog-card" method="dialog">
+<div class="section-head"><div><span class="eyebrow">Historie</span><h2>Tagesstände verwalten</h2></div><button class="round close" value="cancel">×</button></div>
+<p class="hint">Du kannst einzelne gespeicherte Tagesstände korrigieren oder löschen.</p>
+<div class="history-manager" id="historyManagerList"></div>
+<div class="dialog-actions"><button value="cancel">Schließen</button></div>
+</form>
 </dialog>
-
-
-  <dialog id="versionInfoDialog" class="modal version-info-dialog">
-    <div class="modal-head">
-      <div>
-        <span class="eyebrow">Version 14 PRO · Analytics & Intelligence</span>
-        <h2>Was ist neu?</h2>
-      </div>
-      <button id="closeVersionInfo" class="round" aria-label="Schließen">×</button>
-    </div>
-    <div class="version-info-grid">
-      <article><strong>Depotentwicklung</strong><span>Interaktive Verlaufskurve mit Zeitraumwahl und Kennzahlen.</span></article>
-      <article><strong>Gewinnverlauf</strong><span>Eigene Historie für den Depotgewinn ab dem ersten Version-13-Tagesstand.</span></article>
-      <article><strong>ETF-Performance</strong><span>Vergleich „Seit Kauf“ und „Seit Jahresbeginn“ für alle drei Positionen.</span></article>
-      <article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article><article><strong>Profi-Risikokennzahlen</strong><span>Volatilität, Sharpe Ratio, Gewinntage sowie bester und schlechtester Tag.</span></article><article><strong>Smart Insights</strong><span>Automatische, lokale Hinweise aus deinen eigenen Depotdaten.</span></article><article><strong>Depot-Assistent</strong><span>Fragen zu Rendite, ETFs, Drawdown, Zielen und Kennzahlen direkt in der App.</span></article><article><strong>Benchmark-Vergleich</strong><span>Vergleich gegen MSCI World, ACWI oder S&amp;P 500 mit echten importierten Indexdaten.</span></article>
-      <article><strong>Cloud bleibt Master</strong><span>Supabase-Sync, Offline-Queue und Konfliktschutz bleiben unverändert aktiv.</span></article>
-      <article><strong>Mehr Historie</strong><span>Neue Tagesstände speichern zusätzlich Gewinn, Einstandskapital und ETF-Snapshots.</span></article>
-    </div>
-    <div class="modal-actions">
-      <button id="closeVersionInfoBottom">Schließen</button>
-    </div>
-  </dialog>
-
-<script src="app.js?v=14.0.0"></script>
+<dialog class="modal version-info-dialog" id="versionInfoDialog">
+<div class="modal-head">
+<div>
+<span class="eyebrow">Version 14 PRO · Analytics &amp; Intelligence</span>
+<h2>Was ist neu?</h2>
+</div>
+<button aria-label="Schließen" class="round" id="closeVersionInfo">×</button>
+</div>
+<div class="version-info-grid">
+<article><strong>Depotentwicklung</strong><span>Interaktive Verlaufskurve mit Zeitraumwahl und Kennzahlen.</span></article>
+<article><strong>Gewinnverlauf</strong><span>Eigene Historie für den Depotgewinn ab dem ersten Version-13-Tagesstand.</span></article>
+<article><strong>ETF-Performance</strong><span>Vergleich „Seit Kauf“ und „Seit Jahresbeginn“ für alle drei Positionen.</span></article>
+<article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article><article><strong>Profi-Risikokennzahlen</strong><span>Volatilität, Sharpe Ratio, Gewinntage sowie bester und schlechtester Tag.</span></article><article><strong>Smart Insights</strong><span>Automatische, lokale Hinweise aus deinen eigenen Depotdaten.</span></article><article><strong>Depot-Assistent</strong><span>Fragen zu Rendite, ETFs, Drawdown, Zielen und Kennzahlen direkt in der App.</span></article><article><strong>Benchmark-Vergleich</strong><span>Vergleich gegen MSCI World, ACWI oder S&amp;P 500 mit echten importierten Indexdaten.</span></article>
+<article><strong>Cloud bleibt Master</strong><span>Supabase-Sync, Offline-Queue und Konfliktschutz bleiben unverändert aktiv.</span></article>
+<article><strong>Mehr Historie</strong><span>Neue Tagesstände speichern zusätzlich Gewinn, Einstandskapital und ETF-Snapshots.</span></article>
+</div>
+<div class="modal-actions">
+<button id="closeVersionInfoBottom">Schließen</button>
+</div>
+</dialog>
+<script src="app.js?v=14.1.0"></script>
 </body>
 </html>
