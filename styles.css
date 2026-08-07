@@ -921,3 +921,9 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
   .update-banner-actions button{width:100%}
   .update-banner-icon{width:28px;height:28px;font-size:16px}
 }
+
+/* Version 1.5 · Safe Update */
+.update-banner.safe-ready{
+  border-color:rgba(34,197,94,.45)!important;
+  background:linear-gradient(90deg,rgba(34,197,94,.12),rgba(59,130,246,.08))!important;
+}

@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 1.4 Auto-Update",
-  "short_name": "ETF Depot 1.4",
+  "name": "ETF Depot Andreas Version 1.5 Safe Update",
+  "short_name": "ETF Depot 1.5",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Cloud-Depot mit Supabase-Sync, dauerhaftem Login und automatischer Erkennung und Installation neuer App-Versionen."
+  "description": "Cloud-Depot mit zweistufigem, Safari-robustem Update-Verfahren, Persistent Login, Supabase-Sync und Vermögensübersicht."
 }

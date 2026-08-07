@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.4.autoupdate.cache";
+const KEY="etfDepotAndreas.v1.5.safeupdate.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -105,7 +105,8 @@ async function restoreCloudSession(){
 }
 
 
-const APP_VERSION="1.4";
+const APP_VERSION="1.5";
+const APP_SHELL_VERSION="1.5.0";
 const APP_UPDATE_CHECK_INTERVAL=60*60*1000;
 const APP_UPDATE_DISMISS_KEY="etfDepotAndreas.update.dismissed";
 let appUpdateCheckTimer=null;
@@ -140,7 +141,7 @@ function hideUpdateBanner(){
 async function registerAppServiceWorker(){
   if(!("serviceWorker" in navigator))return null;
   try{
-    const reg=await navigator.serviceWorker.register("./sw.js",{scope:"./",updateViaCache:"none"});
+    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.0",{scope:"./",updateViaCache:"none"});
     await reg.update().catch(()=>{});
     return reg;
   }catch(e){
@@ -180,30 +181,66 @@ async function applyAppUpdate(){
   if(updateInstallInProgress)return;
   updateInstallInProgress=true;
   const btn=document.getElementById("applyUpdate");
-  if(btn){btn.disabled=true;btn.textContent="Aktualisiere …"}
-  setUpdateStatus("Neue Version wird installiert …");
+  if(btn){btn.disabled=true;btn.textContent="Bereite Update vor …"}
+  setUpdateStatus("Neue Version wird vollständig vorbereitet …");
   try{
-    // Cloud/local state is already persisted continuously; ensure a final local write.
     persist({cloud:false});
-    if("serviceWorker" in navigator){
-      const reg=await registerAppServiceWorker();
-      if(reg){
-        await reg.update().catch(()=>{});
-        if(reg.waiting)reg.waiting.postMessage({type:"SKIP_WAITING"});
-      }
+
+    // Ask the service worker to pre-cache the full new app shell first.
+    const reg=await registerAppServiceWorker();
+    if(!reg)throw new Error("Update-Dienst nicht verfügbar");
+
+    await reg.update().catch(()=>{});
+
+    const targetVersion=latestAvailableVersion||APP_VERSION;
+    const ready=await new Promise((resolve,reject)=>{
+      const timeout=setTimeout(()=>reject(new Error("Update-Vorbereitung dauerte zu lange")),20000);
+      const ch=new MessageChannel();
+      ch.port1.onmessage=e=>{
+        clearTimeout(timeout);
+        if(e.data?.ok)resolve(true);
+        else reject(new Error(e.data?.error||"Update konnte nicht vorbereitet werden"));
+      };
+      const worker=reg.waiting||reg.installing||reg.active;
+      if(!worker){clearTimeout(timeout);reject(new Error("Kein Service Worker verfügbar"));return}
+      worker.postMessage({type:"PREPARE_UPDATE",version:targetVersion},[ch.port2]);
+    });
+
+    if(!ready)throw new Error("Update nicht vollständig vorbereitet");
+
+    setUpdateStatus("Update vollständig geladen. App wird neu gestartet …");
+    if(btn)btn.textContent="Starte neu …";
+
+    // Only now activate the waiting worker. This avoids mixed old/new app files.
+    if(reg.waiting)reg.waiting.postMessage({type:"SKIP_WAITING"});
+    else if(reg.installing){
+      await new Promise(resolve=>{
+        reg.installing.addEventListener("statechange",()=>{
+          if(reg.waiting){reg.waiting.postMessage({type:"SKIP_WAITING"});resolve()}
+          else if(reg.installing?.state==="activated")resolve();
+        });
+        setTimeout(resolve,5000);
+      });
     }
-    if("caches" in window){
-      const keys=await caches.keys();
-      await Promise.all(keys.filter(k=>k.startsWith("etf-depot-andreas-")).map(k=>caches.delete(k)));
-    }
+
     localStorage.removeItem(APP_UPDATE_DISMISS_KEY);
-    const url=new URL(location.href);
-    url.searchParams.set("_appv",latestAvailableVersion||Date.now().toString());
-    location.replace(url.toString());
+
+    // Wait briefly for the new controller; fallback reload after 1.5s.
+    let reloaded=false;
+    const doReload=()=>{
+      if(reloaded)return;
+      reloaded=true;
+      const url=new URL(location.href);
+      url.searchParams.set("_appv",targetVersion);
+      location.replace(url.toString());
+    };
+    navigator.serviceWorker?.addEventListener?.("controllerchange",doReload,{once:true});
+    setTimeout(doReload,1500);
+
   }catch(e){
     updateInstallInProgress=false;
     if(btn){btn.disabled=false;btn.textContent="Jetzt aktualisieren"}
-    setUpdateStatus(`Update konnte nicht installiert werden: ${e.message}`);
+    setUpdateStatus(`Update konnte nicht sicher installiert werden: ${e.message}`);
   }
 }
 function dismissAppUpdate(){
@@ -768,7 +805,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.4";
+  copy.schemaVersion="1.5";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -880,10 +917,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.4"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.4");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -891,7 +928,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.4 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1507,7 +1544,7 @@ navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateIns
 restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
 render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.4 Auto-Update";
+document.title="ETF Depot Andreas · Version 1.5 Safe Update";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});
