@@ -1,38 +1,38 @@
-ETF DEPOT ANDREAS – VERSION 10 CLOUD PRO
+ETF DEPOT ANDREAS – VERSION 10.1 CLOUD FINAL
 
-Cloud Pro
----------
-- Supabase URL und Publishable Key sind bereits vorkonfiguriert.
-- Auf jedem Gerät nur einmal mit derselben E-Mail + Passwort anmelden.
-- Supabase ist der zentrale Master-Datenstand.
-- Automatischer Abgleich nach Änderungen und regelmäßig im Vordergrund.
-- Offline-Änderungen werden lokal zwischengespeichert und später hochgeladen.
-- Konfliktschutz: Wenn Cloud UND lokales Gerät seit dem letzten Sync geändert wurden, wird nichts still überschrieben.
-- Geräteübersicht mit letzter Aktivität.
-- Cloud-Wiederherstellungspunkte / Versionshistorie.
-- bestehende Version-10-Daten werden übernommen.
+Ziel
+----
+Ein gemeinsamer Depotstand auf Mac, iPhone und iPad.
+Supabase ist die zentrale Datenquelle. Der lokale Browser-Speicher ist nur Cache/Offline-Warteschlange.
 
-Supabase einmalig vorbereiten
------------------------------
-1. Supabase → SQL Editor.
-2. Inhalt von SUPABASE_SETUP.sql einfügen.
-3. Run.
-4. Erwartete Meldung: Success. No rows returned.
+Neu in 10.1
+-----------
+- Auto-Sync nach Änderungen (Debounce)
+- Auto-Sync beim Start, Fokuswechsel, Rückkehr zur App und nach Wiederherstellung der Internetverbindung
+- automatisches Nachladen eines neueren Cloud-Stands
+- sichtbarer Live-Cloudstatus: Synchronisiert / Synchronisiere / Offline / Konflikt / Fehler
+- Zeitstempel des letzten erfolgreichen Syncs
+- Synchronisationsprotokoll
+- Offline-Queue: lokale Änderungen bleiben erhalten und werden später übertragen
+- Konfliktschutz: lokale und neuere Cloud-Änderungen werden nicht still überschrieben
+- Geräteübersicht
+- Cloud-Versionshistorie / Wiederherstellungspunkte
+- weiterhin Rebalancing, Performance-Auswertung, CSV, Backup und PDF/Druck
 
-Danach
-------
-1. ETF-App öffnen.
-2. Cloud-Einstellungen.
-3. E-Mail + Passwort eingeben.
-4. Anmelden.
-5. Dasselbe einmal auf iPhone/iPad.
-6. Danach Werte nur noch auf einem Gerät erfassen.
+Supabase
+--------
+Deine bestehenden Version-10-Tabellen funktionieren weiter.
+SUPABASE_SETUP.sql muss nicht erneut ausgeführt werden, wenn portfolio_sync,
+portfolio_devices und portfolio_sync_versions bereits existieren.
 
-Sicherheit
-----------
-- In der Browser-App wird ausschließlich der Publishable Key verwendet.
-- Niemals den Supabase Secret Key / service_role Key in die App eintragen.
-- RLS begrenzt jeden Zugriff auf den aktuell angemeldeten Benutzer.
+Erster Test
+-----------
+1. Auf dem Mac anmelden.
+2. Einen Wert ändern.
+3. 2–3 Sekunden warten.
+4. Supabase → Table Editor → portfolio_sync prüfen: updated_at muss sich ändern.
+5. Auf dem iPhone dieselbe App öffnen und mit derselben E-Mail anmelden.
+6. Nach wenigen Sekunden muss der Mac-Stand erscheinen.
 
 GitHub Pages
 ------------

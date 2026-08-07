@@ -8,24 +8,29 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=10.0.0">
-  <title>ETF Depot Andreas · Version 10.0</title>
+  <link rel="stylesheet" href="styles.css?v=10.1.0">
+  <title>ETF Depot Andreas · Version 10.1</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10 Cloud Pro</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.1</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10.1 Cloud Final</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
-    <button id="themeToggle" class="round" aria-label="Darstellung wechseln">◐</button>
+    <div id="liveCloudStatus" class="live-cloud-status offline" title="Cloud-Status">
+        <span class="cloud-dot"></span>
+        <span id="liveCloudLabel">Offline</span>
+        <small id="liveCloudTime">–</small>
+      </div>
+      <button id="themeToggle" class="round" aria-label="Darstellung wechseln">◐</button>
   </header>
 
   <nav class="actions">
     <button id="openEdit" class="primary">Werte aktualisieren</button>
     <button id="saveSnapshot">Tagesstand speichern</button>
-    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt abgleichen</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
+    <button id="exportBtn">Backup</button><button id="syncNow">Jetzt synchronisieren</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
   <div id="conflictBanner" class="conflict-banner hidden">
@@ -37,11 +42,11 @@
 
   <main>
     <section class="card automation-note">
-      <div><span class="eyebrow">Version 10 – Cloud Pro</span><h2>Ein Depotstand. Automatisch auf allen Geräten.</h2></div>
+      <div><span class="eyebrow">Version 10.1 – Cloud Final</span><h2>Ein Depotstand. Automatisch auf allen Geräten.</h2></div>
       <div class="automation-steps">
-        <span>1. Einmal erfassen</span><span>2. Supabase synchronisiert</span><span>3. Analyse & Rebalancing automatisch</span>
+        <span>1. Einmal erfassen</span><span>2. Auto-Sync im Hintergrund</span><span>3. Mac, iPhone & iPad identisch</span>
       </div>
-      <p>Supabase ist der zentrale Master-Datenstand. Änderungen werden automatisch gespeichert, Konflikte erkannt und auf Mac, iPhone und iPad verteilt. Versionshistorie und Geräteübersicht geben dir zusätzliche Sicherheit.</p>
+      <p>Supabase ist der zentrale Master-Datenstand. Version 10.1 synchronisiert automatisch beim Start, nach Änderungen, beim Zurückkehren zur App und nach Wiederherstellung der Internetverbindung. Konflikte werden geschützt statt still überschrieben.</p>
       <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Konfliktschutz</span><span>Versionshistorie</span><span>Geräteverwaltung</span><span>Offline-Queue</span><span>Rebalancing</span></div>
     </section>
     <section class="fx-strip card">
@@ -275,6 +280,20 @@
 
 
 
+
+    <section class="card">
+      <div class="section-head">
+        <div><span class="eyebrow">Version 10.1 · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
+        <button id="clearSyncLog" class="secondary">Protokoll leeren</button>
+      </div>
+      <div class="sync-status-panel">
+        <div><span>Status</span><strong id="syncStateText">–</strong></div>
+        <div><span>Letzter erfolgreicher Sync</span><strong id="syncLastSuccess">–</strong></div>
+        <div><span>Offene lokale Änderung</span><strong id="syncPendingState">–</strong></div>
+      </div>
+      <div id="syncLogList" class="sync-log-list"></div>
+    </section>
+
     <section class="two-col cloud-ops-grid">
       <article class="card">
         <div class="section-head">
@@ -344,12 +363,12 @@
     </section>
 
     <section class="card release-card">
-      <div><span class="eyebrow">Version 10.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+      <div><span class="eyebrow">Version 10.1</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
       <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
     </section>
   </main>
 
-  <footer>ETF Depot Andreas · Version 10.0 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 10.1 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
 </div>
 
 <dialog id="editDialog">
@@ -453,6 +472,6 @@
     <div class="dialog-actions"><button value="cancel">Schließen</button></div>
   </form>
 </dialog>
-<script src="app.js?v=10.0.0"></script>
+<script src="app.js?v=10.1.0"></script>
 </body>
 </html>

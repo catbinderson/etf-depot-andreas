@@ -151,3 +151,27 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
 .device-row strong,.device-row small,.version-row strong,.version-row small{display:block}.device-row small,.version-row small{color:var(--muted);margin-top:4px}
 .cloud-error{background:#fee2e2!important;color:#991b1b!important}
 @media(max-width:720px){.conflict-banner,.device-row,.version-row{align-items:flex-start;flex-direction:column}.conflict-banner button{width:100%}}
+
+/* Version 10.1 Cloud Final */
+.live-cloud-status{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);font-size:12px;font-weight:800;white-space:nowrap}
+.live-cloud-status small{opacity:.75;font-weight:700}
+.cloud-dot{width:9px;height:9px;border-radius:50%;background:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.18)}
+.live-cloud-status.synced .cloud-dot{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+.live-cloud-status.syncing .cloud-dot{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.2);animation:cloudPulse 1s infinite alternate}
+.live-cloud-status.conflict .cloud-dot,.live-cloud-status.error .cloud-dot{background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.live-cloud-status.offline .cloud-dot{background:#64748b}
+@keyframes cloudPulse{from{transform:scale(.8)}to{transform:scale(1.25)}}
+.sync-status-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0}
+.sync-status-panel>div{padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.sync-status-panel span{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.sync-status-panel strong{font-size:15px}
+.sync-log-list{display:grid;gap:7px;max-height:320px;overflow:auto}
+.sync-log-row{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:9px 11px;border-bottom:1px solid var(--line);font-size:12px}
+.sync-log-row time{color:var(--muted)}
+.sync-log-row.success span{color:var(--green)}
+.sync-log-row.error span,.sync-log-row.conflict span{color:#b91c1c}
+@media(max-width:720px){
+  .live-cloud-status{order:2}
+  .sync-status-panel{grid-template-columns:1fr}
+  .sync-log-row{grid-template-columns:1fr;gap:3px}
+}

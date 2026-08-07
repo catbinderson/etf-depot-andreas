@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 10 Cloud Pro",
-  "short_name": "ETF Depot Cloud",
+  "name": "ETF Depot Andreas Version 10.1 Cloud Final",
+  "short_name": "ETF Depot 10.1",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Cloud-Depot-Dashboard mit Supabase Master-Sync, Konfliktschutz, Geräteübersicht und Versionshistorie."
+  "description": "Cloud-First ETF-Depot mit automatischem Supabase-Sync, Konfliktschutz, Offline-Queue, Geräteübersicht und Versionshistorie."
 }

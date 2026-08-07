@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v10.cache";
+const KEY="etfDepotAndreas.v10_1.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -15,9 +15,9 @@ const DEFAULTS={
  history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0,
  targets:[40,40,20],
  audit:[],
- preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15}
+ preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -42,12 +42,18 @@ const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})},targets:Array.isArray(x.targets)?x.targets:[40,40,20],audit:Array.isArray(x.audit)?x.audit:[],preferences:{...DEFAULTS.preferences,...(x.preferences||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})},targets:Array.isArray(x.targets)?x.targets:[40,40,20],audit:Array.isArray(x.audit)?x.audit:[],preferences:{...DEFAULTS.preferences,...(x.preferences||{})},syncLog:Array.isArray(x.syncLog)?x.syncLog:[],syncMeta:{...DEFAULTS.syncMeta,...(x.syncMeta||{})}}}catch{return clone(DEFAULTS)}}
 function persist(options={}){
   localStorage.setItem(KEY,JSON.stringify(state));
   if(options.cloud===false||applyingRemote)return;
   localDirty=true;
-  if(cloudConfigured())scheduleCloudSave();
+  if(cloudConfigured()&&navigator.onLine){
+    setSyncState("idle");
+    scheduleCloudSave();
+  }else{
+    setSyncState("offline");
+  }
+  renderSyncStatus();
 }
 function totals(){
   recalculateFundMetrics();
@@ -61,7 +67,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSystemSummary();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSyncStatus();renderSystemSummary();
 }
 
 function renderDailySummary(current){
@@ -326,6 +332,54 @@ function formatMonthKey(key){
 }
 
 
+
+function pushSyncLog(type,message){
+  state.syncLog=Array.isArray(state.syncLog)?state.syncLog:[];
+  state.syncLog.unshift({ts:new Date().toISOString(),type,message});
+  state.syncLog=state.syncLog.slice(0,60);
+  localStorage.setItem(KEY,JSON.stringify(state));
+  renderSyncStatus();
+}
+function setSyncState(next,message=""){
+  state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),state:next,lastAttempt:new Date().toISOString()};
+  if(next==="synced"){
+    state.syncMeta.lastSuccess=new Date().toISOString();
+    state.syncMeta.lastError="";
+  }
+  if(next==="error") state.syncMeta.lastError=message||"Unbekannter Fehler";
+  localStorage.setItem(KEY,JSON.stringify(state));
+  renderSyncStatus();
+}
+function renderSyncStatus(){
+  const configured=cloudConfigured();
+  const online=navigator.onLine;
+  const st=state.syncMeta?.state || (configured&&online?"idle":"offline");
+  const map={
+    synced:["Synchronisiert","synced"],
+    syncing:["Synchronisiere …","syncing"],
+    conflict:["Konflikt erkannt","conflict"],
+    error:["Fehler","error"],
+    offline:["Offline","offline"],
+    idle:["Bereit","idle"]
+  };
+  const [label,cls]=map[st]||map.idle;
+  if(typeof liveCloudStatus!=="undefined"){
+    liveCloudStatus.className=`live-cloud-status ${cls}`;
+    liveCloudLabel.textContent=label;
+    liveCloudTime.textContent=state.syncMeta?.lastSuccess?new Date(state.syncMeta.lastSuccess).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"–";
+  }
+  if(typeof syncStateText!=="undefined") syncStateText.textContent=configured?label:"Nicht angemeldet";
+  if(typeof syncLastSuccess!=="undefined") syncLastSuccess.textContent=state.syncMeta?.lastSuccess?new Date(state.syncMeta.lastSuccess).toLocaleString("de-DE"):"Noch nie";
+  if(typeof syncPendingState!=="undefined") syncPendingState.textContent=localDirty?"Ja – wird automatisch übertragen":"Nein";
+  if(typeof syncLogList!=="undefined"){
+    const rows=(state.syncLog||[]).slice(0,16);
+    syncLogList.innerHTML=rows.length?rows.map(x=>`<div class="sync-log-row ${x.type||""}"><time>${new Date(x.ts).toLocaleString("de-DE")}</time><span>${x.message}</span></div>`).join(""):'<div class="calendar-empty">Noch keine Synchronisationsereignisse.</div>';
+  }
+}
+function clearSyncLogFn(){
+  state.syncLog=[];persist({cloud:false});renderSyncStatus();
+}
+
 function cloudConfigured(){
   return Boolean(state.cloud?.url&&state.cloud?.anonKey&&state.cloud?.userId&&(state.cloud?.accessToken||state.cloud?.refreshToken));
 }
@@ -412,7 +466,7 @@ async function loginCloud(){
     cloudDialogMessage.textContent="Angemeldet. Der zentrale Cloud-Datenstand wird geladen …";
     await bootstrapCloud(true);
     render();
-    addAudit("Supabase verbunden",state.cloud.email);persist();cloudDialogMessage.textContent="Verbunden. Künftige Änderungen werden automatisch synchronisiert.";
+    addAudit("Supabase verbunden",state.cloud.email);pushSyncLog("success","Bei Supabase angemeldet.");persist();cloudDialogMessage.textContent="Verbunden. Künftige Änderungen werden automatisch synchronisiert.";
   }catch(e){cloudDialogMessage.textContent="Fehler: "+e.message}
 }
 function storeSession(body){
@@ -425,7 +479,7 @@ function storeSession(body){
 function logoutCloud(){
   addAudit("Supabase abgemeldet",state.cloud.email||"");
   state.cloud.accessToken="";state.cloud.refreshToken="";state.cloud.userId="";state.cloud.lastSync="";
-  localDirty=false;
+  localDirty=false;setSyncState("offline");pushSyncLog("info","Von Supabase abgemeldet.");
   persist({cloud:false});renderCloudStatus();cloudDialogMessage.textContent="Abgemeldet. Der letzte Datenstand bleibt nur als Offline-Cache auf diesem Gerät.";
 }
 function cloudPayload(){
@@ -437,7 +491,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="10.0";
+  copy.schemaVersion="10.1";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -499,7 +553,7 @@ function showConflict(row){
   persist({cloud:false});
   conflictText.textContent=`Cloud-Stand vom ${new Date(row.updated_at).toLocaleString("de-DE")} ist neuer als der letzte bekannte Stand dieses Geräts.`;
   conflictBanner.classList.remove("hidden");
-  cloudBadge.textContent="Konflikt";cloudBadge.className="status cloud-error";
+  cloudBadge.textContent="Konflikt";cloudBadge.className="status cloud-error";setSyncState("conflict");pushSyncLog("conflict","Konflikt zwischen lokalem und Cloud-Stand erkannt.");
 }
 function clearConflict(){
   pendingConflict=null;state.cloud.conflictAt="";persist({cloud:false});conflictBanner.classList.add("hidden");
@@ -507,7 +561,7 @@ function clearConflict(){
 async function useCloudConflict(){
   if(!pendingConflict)return;
   mergeRemoteState(pendingConflict.portfolio_data,pendingConflict.updated_at);
-  clearConflict();addAudit("Konflikt gelöst","Cloud-Version übernommen");persist();render();
+  clearConflict();addAudit("Konflikt gelöst","Cloud-Version übernommen");setSyncState("synced");pushSyncLog("success","Konflikt gelöst: Cloud-Version übernommen.");persist();render();
 }
 async function keepLocalConflict(){
   if(!pendingConflict)return;
@@ -515,21 +569,24 @@ async function keepLocalConflict(){
     await createCloudVersion("Konflikt – vorheriger Cloud-Stand");
     clearConflict();
     localDirty=true;await syncToCloud({force:true,reason:"Konflikt – lokaler Stand"});
-    addAudit("Konflikt gelöst","Lokalen Stand hochgeladen");persist();render();
+    addAudit("Konflikt gelöst","Lokalen Stand hochgeladen");setSyncState("synced");pushSyncLog("success","Konflikt gelöst: lokaler Stand hochgeladen.");persist();render();
   }catch(e){handleCloudError(e)}
 }
 
 function scheduleCloudSave(){
   if(!cloudConfigured()||applyingRemote)return;
   clearTimeout(syncTimer);
-  cloudBadge.textContent="Speichere …";cloudBadge.className="status";
-  syncTimer=setTimeout(()=>syncToCloud().catch(handleCloudError),700);
+  setSyncState("syncing");
+  cloudBadge.textContent="Synchronisiere …";cloudBadge.className="status";
+  syncTimer=setTimeout(()=>syncToCloud({reason:"Automatische Änderung"}).catch(handleCloudError),1200);
 }
 function handleCloudError(e){
   lastCloudError=e?.message||String(e);
   cloudMessage.textContent="Cloud-Synchronisation wartet: "+lastCloudError;
   cloudBadge.textContent=navigator.onLine?"Fehler":"Offline";
   cloudBadge.className="status cloud-error";
+  setSyncState(navigator.onLine?"error":"offline",lastCloudError);
+  pushSyncLog("error",`Synchronisation fehlgeschlagen: ${lastCloudError}`);
 }
 async function syncToCloud(options={}){
   if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
@@ -554,7 +611,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`In Supabase gespeichert · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -581,7 +638,7 @@ async function syncFromCloud(preferCloud=true){
       mergeRemoteState(row.portfolio_data,row.updated_at);
       initializeAutomaticAccounting();
       applyScheduledContributions();
-      render();
+      render();setSyncState("synced");pushSyncLog("success","Neueren Cloud-Stand geladen.");
       return true;
     }
     state.cloud.lastSync=row.updated_at||state.cloud.lastSync;
@@ -604,7 +661,7 @@ async function bootstrapCloud(firstLogin=false){
     }
     lastCloudError="";
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});loadDevices().catch(()=>{});loadVersions().catch(()=>{});
+    heartbeatDevice().catch(()=>{});loadDevices().catch(()=>{});loadVersions().catch(()=>{});setSyncState("synced");pushSyncLog("success","Cloud-Verbindung initialisiert.");
   }catch(e){
     handleCloudError(e);
     if(firstLogin)throw e;
@@ -613,7 +670,7 @@ async function bootstrapCloud(firstLogin=false){
 async function syncNowHandler(){
   try{
     if(!cloudConfigured()){openCloudDialog();return}
-    cloudBadge.textContent="Gleiche ab …";cloudBadge.className="status";
+    cloudBadge.textContent="Gleiche ab …";cloudBadge.className="status";setSyncState("syncing");pushSyncLog("info","Manuelle Synchronisation gestartet.");
     if(localDirty)await syncToCloud();
     else await syncFromCloud(true);
     cloudMessage.textContent="Cloud und dieses Gerät sind auf demselben Stand.";
@@ -836,6 +893,7 @@ document.getElementById("refreshDevices").onclick=loadDevices;
 document.getElementById("refreshVersions").onclick=loadVersions;
 document.getElementById("useCloudVersion").onclick=useCloudConflict;
 document.getElementById("keepLocalVersion").onclick=keepLocalConflict;
+document.getElementById("clearSyncLog").onclick=clearSyncLogFn;
 document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
 document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
 document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
@@ -846,22 +904,26 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 10.0";
+document.title="ETF Depot Andreas · Version 10.1";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});
 async function resumeCloudSync(){
   if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
   if(!cloudConfigured())return;
+  if(!navigator.onLine){setSyncState("offline");return}
   try{
-    if(localDirty)await syncToCloud();
+    setSyncState("syncing");
+    if(localDirty)await syncToCloud({reason:"Wieder online / App aktiv"});
     await syncFromCloud(true);
+    if(!pendingConflict)setSyncState("synced");
   }catch(e){handleCloudError(e)}
 }
 window.addEventListener("focus",resumeCloudSync);
-window.addEventListener("online",resumeCloudSync);
+window.addEventListener("online",()=>{pushSyncLog("info","Internetverbindung wiederhergestellt.");resumeCloudSync()});
+window.addEventListener("offline",()=>{setSyncState("offline");pushSyncLog("info","Offline – Änderungen bleiben lokal in der Warteschlange.")});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeCloudSync()});
 window.addEventListener("storage",e=>{if(e.key===KEY&&!localDirty){state=load();render()}});
-setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},15000);
+setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},Math.max(10,Number(state.preferences?.autoPullSeconds||15))*1000);
 setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured())heartbeatDevice().catch(()=>{})},60000);
-bootstrapCloud(false);
+renderSyncStatus();bootstrapCloud(false);
