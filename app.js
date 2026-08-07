@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v14pro.final.cache";
+const KEY="etfDepotAndreas.v1.0.ultimate.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -511,7 +511,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="14.0";
+  copy.schemaVersion="1.0";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -623,10 +623,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"14.0"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.0"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="14.0");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.0");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -634,7 +634,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 14.0 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.0 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1234,7 +1234,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 14 PRO FINAL";
+document.title="ETF Depot Andreas · Version 1.0 ULTIMATE";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

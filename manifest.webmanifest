@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 14 PRO FINAL",
-  "short_name": "ETF Depot PRO",
+  "name": "ETF Depot Andreas Version 1.0 ULTIMATE",
+  "short_name": "ETF Depot 1.0",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Finale, kompakte Portfolio-App mit Supabase-Sync, Performance-Charts, Smart Insights, Depot-Assistent und Benchmark."
+  "description": "First Stable Release: Cloud-Depot mit Supabase-Sync, Analytics, Charts, Smart Insights, Depot-Assistent, Benchmark und optimiertem Mac/iPhone/iPad-Layout."
 }
