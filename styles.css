@@ -852,3 +852,25 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
   .wealth-card strong{font-size:22px}
   .wealth-card.total strong{font-size:25px}
 }
+
+/* Version 1.3 · Persistent Login */
+.cloud-account-summary{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:center;
+  margin:12px 0;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel2);
+}
+.cloud-account-summary strong,.cloud-account-summary small{display:block}
+.cloud-account-summary small{margin-top:3px;color:var(--muted)}
+.cloud-account-meta{text-align:right}
+.cloud-account-meta span{display:block;color:var(--muted);font-size:10px}
+.cloud-account-meta strong{margin-top:3px;font-size:12px}
+@media(max-width:600px){
+  .cloud-account-summary{grid-template-columns:1fr;padding:10px}
+  .cloud-account-meta{text-align:left}
+}

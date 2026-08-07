@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.2.wealth.cache";
+const KEY="etfDepotAndreas.v1.3.persistentlogin.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,10 +17,93 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
+
+const CLOUD_SESSION_KEY="etfDepotAndreas.supabase.session.v1";
+let cloudSessionRefreshTimer=null;
+
+function saveCloudSession(session){
+  try{
+    if(session?.access_token&&session?.refresh_token){
+      localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify({
+        access_token:session.access_token,
+        refresh_token:session.refresh_token,
+        expires_at:session.expires_at||0,
+        user:session.user||null
+      }));
+    }
+  }catch(e){}
+}
+function loadCloudSession(){
+  try{
+    const raw=localStorage.getItem(CLOUD_SESSION_KEY);
+    return raw?JSON.parse(raw):null;
+  }catch(e){return null}
+}
+function clearCloudSession(){
+  try{localStorage.removeItem(CLOUD_SESSION_KEY)}catch(e){}
+  if(cloudSessionRefreshTimer){clearTimeout(cloudSessionRefreshTimer);cloudSessionRefreshTimer=null}
+}
+function scheduleCloudSessionRefresh(){
+  if(cloudSessionRefreshTimer)clearTimeout(cloudSessionRefreshTimer);
+  const s=loadCloudSession();
+  if(!s?.refresh_token)return;
+  const expiresMs=(Number(s.expires_at||0)*1000)-Date.now();
+  const delay=Math.max(60_000,expiresMs-5*60_000);
+  cloudSessionRefreshTimer=setTimeout(()=>refreshCloudSession().catch(()=>{}),delay);
+}
+async function refreshCloudSession(){
+  const s=loadCloudSession();
+  if(!s?.refresh_token||!cloudConfigured())return false;
+  const res=await fetch(`${state.cloud.url}/auth/v1/token?grant_type=refresh_token`,{
+    method:"POST",
+    headers:{"apikey":state.cloud.key,"Content-Type":"application/json"},
+    body:JSON.stringify({refresh_token:s.refresh_token})
+  });
+  if(!res.ok){
+    if(res.status===400||res.status===401){clearCloudSession();renderCloudAccountSummary()}
+    return false;
+  }
+  const data=await res.json();
+  saveCloudSession(data);
+  state.cloud.userId=data.user?.id||state.cloud.userId||"";
+  state.cloud.email=data.user?.email||state.cloud.email||"";
+  persist({cloud:false});
+  renderCloudAccountSummary();
+  scheduleCloudSessionRefresh();
+  return true;
+}
+function authHeaders(){
+  const s=loadCloudSession();
+  return s?.access_token?{"Authorization":`Bearer ${s.access_token}`}:{};
+}
+function renderCloudAccountSummary(){
+  const s=loadCloudSession(),logged=Boolean(s?.access_token);
+  const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text};
+  set("cloudAccountState",logged?"Angemeldet ✓":"Nicht angemeldet");
+  set("cloudAccountEmail",s?.user?.email||state.cloud?.email||"–");
+  set("cloudAccountLastSync",state.cloud?.lastSync?new Date(state.cloud.lastSync).toLocaleString("de-DE"):"–");
+}
+async function restoreCloudSession(){
+  const s=loadCloudSession();
+  if(!s?.access_token||!cloudConfigured()){renderCloudAccountSummary();return false}
+  const expiresSoon=(Number(s.expires_at||0)*1000)-Date.now()<5*60_000;
+  if(expiresSoon){
+    const ok=await refreshCloudSession();
+    if(!ok)return false;
+  }else{
+    state.cloud.userId=s.user?.id||state.cloud.userId||"";
+    state.cloud.email=s.user?.email||state.cloud.email||"";
+    persist({cloud:false});
+    scheduleCloudSessionRefresh();
+    renderCloudAccountSummary();
+  }
+  return true;
+}
+
 let localDirty=false;
 let lastCloudError="";
 let pendingConflict=null;
@@ -114,7 +197,7 @@ function renderHeroDashboard(){
   if(pctEl)pctEl.textContent=t.cost?pct.format(t.gain/t.cost):"–";
 }
 
-function render(){renderWealthOverview();renderHeroDashboard();
+function render(){renderCloudAccountSummary();renderWealthOverview();renderHeroDashboard();
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
@@ -573,7 +656,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.2";
+  copy.schemaVersion="1.3";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -685,10 +768,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.2"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.3"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.2");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.3");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -696,7 +779,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.2 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.3 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1299,9 +1382,10 @@ if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
 persist();
 
-document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
+document.documentElement.dataset.theme=state.theme;restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
+render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.2 Wealth";
+document.title="ETF Depot Andreas · Version 1.3 Persistent Login";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

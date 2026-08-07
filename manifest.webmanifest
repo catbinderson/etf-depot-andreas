@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 1.2 Wealth",
-  "short_name": "ETF Depot 1.2",
+  "name": "ETF Depot Andreas Version 1.3 Persistent Login",
+  "short_name": "ETF Depot 1.3",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Vermögensübersicht mit ETF-Depot, FNZ Flexkonto, Gesamtvermögen, Cashquote und Investitionsgrad – vollständig mit Supabase synchronisiert."
+  "description": "Cloud-Depot mit dauerhafter Supabase-Anmeldung, automatischem Token-Refresh, Auto-Sync und vollständiger Vermögensübersicht."
 }

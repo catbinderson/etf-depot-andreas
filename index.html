@@ -9,14 +9,14 @@
 <meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=1.2.0" rel="stylesheet"/>
-<title>ETF Depot Andreas · Version 1.2 Wealth</title>
+<link href="styles.css?v=1.3.0" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 1.3 Wealth</title>
 </head>
 <body>
 <div class="app">
 <header class="hero">
 <div>
-<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.2</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Wealth</span></div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.3</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Persistent Login</span></div>
 <h1>ETF Depot Andreas</h1>
 <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
 <div class="hero-dashboard-summary hero-dashboard-summary-right hero-dashboard-summary-wealth">
@@ -399,6 +399,18 @@
 <strong id="cloudWriteProof">Noch nicht geprüft</strong>
 <small id="cloudWriteProofDetail">Die App bestätigt erfolgreiche Schreibvorgänge direkt aus Supabase.</small>
 </div>
+
+        <section id="cloudAccountSummary" class="cloud-account-summary">
+          <div>
+            <span class="eyebrow">Cloud-Konto</span>
+            <strong id="cloudAccountState">Nicht angemeldet</strong>
+            <small id="cloudAccountEmail">–</small>
+          </div>
+          <div class="cloud-account-meta">
+            <span>Letzte Synchronisation</span>
+            <strong id="cloudAccountLastSync">–</strong>
+          </div>
+        </section>
 <div class="sync-status-panel">
 <div><span>Status</span><strong id="syncStateText">–</strong></div>
 <div><span>Letzter erfolgreicher Sync</span><strong id="syncLastSuccess">–</strong></div>
@@ -562,7 +574,7 @@
 <button id="cloudLogout" type="button">Abmelden</button>
 </div>
 <p class="hint" id="cloudDialogMessage"></p>
-<div class="cloud-master-note"><strong>Cloud Pro:</strong> URL und Publishable Key sind bereits vorkonfiguriert. Du meldest dich auf jedem Gerät nur einmal mit derselben E-Mail und demselben Passwort an.</div>
+<div class="cloud-master-note"><strong>Cloud Pro:</strong> URL und Publishable Key sind bereits vorkonfiguriert. Du meldest dich auf jedem Gerät nur einmal an. Danach bleibt die Sitzung gespeichert und wird automatisch erneuert.</div>
 </form>
 </dialog>
 <dialog id="historyDialog">
@@ -593,7 +605,7 @@
 <button id="closeVersionInfoBottom">Schließen</button>
 </div>
 </dialog>
-<script src="app.js?v=1.2.0"></script>
+<script src="app.js?v=1.3.0"></script>
 <dialog class="modal cash-dialog" id="cashAccountDialog">
 <div class="modal-head">
 <div>
