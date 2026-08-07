@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=13.0.0">
-  <title>ETF Depot Andreas · Version 13.0</title>
+  <link rel="stylesheet" href="styles.css?v=14.0.0">
+  <title>ETF Depot Andreas · Version 14 PRO</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 13.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V13 Analytics & Charts</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 14 PRO</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V14 PRO Analytics & Intelligence</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -43,8 +43,8 @@
   <main>
     <section class="version-compact-bar">
       <div>
-        <span class="eyebrow">Version 13</span>
-        <strong>Analytics & Charts</strong>
+        <span class="eyebrow">Version 14 PRO</span>
+        <strong>Analytics & Intelligence</strong>
       </div>
       <button id="openVersionInfo" class="secondary compact-info-button">Was ist neu?</button>
     </section>
@@ -124,7 +124,7 @@
 
     <section class="card chart-dashboard-card">
       <div class="section-head">
-        <div><span class="eyebrow">Version 13 · Charts</span><h2>Depot-Analyse</h2></div>
+        <div><span class="eyebrow">Version 14 PRO · Charts</span><h2>Depot-Analyse</h2></div>
         <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
       </div>
 
@@ -152,7 +152,7 @@
           <div><span>Datenpunkte</span><strong id="gainChartPoints">–</strong></div>
         </div>
         <div class="chart-shell chart-large"><canvas id="gainHistoryChart" width="1100" height="390"></canvas><div id="gainChartTooltip" class="chart-tooltip" hidden></div></div>
-        <p class="hint">Der historische Gewinn wird ab Version 13 mit jedem Tagesstand gespeichert. Ältere Tagesstände enthalten nur den Depotwert und werden nicht künstlich rückgerechnet.</p>
+        <p class="hint">Der historische Gewinn wird ab Version 14 PRO mit jedem Tagesstand gespeichert. Ältere Tagesstände enthalten nur den Depotwert und werden nicht künstlich rückgerechnet.</p>
       </div>
 
       <div class="chart-panel" data-chart-panel="funds">
@@ -175,13 +175,13 @@
         <div class="info-box"><span>Nächste Ausführung</span><strong id="nextSavingsDate">–</strong></div>
       </article>
       <article class="card">
-        <span class="eyebrow">Chart-Datenbasis</span><h2>Historie für Version 13</h2>
+        <span class="eyebrow">Chart-Datenbasis</span><h2>Historie für Version 14 PRO</h2>
         <div class="chart-data-quality">
           <div><span>Gespeicherte Tagesstände</span><strong id="v13SnapshotCount">–</strong></div>
           <div><span>Mit Gewinnhistorie</span><strong id="v13GainSnapshotCount">–</strong></div>
           <div><span>Mit ETF-Snapshot</span><strong id="v13FundSnapshotCount">–</strong></div>
         </div>
-        <p class="hint">Ab Version 13 speichert jeder neue Tagesstand Depotwert, Gewinn, Einstandskapital und die Werte jeder ETF-Position. So werden die Charts mit der Zeit immer aussagekräftiger.</p>
+        <p class="hint">Ab Version 14 PRO speichert jeder neue Tagesstand Depotwert, Gewinn, Einstandskapital und die Werte jeder ETF-Position. So werden die Charts mit der Zeit immer aussagekräftiger.</p>
       </article>
     </section>
 
@@ -205,6 +205,14 @@
           <div><span>Max. Drawdown</span><strong id="maxDrawdown">–</strong></div>
           <div><span>Allzeithoch</span><strong id="allTimeHigh">–</strong></div>
           <div><span>Abstand zum Hoch</span><strong id="distanceToHigh">–</strong></div>
+        </div>
+        <div class="risk-grid pro-risk-grid">
+          <div><span>Volatilität p.a.</span><strong id="annualVolatility">–</strong></div>
+          <div><span>Sharpe Ratio</span><strong id="sharpeRatio">–</strong></div>
+          <div><span>Gewinntage</span><strong id="winDayRate">–</strong></div>
+          <div><span>Bester Tag</span><strong id="bestDay">–</strong></div>
+          <div><span>Schlechtester Tag</span><strong id="worstDay">–</strong></div>
+          <div><span>Datenpunkte</span><strong id="riskDataPoints">–</strong></div>
         </div>
       </article>
       <article class="card">
@@ -327,9 +335,64 @@
 
 
 
+
+    <section id="intelligenceSection" class="two-col pro-intelligence">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Version 14 PRO · Smart Insights</span><h2>Automatische Depotanalyse</h2></div>
+          <button id="refreshInsights" class="secondary">Neu analysieren</button>
+        </div>
+        <div id="smartInsights" class="insight-list"></div>
+        <p class="hint">Die Hinweise werden lokal aus deinen eigenen Depotdaten berechnet. Es werden dafür keine zusätzlichen Depotdaten an einen KI-Dienst übertragen.</p>
+      </article>
+      <article class="card assistant-card">
+        <div class="section-head">
+          <div><span class="eyebrow">Depot-Assistent</span><h2>Frag dein Depot</h2></div>
+          <span class="assistant-badge">lokal</span>
+        </div>
+        <div id="assistantConversation" class="assistant-conversation">
+          <div class="assistant-answer">Frag mich zum Beispiel: „Welcher ETF ist am besten?“, „Wie hoch ist meine Rendite?“, „Wie groß war mein Drawdown?“ oder „Wann erreiche ich 500.000 €?“</div>
+        </div>
+        <div class="assistant-input-row">
+          <input id="assistantInput" type="text" placeholder="Frage zu deinem Depot …" autocomplete="off">
+          <button id="askAssistant">Fragen</button>
+        </div>
+        <div class="assistant-chips">
+          <button data-question="Welcher ETF ist am besten?">Bester ETF</button>
+          <button data-question="Wie hoch ist meine Rendite?">Rendite</button>
+          <button data-question="Wie groß war mein Drawdown?">Drawdown</button>
+          <button data-question="Wann erreiche ich 500000 Euro?">500.000 €</button>
+        </div>
+      </article>
+    </section>
+
+    <section id="benchmarkSection" class="card benchmark-card">
+      <div class="section-head">
+        <div><span class="eyebrow">Benchmark</span><h2>Depot gegen Vergleichsindex</h2></div>
+        <div class="benchmark-actions">
+          <select id="benchmarkSelect">
+            <option value="msci_world">MSCI World</option>
+            <option value="acwi">MSCI ACWI</option>
+            <option value="sp500">S&amp;P 500</option>
+          </select>
+          <button id="openBenchmarkImport" class="secondary">Benchmark-CSV importieren</button>
+        </div>
+      </div>
+      <div class="chart-kpis">
+        <div><span>Depot im Zeitraum</span><strong id="portfolioBenchmarkReturn">–</strong></div>
+        <div><span>Benchmark</span><strong id="benchmarkReturn">–</strong></div>
+        <div><span>Vorsprung / Rückstand</span><strong id="benchmarkAlpha">–</strong></div>
+      </div>
+      <div class="chart-shell chart-large">
+        <canvas id="benchmarkChart" width="1100" height="390"></canvas>
+        <div id="benchmarkTooltip" class="chart-tooltip" hidden></div>
+      </div>
+      <p id="benchmarkHint" class="hint">Für einen echten Vergleich importierst du Benchmarkdaten als CSV mit den Spalten date,value. Die App erfindet keine historischen Indexwerte.</p>
+    </section>
+
     <section class="card">
       <div class="section-head">
-        <div><span class="eyebrow">Version 13.0 · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
+        <div><span class="eyebrow">Version 14 PRO · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
         <button id="clearSyncLog" class="secondary">Protokoll leeren</button>
       </div>
       <div class="sync-proof">
@@ -361,14 +424,14 @@
           <button id="refreshVersions" class="secondary">Aktualisieren</button>
         </div>
         <div id="versionList" class="version-list"></div>
-        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 13 automatisch einen Wiederherstellungspunkt an.</p>
+        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 14 PRO automatisch einen Wiederherstellungspunkt an.</p>
       </article>
     </section>
 
     <section class="two-col v10-grid">
       <article class="card">
         <div class="section-head">
-          <div><span class="eyebrow">Version 13 · Rebalancing</span><h2>Zielgewichtungen</h2></div>
+          <div><span class="eyebrow">Version 14 PRO · Rebalancing</span><h2>Zielgewichtungen</h2></div>
           <button id="editTargets" class="secondary">Ziele bearbeiten</button>
         </div>
         <div id="rebalanceList" class="rebalance-list"></div>
@@ -414,12 +477,21 @@
     </section>
 
     <section class="card release-card">
-      <div><span class="eyebrow">Version 13.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+      <div><span class="eyebrow">Version 14 PRO</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
       <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
     </section>
   </main>
 
-  <footer>ETF Depot Andreas · Version 13.0 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 14 PRO · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button data-scroll-target="top"><span>⌂</span><small>Übersicht</small></button>
+    <button data-scroll-target="portfolioSection"><span>◔</span><small>Depot</small></button>
+    <button data-scroll-target="intelligenceSection"><span>✦</span><small>Analyse</small></button>
+    <button data-scroll-target="benchmarkSection"><span>↗</span><small>Benchmark</small></button>
+    <button data-action="cloud"><span>☁</span><small>Cloud</small></button>
+  </nav>
+
 </div>
 
 <dialog id="editDialog">
@@ -484,8 +556,8 @@
 
 <dialog id="targetsDialog">
   <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Version 13</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
-    <p class="hint">Die Summe sollte 100 % ergeben. Version 13 berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
+    <div class="section-head"><div><span class="eyebrow">Version 14 PRO</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
+    <p class="hint">Die Summe sollte 100 % ergeben. Version 14 PRO berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
     <div id="targetRows" class="target-rows"></div>
     <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveTargets" value="default" class="primary">Ziele speichern</button></div>
   </form>
@@ -494,7 +566,7 @@
 <dialog id="cloudDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head">
-      <div><span class="eyebrow">Version 13 · Cloud</span><h2>Supabase anmelden</h2></div>
+      <div><span class="eyebrow">Version 14 PRO · Cloud</span><h2>Supabase anmelden</h2></div>
       <button class="round close" value="cancel">×</button>
     </div>
     <p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
@@ -528,7 +600,7 @@
   <dialog id="versionInfoDialog" class="modal version-info-dialog">
     <div class="modal-head">
       <div>
-        <span class="eyebrow">Version 13 · Analytics & Charts</span>
+        <span class="eyebrow">Version 14 PRO · Analytics & Intelligence</span>
         <h2>Was ist neu?</h2>
       </div>
       <button id="closeVersionInfo" class="round" aria-label="Schließen">×</button>
@@ -537,7 +609,7 @@
       <article><strong>Depotentwicklung</strong><span>Interaktive Verlaufskurve mit Zeitraumwahl und Kennzahlen.</span></article>
       <article><strong>Gewinnverlauf</strong><span>Eigene Historie für den Depotgewinn ab dem ersten Version-13-Tagesstand.</span></article>
       <article><strong>ETF-Performance</strong><span>Vergleich „Seit Kauf“ und „Seit Jahresbeginn“ für alle drei Positionen.</span></article>
-      <article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article>
+      <article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article><article><strong>Profi-Risikokennzahlen</strong><span>Volatilität, Sharpe Ratio, Gewinntage sowie bester und schlechtester Tag.</span></article><article><strong>Smart Insights</strong><span>Automatische, lokale Hinweise aus deinen eigenen Depotdaten.</span></article><article><strong>Depot-Assistent</strong><span>Fragen zu Rendite, ETFs, Drawdown, Zielen und Kennzahlen direkt in der App.</span></article><article><strong>Benchmark-Vergleich</strong><span>Vergleich gegen MSCI World, ACWI oder S&amp;P 500 mit echten importierten Indexdaten.</span></article>
       <article><strong>Cloud bleibt Master</strong><span>Supabase-Sync, Offline-Queue und Konfliktschutz bleiben unverändert aktiv.</span></article>
       <article><strong>Mehr Historie</strong><span>Neue Tagesstände speichern zusätzlich Gewinn, Einstandskapital und ETF-Snapshots.</span></article>
     </div>
@@ -546,6 +618,6 @@
     </div>
   </dialog>
 
-<script src="app.js?v=13.0.0"></script>
+<script src="app.js?v=14.0.0"></script>
 </body>
 </html>

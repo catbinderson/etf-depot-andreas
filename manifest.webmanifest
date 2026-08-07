@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 13 Analytics & Charts",
-  "short_name": "ETF Depot V13",
+  "name": "ETF Depot Andreas Version 14 PRO",
+  "short_name": "ETF Depot V14",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Cloud-Depot mit Supabase-Synchronisation, interaktiver Depotentwicklung, Gewinnverlauf, ETF-Performance und Heatmap."
+  "description": "Cloud-Portfolio-App mit Charts, Profi-Risikokennzahlen, Smart Insights, lokalem Depot-Assistenten, Benchmark-Vergleich und Supabase-Sync."
 }

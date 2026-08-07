@@ -1,45 +1,34 @@
-ETF DEPOT ANDREAS – VERSION 13 ANALYTICS & CHARTS
+ETF DEPOT ANDREAS – VERSION 14 PRO
+Analytics & Intelligence
 
-Neu in Version 13
------------------
-- Depotentwicklung als interaktives Chart
-- Gewinnverlauf als eigenes Chart
-- ETF-Performance-Vergleich: Seit Kauf und seit Jahresbeginn
-- Performance-Heatmap für alle ETF-Positionen
-- Chart-KPIs für Zeitraum, Spanne und aktuelle Werte
-- neue Tagesstände speichern ab jetzt zusätzlich:
-  * Gesamtgewinn
-  * Einstandskapital
-  * YTD-Gewinn
-  * Werte/Gewinne/Einstandswerte jeder ETF-Position
-- dadurch wächst die historische Analyse automatisch mit jedem Tagesstand
-- Supabase-Cloud-Sync, Offline-Queue, Konfliktschutz und Geräte-Sync bleiben vollständig erhalten
+Neu
+---
+- alle Charts und Cloud-Funktionen aus Version 13
+- Profi-Risikokennzahlen: Volatilität, Sharpe Ratio, Gewinntage, bester/schlechtester Tag
+- Smart Insights: automatische lokale Auswertung des Depots
+- Depot-Assistent für Fragen zu Rendite, ETFs, Drawdown, Volatilität, Sharpe Ratio, Kapital und Zielprognosen
+- Benchmark-Vergleich gegen MSCI World, MSCI ACWI oder S&P 500
+- Benchmarkdaten werden bewusst nicht erfunden: Import als CSV date,value
+- mobile Bottom-Navigation für iPhone
+- nochmals verkleinerter Synchronisationsstatus auf dem iPhone
+- Supabase bleibt zentraler Master-Datenstand
+- Benchmarkdaten werden im bestehenden Portfolio-JSON mit synchronisiert
 
-iPhone-Optimierung
-------------------
-Der grüne Synchronisationsstatus im Kopfbereich ist auf kleinen Displays deutlich
-kleiner und kompakter. Er nimmt nicht mehr die große vertikale Fläche im Header ein.
+Wichtig
+-------
+Der Depot-Assistent arbeitet lokal und regelbasiert mit den eigenen Depotdaten.
+Er sendet keine Depotdaten an einen externen KI-Dienst.
 
-Wichtig zur Gewinnhistorie
---------------------------
-Alte Tagesstände aus Version 10.x enthalten nur den Depotwert. Version 13 erfindet
-dafür keine historischen Gewinnwerte. Der Gewinnverlauf beginnt deshalb ab dem
-ersten in Version 13 gespeicherten Tagesstand und wird danach automatisch erweitert.
+Benchmark-CSV
+-------------
+Beispiel:
+date,value
+2026-01-02,100
+2026-01-03,100.6
 
-Supabase
---------
-Kein neues SQL-Setup erforderlich. Beim nächsten Cloud-Speichern setzt die App
-schema_version automatisch auf 13.0.
+Es ist kein neues Supabase-SQL erforderlich.
 
 Installation
 ------------
-1. ZIP entpacken.
-2. Inhalt in das Root des GitHub-Repositories hochladen.
-3. Vorhandene Dateien ersetzen.
-4. Commit changes.
-5. GitHub Pages Deployment abwarten.
-6. Auf iPhone/Mac Seite einmal neu laden.
-
-GitHub Pages
-------------
-main → /(root)
+ZIP entpacken, Inhalt ins Root des GitHub-Repositories hochladen, vorhandene Dateien ersetzen,
+Commit durchführen und GitHub Pages Deployment abwarten.
