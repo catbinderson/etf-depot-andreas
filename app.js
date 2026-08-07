@@ -23,6 +23,18 @@ let syncInFlight=false;
 let applyingRemote=false;
 let localDirty=false;
 let lastCloudError="";
+let pendingConflict=null;
+const DEVICE_KEY="etfDepotAndreas.device.v10";
+function getDevice(){
+  try{
+    const x=JSON.parse(localStorage.getItem(DEVICE_KEY)||"null");
+    if(x?.id)return x;
+  }catch{}
+  const platform=/iPhone|iPad|iPod/i.test(navigator.userAgent)?"iPhone / iPad":/Mac/i.test(navigator.platform||"")?"Mac":"Browser";
+  const d={id:(crypto.randomUUID?crypto.randomUUID():String(Date.now())+"-"+Math.random().toString(36).slice(2)),name:platform};
+  localStorage.setItem(DEVICE_KEY,JSON.stringify(d));return d;
+}
+const DEVICE=getDevice();
 let state=load();
 initializeAutomaticAccounting();
 applyScheduledContributions();
@@ -365,8 +377,8 @@ function openCloudDialog(){
   cloudEmail.value=state.cloud.email||"";
   cloudPassword.value="";
   cloudDialogMessage.textContent=cloudConfigured()
-    ?"Dieses Gerät ist angemeldet. Supabase ist die führende Datenquelle."
-    :"Melde dieses Gerät einmalig mit demselben Konto an, das du auf deinen anderen Geräten verwendest.";
+    ?"Dieses Gerät ist angemeldet. Auto-Sync und Konfliktschutz sind aktiv."
+    :"Gib nur E-Mail und Passwort ein. Die Supabase-Verbindung ist bereits vorkonfiguriert.";
   document.getElementById("cloudDialog").showModal();
 }
 function saveCloudForm(){
@@ -443,6 +455,70 @@ function mergeRemoteState(remote,updatedAt){
   localStorage.setItem(KEY,JSON.stringify(state));
   applyingRemote=false;
 }
+
+async function heartbeatDevice(){
+  if(!cloudConfigured())return;
+  const row={user_id:state.cloud.userId,device_id:DEVICE.id,device_name:DEVICE.name,last_seen:new Date().toISOString()};
+  await cloudRequest("/rest/v1/portfolio_devices?on_conflict=user_id,device_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
+}
+async function loadDevices(){
+  if(!cloudConfigured()){deviceList.innerHTML='<div class="calendar-empty">Noch nicht mit Supabase verbunden.</div>';return}
+  try{
+    await heartbeatDevice();
+    const rows=await cloudRequest(`/rest/v1/portfolio_devices?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=device_id,device_name,last_seen&order=last_seen.desc`);
+    deviceList.innerHTML=(rows||[]).length?(rows||[]).map(d=>`<div class="device-row"><div><strong>${d.device_name||"Gerät"}</strong><small>${d.device_id===DEVICE.id?"Dieses Gerät · ":""}zuletzt ${new Date(d.last_seen).toLocaleString("de-DE")}</small></div><span class="status ${d.device_id===DEVICE.id?"cloud-on":""}">${d.device_id===DEVICE.id?"Aktiv":"Bekannt"}</span></div>`).join(""):'<div class="calendar-empty">Noch keine Geräte registriert.</div>';
+  }catch(e){deviceList.innerHTML=`<div class="calendar-empty">Geräteliste nicht verfügbar: ${e.message}</div>`}
+}
+async function createCloudVersion(reason="Auto-Sicherung"){
+  if(!cloudConfigured())return;
+  const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),reason,created_at:new Date().toISOString()};
+  await cloudRequest("/rest/v1/portfolio_sync_versions",{method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)});
+}
+async function loadVersions(){
+  if(!cloudConfigured()){versionList.innerHTML='<div class="calendar-empty">Noch nicht mit Supabase verbunden.</div>';return}
+  try{
+    const rows=await cloudRequest(`/rest/v1/portfolio_sync_versions?user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=id,reason,created_at&order=created_at.desc&limit=8`);
+    versionList.innerHTML=(rows||[]).length?(rows||[]).map(v=>`<div class="version-row"><div><strong>${v.reason||"Cloud-Version"}</strong><small>${new Date(v.created_at).toLocaleString("de-DE")}</small></div><button class="secondary" data-restore-version="${v.id}">Wiederherstellen</button></div>`).join(""):'<div class="calendar-empty">Noch keine Cloud-Versionen vorhanden.</div>';
+    versionList.querySelectorAll("[data-restore-version]").forEach(b=>b.onclick=()=>restoreCloudVersion(b.dataset.restoreVersion));
+  }catch(e){versionList.innerHTML=`<div class="calendar-empty">Versionshistorie nicht verfügbar: ${e.message}</div>`}
+}
+async function restoreCloudVersion(id){
+  if(!confirm("Diesen Cloud-Wiederherstellungspunkt laden? Der aktuelle Stand wird vorher gesichert."))return;
+  try{
+    await createCloudVersion("Vor Wiederherstellung");
+    const rows=await cloudRequest(`/rest/v1/portfolio_sync_versions?id=eq.${encodeURIComponent(id)}&user_id=eq.${encodeURIComponent(state.cloud.userId)}&select=portfolio_data,created_at`);
+    const row=rows?.[0];if(!row?.portfolio_data)throw new Error("Version nicht gefunden.");
+    mergeRemoteState(row.portfolio_data,row.created_at);
+    addAudit("Cloud-Version wiederhergestellt",new Date(row.created_at).toLocaleString("de-DE"));
+    localDirty=true;await syncToCloud({force:true,reason:"Wiederherstellung"});render();await loadVersions();
+  }catch(e){handleCloudError(e)}
+}
+function showConflict(row){
+  pendingConflict=row;
+  state.cloud.conflictAt=row.updated_at||new Date().toISOString();
+  persist({cloud:false});
+  conflictText.textContent=`Cloud-Stand vom ${new Date(row.updated_at).toLocaleString("de-DE")} ist neuer als der letzte bekannte Stand dieses Geräts.`;
+  conflictBanner.classList.remove("hidden");
+  cloudBadge.textContent="Konflikt";cloudBadge.className="status cloud-error";
+}
+function clearConflict(){
+  pendingConflict=null;state.cloud.conflictAt="";persist({cloud:false});conflictBanner.classList.add("hidden");
+}
+async function useCloudConflict(){
+  if(!pendingConflict)return;
+  mergeRemoteState(pendingConflict.portfolio_data,pendingConflict.updated_at);
+  clearConflict();addAudit("Konflikt gelöst","Cloud-Version übernommen");persist();render();
+}
+async function keepLocalConflict(){
+  if(!pendingConflict)return;
+  try{
+    await createCloudVersion("Konflikt – vorheriger Cloud-Stand");
+    clearConflict();
+    localDirty=true;await syncToCloud({force:true,reason:"Konflikt – lokaler Stand"});
+    addAudit("Konflikt gelöst","Lokalen Stand hochgeladen");persist();render();
+  }catch(e){handleCloudError(e)}
+}
+
 function scheduleCloudSave(){
   if(!cloudConfigured()||applyingRemote)return;
   clearTimeout(syncTimer);
@@ -455,19 +531,30 @@ function handleCloudError(e){
   cloudBadge.textContent=navigator.onLine?"Fehler":"Offline";
   cloudBadge.className="status cloud-error";
 }
-async function syncToCloud(){
+async function syncToCloud(options={}){
   if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
   if(syncInFlight)return;
   syncInFlight=true;
   try{
+    if(!options.force){
+      const remote=await getCloudRow();
+      const remoteTime=remote?.updated_at?new Date(remote.updated_at).getTime():0;
+      const knownTime=state.cloud.lastSync?new Date(state.cloud.lastSync).getTime():0;
+      if(remote?.portfolio_data&&remoteTime>knownTime&&localDirty){
+        showConflict(remote);return;
+      }
+    }
+    try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
     const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     state.cloud.lastSync=now;
     localDirty=false;
     lastCloudError="";
+    clearConflict();
     persist({cloud:false});
     renderCloudStatus();
+    heartbeatDevice().catch(()=>{});
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -477,20 +564,19 @@ async function getCloudRow(){
 async function syncFromCloud(preferCloud=true){
   if(!cloudConfigured())throw new Error("Cloud-Verbindung ist nicht vollständig eingerichtet.");
   if(syncInFlight)return false;
-  if(localDirty){
-    await syncToCloud();
-    return true;
-  }
   syncInFlight=true;
   try{
     const row=await getCloudRow();
     if(!row){
       syncInFlight=false;
-      await syncToCloud();
+      await syncToCloud({force:true,reason:"Erster Cloud-Stand"});
       return true;
     }
     const remoteTime=row.updated_at?new Date(row.updated_at).getTime():0;
     const localTime=state.cloud.lastSync?new Date(state.cloud.lastSync).getTime():0;
+    if(localDirty&&remoteTime>localTime){
+      showConflict(row);return false;
+    }
     if(preferCloud&&row.portfolio_data&&(remoteTime>localTime||!state.cloud.lastSync)){
       mergeRemoteState(row.portfolio_data,row.updated_at);
       initializeAutomaticAccounting();
@@ -499,9 +585,7 @@ async function syncFromCloud(preferCloud=true){
       return true;
     }
     state.cloud.lastSync=row.updated_at||state.cloud.lastSync;
-    persist({cloud:false});
-    renderCloudStatus();
-    return false;
+    persist({cloud:false});renderCloudStatus();return false;
   }finally{syncInFlight=false}
 }
 async function bootstrapCloud(firstLogin=false){
@@ -520,6 +604,7 @@ async function bootstrapCloud(firstLogin=false){
     }
     lastCloudError="";
     renderCloudStatus();
+    heartbeatDevice().catch(()=>{});loadDevices().catch(()=>{});loadVersions().catch(()=>{});
   }catch(e){
     handleCloudError(e);
     if(firstLogin)throw e;
@@ -538,8 +623,8 @@ function renderCloudStatus(){
   if(cloudConfigured()){
     cloudBadge.textContent=localDirty?"Änderung ausstehend":"Auto-Sync aktiv";
     cloudBadge.className="status cloud-on";
-    cloudMessage.textContent=`Supabase ist die führende Datenquelle. Angemeldet als ${state.cloud.email}. Änderungen auf einem Gerät werden automatisch auf die anderen Geräte übertragen.`;
-    cloudLastSync.textContent=state.cloud.lastSync?`Cloud-Stand: ${new Date(state.cloud.lastSync).toLocaleString("de-DE")}`:"Cloud wird initialisiert …";
+    cloudMessage.textContent=`Supabase ist der Master-Datenstand. Angemeldet als ${state.cloud.email}. Auto-Sync, Konfliktschutz und Versionshistorie sind aktiv.`;
+    cloudLastSync.textContent=state.cloud.lastSync?`Cloud-Stand: ${new Date(state.cloud.lastSync).toLocaleString("de-DE")} · Gerät: ${DEVICE.name}`:"Cloud wird initialisiert …";
   }else{
     cloudBadge.textContent="Nicht verbunden";cloudBadge.className="status cloud-off";
     cloudMessage.textContent="Einmalig auf jedem Gerät anmelden. Danach musst du Depotwerte nur noch auf einem Gerät erfassen.";
@@ -747,6 +832,10 @@ document.getElementById("saveTargets").onclick=saveTargetWeights;
 document.getElementById("clearAudit").onclick=clearAuditLog;
 document.getElementById("printReport").onclick=printDepotReport;
 document.getElementById("printReportCard").onclick=printDepotReport;
+document.getElementById("refreshDevices").onclick=loadDevices;
+document.getElementById("refreshVersions").onclick=loadVersions;
+document.getElementById("useCloudVersion").onclick=useCloudConflict;
+document.getElementById("keepLocalVersion").onclick=keepLocalConflict;
 document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
 document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
 document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
@@ -774,4 +863,5 @@ window.addEventListener("online",resumeCloudSync);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resumeCloudSync()});
 window.addEventListener("storage",e=>{if(e.key===KEY&&!localDirty){state=load();render()}});
 setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured()&&!localDirty)syncFromCloud(true).catch(handleCloudError)},15000);
+setInterval(()=>{if(document.visibilityState==="visible"&&navigator.onLine&&cloudConfigured())heartbeatDevice().catch(()=>{})},60000);
 bootstrapCloud(false);

@@ -140,3 +140,14 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
   .card strong,.card h2,.card span,.card p,.card small{color:inherit}
   .positive{color:#087f3d!important}.negative{color:#b42318!important}
 }
+
+/* Version 10 Cloud Pro */
+.advanced-cloud{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--panel2);margin:8px 0}
+.advanced-cloud summary{cursor:pointer;font-weight:800;color:var(--muted)}
+.conflict-banner{position:sticky;top:70px;z-index:20;display:flex;align-items:center;gap:10px;margin:0 auto 12px;padding:12px 14px;border:1px solid #f59e0b;border-radius:14px;background:#fff7ed;color:#7c2d12;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.conflict-banner.hidden{display:none}.conflict-banner>div{flex:1}.conflict-banner strong,.conflict-banner span{display:block}.conflict-banner span{font-size:12px;margin-top:3px}
+.device-list,.version-list{display:grid;gap:10px;margin-top:14px}
+.device-row,.version-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.device-row strong,.device-row small,.version-row strong,.version-row small{display:block}.device-row small,.version-row small{color:var(--muted);margin-top:4px}
+.cloud-error{background:#fee2e2!important;color:#991b1b!important}
+@media(max-width:720px){.conflict-banner,.device-row,.version-row{align-items:flex-start;flex-direction:column}.conflict-banner button{width:100%}}

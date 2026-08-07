@@ -1,46 +1,40 @@
-ETF DEPOT ANDREAS – VERSION 10.0 PROFESSIONAL CLOUD
+ETF DEPOT ANDREAS – VERSION 10 CLOUD PRO
 
-Kernprinzip
------------
-Supabase bleibt die zentrale Datenquelle. Mac, iPhone und iPad verwenden denselben Datenbestand.
-Der Browser speichert nur einen Offline-Cache.
+Cloud Pro
+---------
+- Supabase URL und Publishable Key sind bereits vorkonfiguriert.
+- Auf jedem Gerät nur einmal mit derselben E-Mail + Passwort anmelden.
+- Supabase ist der zentrale Master-Datenstand.
+- Automatischer Abgleich nach Änderungen und regelmäßig im Vordergrund.
+- Offline-Änderungen werden lokal zwischengespeichert und später hochgeladen.
+- Konfliktschutz: Wenn Cloud UND lokales Gerät seit dem letzten Sync geändert wurden, wird nichts still überschrieben.
+- Geräteübersicht mit letzter Aktivität.
+- Cloud-Wiederherstellungspunkte / Versionshistorie.
+- bestehende Version-10-Daten werden übernommen.
 
-Neu in Version 10
------------------
-- Zielgewichtungen je ETF
-- Rebalancing-Analyse mit Abweichung in Prozentpunkten
-- Empfehlung, welcher ETF bei der nächsten Sparrate bevorzugt werden sollte
-- Portfolio-Intelligence: Seit-Start-Performance, CAGR, Allzeithoch und Abstand zum Hoch
-- Änderungsprotokoll (Audit-Log), das über Supabase mit synchronisiert wird
-- Depotbericht über Browser-Druckdialog; auf Mac/iPhone kann als PDF gesichert werden
-- Cloud-Abgleich im Vordergrund alle 15 Sekunden
-- weiterhin automatischer Sync beim Öffnen, Fokuswechsel und Wiederherstellen der Internetverbindung
-- neuer Service-Worker-Cache v10 für saubere Updates
-- bestehende Version-9.1-Daten werden automatisch übernommen
+Supabase einmalig vorbereiten
+-----------------------------
+1. Supabase → SQL Editor.
+2. Inhalt von SUPABASE_SETUP.sql einfügen.
+3. Run.
+4. Erwartete Meldung: Success. No rows returned.
 
-Supabase
---------
-Wenn Version 9.1 bereits mit Supabase funktioniert:
-- SUPABASE_SETUP.sql kann erneut ausgeführt werden.
-- Kein neues Konto nötig.
-- Mit demselben Supabase-Konto auf allen Geräten anmelden.
-- Version 10 übernimmt vorhandene Cloud-Daten und ergänzt neue Felder automatisch.
+Danach
+------
+1. ETF-App öffnen.
+2. Cloud-Einstellungen.
+3. E-Mail + Passwort eingeben.
+4. Anmelden.
+5. Dasselbe einmal auf iPhone/iPad.
+6. Danach Werte nur noch auf einem Gerät erfassen.
+
+Sicherheit
+----------
+- In der Browser-App wird ausschließlich der Publishable Key verwendet.
+- Niemals den Supabase Secret Key / service_role Key in die App eintragen.
+- RLS begrenzt jeden Zugriff auf den aktuell angemeldeten Benutzer.
 
 GitHub Pages
 ------------
 Repository: etf-depot-andreas
 Settings → Pages → Deploy from a branch → main → /(root)
-
-Upload
-------
-1. Vorher in der laufenden App optional ein Backup erstellen.
-2. ZIP entpacken.
-3. Den INHALT des Ordners in das Root des GitHub-Repositories hochladen.
-4. Vorhandene Dateien ersetzen.
-5. Commit changes.
-6. Pages-Build abwarten.
-7. Seite neu laden.
-
-Hinweis
--------
-Die App ist eine persönliche Depotübersicht und keine Anlageberatung.

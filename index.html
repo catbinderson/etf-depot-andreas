@@ -15,7 +15,7 @@
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10 Professional Cloud</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10 Cloud Pro</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -28,15 +28,21 @@
     <button id="exportBtn">Backup</button><button id="syncNow">Jetzt abgleichen</button><button id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
     <label class="upload">Backup laden<input id="importInput" type="file" accept=".json" hidden></label>
   </nav>
+  <div id="conflictBanner" class="conflict-banner hidden">
+    <div><strong>Cloud-Konflikt erkannt</strong><span id="conflictText">Auf einem anderen Gerät wurde der Depotstand geändert.</span></div>
+    <button id="useCloudVersion">Cloud übernehmen</button>
+    <button id="keepLocalVersion" class="danger-button">Lokalen Stand hochladen</button>
+  </div>
+
 
   <main>
     <section class="card automation-note">
-      <div><span class="eyebrow">Version 10 – Professional Cloud</span><h2>Dein Depot als professionelle Cloud-App</h2></div>
+      <div><span class="eyebrow">Version 10 – Cloud Pro</span><h2>Ein Depotstand. Automatisch auf allen Geräten.</h2></div>
       <div class="automation-steps">
         <span>1. Einmal erfassen</span><span>2. Supabase synchronisiert</span><span>3. Analyse & Rebalancing automatisch</span>
       </div>
-      <p>Supabase bleibt die führende Datenquelle. Version 10 ergänzt Zielgewichtungen, Rebalancing-Hilfe, Performance-Analyse, Änderungsprotokoll und druckbare Monats-/Depotberichte – mit demselben Datenstand auf Mac, iPhone und iPad.</p>
-      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Rebalancing</span><span>Performance</span><span>Audit-Log</span><span>PDF-Druck</span><span>Retina-Charts</span></div>
+      <p>Supabase ist der zentrale Master-Datenstand. Änderungen werden automatisch gespeichert, Konflikte erkannt und auf Mac, iPhone und iPad verteilt. Versionshistorie und Geräteübersicht geben dir zusätzliche Sicherheit.</p>
+      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Konfliktschutz</span><span>Versionshistorie</span><span>Geräteverwaltung</span><span>Offline-Queue</span><span>Rebalancing</span></div>
     </section>
     <section class="fx-strip card">
       <div>
@@ -268,6 +274,27 @@
     </section>
 
 
+
+    <section class="two-col cloud-ops-grid">
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Cloud Pro · Geräte</span><h2>Angemeldete Geräte</h2></div>
+          <button id="refreshDevices" class="secondary">Aktualisieren</button>
+        </div>
+        <div id="deviceList" class="device-list"></div>
+        <p class="hint">Jedes Gerät erhält eine lokale Geräte-ID. Es werden nur Gerätename und letzter Kontakt gespeichert.</p>
+      </article>
+
+      <article class="card">
+        <div class="section-head">
+          <div><span class="eyebrow">Cloud Pro · Sicherheit</span><h2>Cloud-Versionen</h2></div>
+          <button id="refreshVersions" class="secondary">Aktualisieren</button>
+        </div>
+        <div id="versionList" class="version-list"></div>
+        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 10 automatisch einen Wiederherstellungspunkt an.</p>
+      </article>
+    </section>
+
     <section class="two-col v10-grid">
       <article class="card">
         <div class="section-head">
@@ -397,7 +424,7 @@
 <dialog id="cloudDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head">
-      <div><span class="eyebrow">Version 9.1 · Cloud First</span><h2>Supabase-Konto verbinden</h2></div>
+      <div><span class="eyebrow">Version 10 · Cloud Pro</span><h2>Supabase anmelden</h2></div>
       <button class="round close" value="cancel">×</button>
     </div>
     <p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
@@ -413,7 +440,7 @@
       <button id="cloudLogout" type="button">Abmelden</button>
     </div>
     <p id="cloudDialogMessage" class="hint"></p>
-    <div class="cloud-master-note"><strong>Cloud-First:</strong> Portfolio-Daten werden automatisch nach Supabase geschrieben. Auf anderen angemeldeten Geräten werden neue Cloud-Daten automatisch geladen.</div>
+    <div class="cloud-master-note"><strong>Cloud Pro:</strong> URL und Publishable Key sind bereits vorkonfiguriert. Du meldest dich auf jedem Gerät nur einmal mit derselben E-Mail und demselben Passwort an.</div>
   </form>
 </dialog>
 
