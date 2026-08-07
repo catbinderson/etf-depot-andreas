@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v10_2.cache";
+const KEY="etfDepotAndreas.v13.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -67,7 +67,7 @@ function render(){
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
- renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSyncStatus();renderSystemSummary();
+ renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderV13Charts();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSyncStatus();renderSystemSummary();
 }
 
 function renderDailySummary(current){
@@ -500,7 +500,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="10.2";
+  copy.schemaVersion="13.0";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -612,10 +612,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"10.2"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"13.0"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="10.2");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="13.0");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -623,7 +623,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 10.2 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 13.0 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -728,6 +728,152 @@ function renderHistory(){
 }
 function showChartTooltip(event){const canvas=historyChart,tip=chartTooltip;if(!chartPoints.length)return;const r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;const q=chartPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);tip.textContent=`${formatDate(q.date)} · ${euro.format(q.value)}`;tip.style.left=q.x+"px";tip.style.top=q.y+"px";tip.hidden=false}
 function hideChartTooltip(){chartTooltip.hidden=true}
+
+let gainChartPoints=[];
+let fundChartHitAreas=[];
+
+function filteredHistoryByRange(){
+  let hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));
+  if(historyRange.value!=="all"){
+    const c=new Date();c.setDate(c.getDate()-Number(historyRange.value));
+    hist=hist.filter(x=>new Date(x.date)>=c);
+  }
+  return hist;
+}
+
+function canvasSetup(canvas){
+  const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+  const w=Math.max(320,rect.width||canvas.parentElement.clientWidth||900),h=Math.max(260,rect.height||360);
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  const ctx=canvas.getContext("2d");ctx.setTransform(dpr,0,0,dpr,0,0);
+  return{ctx,w,h};
+}
+
+function chartTheme(){
+  const dark=document.documentElement.dataset.theme==="dark";
+  return{ink:dark?"#e7eef7":"#172033",muted:dark?"#93a4b8":"#64748b",grid:dark?"rgba(148,163,184,.18)":"rgba(100,116,139,.16)",card:dark?"#172433":"#fff"};
+}
+
+function drawEmptyChart(canvas,text){
+  const {ctx,w,h}=canvasSetup(canvas),th=chartTheme();
+  ctx.clearRect(0,0,w,h);ctx.fillStyle=th.muted;ctx.font="600 14px -apple-system,BlinkMacSystemFont,sans-serif";ctx.textAlign="center";
+  ctx.fillText(text,w/2,h/2);
+}
+
+function drawGrid(ctx,w,h,p,min,max,formatter){
+  const th=chartTheme();ctx.strokeStyle=th.grid;ctx.fillStyle=th.muted;ctx.lineWidth=1;ctx.font="11px -apple-system,BlinkMacSystemFont,sans-serif";ctx.textAlign="right";
+  for(let i=0;i<=4;i++){
+    const y=p+i*(h-2*p)/4,val=max-(max-min)*i/4;
+    ctx.beginPath();ctx.moveTo(p,y);ctx.lineTo(w-p,y);ctx.stroke();
+    ctx.fillText(formatter(val),p-8,y+4);
+  }
+}
+
+function renderV13ChartKPIs(hist){
+  const current=totals().value;
+  chartCurrentValue.textContent=euro.format(current);
+  if(hist.length>=2){
+    const first=Number(hist[0].value||0),last=Number(hist.at(-1).value||0),change=last-first;
+    chartPeriodChange.textContent=(change>=0?"+":"")+euro.format(change);chartPeriodChange.className=change>=0?"positive":"negative";
+    const vals=hist.map(x=>Number(x.value||0));chartRangeValue.textContent=euro.format(Math.max(...vals)-Math.min(...vals));
+  }else{
+    chartPeriodChange.textContent=chartRangeValue.textContent="–";chartPeriodChange.className="";
+  }
+  v13SnapshotCount.textContent=state.history.length.toLocaleString("de-DE");
+  v13GainSnapshotCount.textContent=state.history.filter(x=>Number.isFinite(Number(x.gain))).length.toLocaleString("de-DE");
+  v13FundSnapshotCount.textContent=state.history.filter(x=>Array.isArray(x.funds)&&x.funds.length).length.toLocaleString("de-DE");
+}
+
+function renderGainHistory(){
+  const canvas=document.getElementById("gainHistoryChart");
+  if(!canvas)return;
+  const hist=filteredHistoryByRange().filter(x=>Number.isFinite(Number(x.gain)));
+  const currentGain=totals().gain;
+  gainChartCurrent.textContent=euro.format(currentGain);gainChartCurrent.className=currentGain>=0?"positive":"negative";
+  gainChartPoints.textContent=hist.length.toLocaleString("de-DE");
+  if(hist.length){
+    const d=currentGain-Number(hist[0].gain||0);gainChartDelta.textContent=(d>=0?"+":"")+euro.format(d);gainChartDelta.className=d>=0?"positive":"negative";
+  }else{gainChartDelta.textContent="–";gainChartDelta.className=""}
+  if(!hist.length){gainChartPoints=[];drawEmptyChart(canvas,"Gewinnhistorie startet mit dem nächsten gespeicherten Tagesstand");return}
+  const {ctx,w,h}=canvasSetup(canvas),th=chartTheme(),p=54;
+  ctx.clearRect(0,0,w,h);
+  const vals=hist.map(x=>Number(x.gain)),min=Math.min(0,...vals),max=Math.max(0,...vals),span=Math.max(1,max-min);
+  drawGrid(ctx,w,h,p,min,max,v=>`${Math.round(v/1000)} T€`);
+  const zeroY=h-p-((0-min)/span)*(h-2*p);
+  ctx.strokeStyle=th.muted;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(p,zeroY);ctx.lineTo(w-p,zeroY);ctx.stroke();ctx.setLineDash([]);
+  gainChartPoints=hist.map((pt,i)=>({x:p+(hist.length===1?(w-2*p)/2:i*(w-2*p)/(hist.length-1)),y:h-p-((Number(pt.gain)-min)/span)*(h-2*p),date:pt.date,gain:Number(pt.gain)}));
+  const grad=ctx.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(34,197,94,.28)");grad.addColorStop(1,"rgba(34,197,94,0)");
+  ctx.beginPath();ctx.moveTo(gainChartPoints[0].x,zeroY);gainChartPoints.forEach(q=>ctx.lineTo(q.x,q.y));ctx.lineTo(gainChartPoints.at(-1).x,zeroY);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();gainChartPoints.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.strokeStyle=currentGain>=0?"#22c55e":"#ef4444";ctx.lineWidth=3;ctx.lineJoin="round";ctx.stroke();
+}
+
+function showGainTooltip(event){
+  if(!gainChartPoints.length)return;const canvas=gainHistoryChart,r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;
+  const q=gainChartPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);gainChartTooltip.textContent=`${formatDate(q.date)} · ${euro.format(q.gain)}`;gainChartTooltip.style.left=q.x+"px";gainChartTooltip.style.top=q.y+"px";gainChartTooltip.hidden=false;
+}
+
+function fundReturns(){
+  return state.funds.map((f,i)=>{
+    const cost=Number(f.costBasis||0),ytdBase=Number(f.ytdBasis||0),value=Number(f.value||0),gain=Number(f.gain||0),ytd=Number(f.ytd||0);
+    return{index:i,name:f.name,since:cost?gain/cost:0,ytdRate:ytdBase?ytd/ytdBase:0,value,weight:totals().value?value/totals().value:0,gain,ytd};
+  });
+}
+
+function renderFundPerformance(){
+  const canvas=document.getElementById("fundPerformanceChart");if(!canvas)return;
+  const data=fundReturns(),{ctx,w,h}=canvasSetup(canvas),th=chartTheme();
+  ctx.clearRect(0,0,w,h);fundChartHitAreas=[];
+  const left=Math.min(250,Math.max(130,w*.25)),right=28,top=36,rowH=(h-top-24)/Math.max(1,data.length),barH=Math.min(22,rowH*.25);
+  const vals=data.flatMap(d=>[d.since,d.ytdRate]),maxAbs=Math.max(.01,...vals.map(Math.abs));
+  const scale=(w-left-right)/(maxAbs*2),zero=left+(w-left-right)/2;
+  ctx.strokeStyle=th.grid;ctx.beginPath();ctx.moveTo(zero,top-10);ctx.lineTo(zero,h-20);ctx.stroke();
+  ctx.font="700 13px -apple-system,BlinkMacSystemFont,sans-serif";ctx.textAlign="right";ctx.fillStyle=th.ink;
+  data.forEach((d,i)=>{
+    const cy=top+i*rowH+rowH/2;ctx.fillText(d.name,left-14,cy+4);
+    [["since","#5B9BD5",-barH*.65],["ytdRate","#14b8a6",barH*.65]].forEach(([key,color,dy])=>{
+      const val=d[key],bw=Math.abs(val)*scale,x=val>=0?zero:zero-bw,y=cy+dy-barH/2;
+      ctx.fillStyle=color;ctx.globalAlpha=.88;ctx.fillRect(x,y,Math.max(2,bw),barH);ctx.globalAlpha=1;
+      fundChartHitAreas.push({x,y,w:Math.max(8,bw),h:barH,data:d,key,val});
+    });
+  });
+  ctx.fillStyle=th.muted;ctx.font="11px -apple-system,BlinkMacSystemFont,sans-serif";ctx.textAlign="center";
+  ctx.fillText(`−${(maxAbs*100).toFixed(0)} %`,left,18);ctx.fillText("0 %",zero,18);ctx.fillText(`+${(maxAbs*100).toFixed(0)} %`,w-right,18);
+}
+
+function showFundTooltip(event){
+  const canvas=fundPerformanceChart,r=canvas.getBoundingClientRect(),px=(event.touches?.[0]?.clientX??event.clientX)-r.left,py=(event.touches?.[0]?.clientY??event.clientY)-r.top;
+  const hit=fundChartHitAreas.find(a=>px>=a.x&&px<=a.x+a.w&&py>=a.y&&py<=a.y+a.h);
+  if(!hit){fundChartTooltip.hidden=true;return}
+  fundChartTooltip.textContent=`${hit.data.name} · ${hit.key==="since"?"Seit Kauf":"YTD"}: ${pct.format(hit.val)}`;fundChartTooltip.style.left=Math.min(px,r.width-150)+"px";fundChartTooltip.style.top=Math.max(20,py-20)+"px";fundChartTooltip.hidden=false;
+}
+
+function heatClass(rate){
+  const a=Math.abs(rate);if(a<.01)return"heat-neutral";const level=a>.25?4:a>.15?3:a>.07?2:1;return`${rate>=0?"heat-pos":"heat-neg"}-${level}`;
+}
+function renderFundHeatmap(){
+  if(typeof fundHeatmap==="undefined")return;
+  const data=fundReturns();
+  fundHeatmap.innerHTML=data.map(d=>`<article class="heat-tile ${heatClass(d.since)}">
+    <div class="heat-name">${d.name}</div>
+    <strong>${pct.format(d.since)}</strong>
+    <div class="heat-meta"><span>YTD ${pct.format(d.ytdRate)}</span><span>Gewicht ${pct.format(d.weight)}</span></div>
+    <small>${euro.format(d.value)} · Gewinn ${euro.format(d.gain)}</small>
+  </article>`).join("");
+}
+
+function renderV13Charts(){
+  const hist=filteredHistoryByRange();
+  renderV13ChartKPIs(hist);renderGainHistory();renderFundPerformance();renderFundHeatmap();
+}
+
+function setupChartTabs(){
+  document.querySelectorAll(".chart-tab").forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll(".chart-tab").forEach(x=>x.classList.toggle("active",x===btn));
+    document.querySelectorAll(".chart-panel").forEach(p=>p.classList.toggle("active",p.dataset.chartPanel===btn.dataset.chartTab));
+    setTimeout(()=>{renderHistory();renderV13Charts()},30);
+  });
+}
+
 function renderRisk(){const hist=[...state.history].sort((a,b)=>a.date.localeCompare(b.date));if(!hist.length)return;let peak=Number(hist[0].value),ath=peak,maxDD=0;for(const x of hist){const v=Number(x.value);peak=Math.max(peak,v);ath=Math.max(ath,v);if(peak)maxDD=Math.min(maxDD,(v-peak)/peak)}maxDrawdown.textContent=pct.format(maxDD);maxDrawdown.className=maxDD<0?"negative":"";allTimeHigh.textContent=euro.format(ath);const d=ath?totals().value/ath-1:0;distanceToHigh.textContent=pct.format(d);distanceToHigh.className=d>=0?"positive":"negative"}
 function renderDividends(){totalDividends.textContent=euro.format(state.dividends.reduce((s,d)=>s+Number(d.amount||0),0))}
 function renderNextSavings(){const now=new Date(),next=new Date(now.getFullYear(),now.getMonth()+1,1),days=Math.ceil((startOfDay(next)-startOfDay(now))/86400000);nextSavingsDate.textContent=`${formatDate(isoDate(next))} · in ${days} Tagen`}
@@ -856,7 +1002,28 @@ function applyEditor(){
   render();
   if(cloudConfigured())syncToCloud().catch(()=>{});
 }
-function snapshot(){const today=isoDate(new Date()),value=totals().value,f=state.history.find(x=>x.date===today);f?f.value=value:state.history.push({date:today,value});addAudit("Tagesstand gespeichert",`${formatDate(today)} · ${euro.format(value)}`);persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")}
+function snapshot(){
+ const today=isoDate(new Date()),t=totals();
+ const snap={
+   date:today,
+   value:t.value,
+   gain:t.gain,
+   costBasis:t.cost,
+   ytd:t.ytd,
+   funds:state.funds.map(f=>({
+     name:f.name,
+     value:Number(f.value||0),
+     gain:Number(f.gain||0),
+     ytd:Number(f.ytd||0),
+     costBasis:Number(f.costBasis||0),
+     ytdBasis:Number(f.ytdBasis||0)
+   }))
+ };
+ const f=state.history.find(x=>x.date===today);
+ if(f)Object.assign(f,snap);else state.history.push(snap);
+ addAudit("Tagesstand gespeichert",`${formatDate(today)} · ${euro.format(t.value)} · Gewinn ${euro.format(t.gain)}`);
+ persist();render();if(cloudConfigured())syncToCloud().catch(()=>{});alert("Tagesstand gespeichert.")
+}
 function openDividendDialog(){dividendFund.innerHTML=state.funds.map((f,i)=>`<option value="${i}">${f.name}</option>`).join("");dividendAmount.value="";dividendDate.value=isoDate(new Date());document.getElementById("dividendDialog").showModal()}
 function saveDividendEntry(){const amount=Number(dividendAmount.value||0);if(amount<=0)return;state.dividends.push({fundIndex:Number(dividendFund.value),amount,date:dividendDate.value});addAudit("Ausschüttung erfasst",euro.format(amount));persist();render()}
 function exportBackup(){const b=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="ETF-Depot-Andreas-Backup.json";a.click();URL.revokeObjectURL(a.href)}
@@ -885,6 +1052,14 @@ document.getElementById("applyEdit").onclick=applyEditor;
 document.getElementById("saveSnapshot").onclick=snapshot;
 document.getElementById("exportBtn").onclick=exportBackup;
 document.getElementById("importInput").onchange=importBackup;
+
+function openVersionInfoDialog(){
+  if(typeof versionInfoDialog!=="undefined") versionInfoDialog.showModal();
+}
+function closeVersionInfoDialog(){
+  if(typeof versionInfoDialog!=="undefined") versionInfoDialog.close();
+}
+
 document.getElementById("themeToggle").onclick=toggleTheme;
 document.getElementById("forecastRate").onchange=()=>{renderForecast();renderGoals();renderFire()};
 document.getElementById("historyRange").onchange=renderHistory;
@@ -907,20 +1082,33 @@ document.getElementById("refreshVersions").onclick=loadVersions;
 document.getElementById("useCloudVersion").onclick=useCloudConflict;
 document.getElementById("keepLocalVersion").onclick=keepLocalConflict;
 document.getElementById("clearSyncLog").onclick=clearSyncLogFn;
+document.getElementById("openVersionInfo").onclick=openVersionInfoDialog;
+document.getElementById("closeVersionInfo").onclick=closeVersionInfoDialog;
+document.getElementById("closeVersionInfoBottom").onclick=closeVersionInfoDialog;
+document.getElementById("versionInfoDialog").addEventListener("click",e=>{if(e.target===versionInfoDialog)closeVersionInfoDialog()});
 document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
 document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
 document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
 document.getElementById("historyChart").addEventListener("touchend",hideChartTooltip);
+document.getElementById("gainHistoryChart").addEventListener("mousemove",showGainTooltip);
+document.getElementById("gainHistoryChart").addEventListener("mouseleave",()=>gainChartTooltip.hidden=true);
+document.getElementById("gainHistoryChart").addEventListener("touchmove",showGainTooltip,{passive:true});
+document.getElementById("gainHistoryChart").addEventListener("touchend",()=>gainChartTooltip.hidden=true);
+document.getElementById("fundPerformanceChart").addEventListener("mousemove",showFundTooltip);
+document.getElementById("fundPerformanceChart").addEventListener("mouseleave",()=>fundChartTooltip.hidden=true);
+document.getElementById("fundPerformanceChart").addEventListener("touchmove",showFundTooltip,{passive:true});
+document.getElementById("fundPerformanceChart").addEventListener("touchend",()=>fundChartTooltip.hidden=true);
+setupChartTabs();
 if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
 persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 10.2";
+document.title="ETF Depot Andreas · Version 13";
 
 let chartResizeTimer;
-window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(renderHistory,120)});
+window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});
 async function resumeCloudSync(){
   if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
   if(!cloudConfigured())return;

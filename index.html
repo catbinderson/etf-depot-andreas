@@ -8,14 +8,14 @@
   <meta name="apple-mobile-web-app-title" content="ETF Depot Andreas">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=10.2.0">
-  <title>ETF Depot Andreas · Version 10.2</title>
+  <link rel="stylesheet" href="styles.css?v=13.0.0">
+  <title>ETF Depot Andreas · Version 13.0</title>
 </head>
 <body>
 <div class="app">
   <header class="hero">
     <div>
-      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 10.2</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V10.2 Cloud Verified</span></div>
+      <div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 13.0</span><span id="buildStamp" class="build-stamp">Build 2026-08-07 · V13 Analytics & Charts</span></div>
       <h1>ETF Depot Andreas</h1>
       <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
     </div>
@@ -41,13 +41,12 @@
 
 
   <main>
-    <section class="card automation-note">
-      <div><span class="eyebrow">Version 10.2 – Cloud Final</span><h2>Ein Depotstand. Automatisch auf allen Geräten.</h2></div>
-      <div class="automation-steps">
-        <span>1. Einmal erfassen</span><span>2. Auto-Sync im Hintergrund</span><span>3. Mac, iPhone & iPad identisch</span>
+    <section class="version-compact-bar">
+      <div>
+        <span class="eyebrow">Version 13</span>
+        <strong>Analytics & Charts</strong>
       </div>
-      <p>Supabase ist der zentrale Master-Datenstand. Version 10.2 synchronisiert automatisch beim Start, nach Änderungen, beim Zurückkehren zur App und nach Wiederherstellung der Internetverbindung. Konflikte werden geschützt statt still überschrieben.</p>
-      <div class="feature-pills"><span>Supabase Master</span><span>Auto-Sync</span><span>Konfliktschutz</span><span>Versionshistorie</span><span>Geräteverwaltung</span><span>Offline-Queue</span><span>Rebalancing</span></div>
+      <button id="openVersionInfo" class="secondary compact-info-button">Was ist neu?</button>
     </section>
     <section class="fx-strip card">
       <div>
@@ -123,19 +122,66 @@
       </article>
     </section>
 
-    <section class="two-col">
-      <article class="card">
-        <div class="section-head"><div><span class="eyebrow">Verlauf</span><h2>Depotentwicklung</h2></div>
-          <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
+    <section class="card chart-dashboard-card">
+      <div class="section-head">
+        <div><span class="eyebrow">Version 13 · Charts</span><h2>Depot-Analyse</h2></div>
+        <select id="historyRange"><option value="30">30 Tage</option><option value="90">90 Tage</option><option value="365">1 Jahr</option><option value="all">Gesamt</option></select>
+      </div>
+
+      <div class="chart-tabs" role="tablist" aria-label="Diagramme">
+        <button class="chart-tab active" data-chart-tab="portfolio">Depotentwicklung</button>
+        <button class="chart-tab" data-chart-tab="gain">Gewinnverlauf</button>
+        <button class="chart-tab" data-chart-tab="funds">ETF-Performance</button>
+        <button class="chart-tab" data-chart-tab="heatmap">Heatmap</button>
+      </div>
+
+      <div class="chart-panel active" data-chart-panel="portfolio">
+        <div class="chart-kpis">
+          <div><span>Aktuell</span><strong id="chartCurrentValue">–</strong></div>
+          <div><span>Änderung im Zeitraum</span><strong id="chartPeriodChange">–</strong></div>
+          <div><span>Spanne</span><strong id="chartRangeValue">–</strong></div>
         </div>
-        <div class="chart-shell"><canvas id="historyChart" width="900" height="360"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
+        <div class="chart-shell chart-large"><canvas id="historyChart" width="1100" height="390"></canvas><div id="chartTooltip" class="chart-tooltip" hidden></div></div>
         <div class="chart-footer"><p class="hint">Jeder gespeicherte Tagesstand ergänzt die Kurve.</p><button id="openHistoryManager" class="secondary">Tagesstände verwalten</button></div>
-      </article>
+      </div>
+
+      <div class="chart-panel" data-chart-panel="gain">
+        <div class="chart-kpis">
+          <div><span>Gesamtgewinn</span><strong id="gainChartCurrent">–</strong></div>
+          <div><span>Seit erstem V13-Snapshot</span><strong id="gainChartDelta">–</strong></div>
+          <div><span>Datenpunkte</span><strong id="gainChartPoints">–</strong></div>
+        </div>
+        <div class="chart-shell chart-large"><canvas id="gainHistoryChart" width="1100" height="390"></canvas><div id="gainChartTooltip" class="chart-tooltip" hidden></div></div>
+        <p class="hint">Der historische Gewinn wird ab Version 13 mit jedem Tagesstand gespeichert. Ältere Tagesstände enthalten nur den Depotwert und werden nicht künstlich rückgerechnet.</p>
+      </div>
+
+      <div class="chart-panel" data-chart-panel="funds">
+        <div class="fund-performance-legend"><span>Seit Kauf</span><span>Seit Jahresbeginn</span></div>
+        <div class="chart-shell chart-large"><canvas id="fundPerformanceChart" width="1100" height="420"></canvas><div id="fundChartTooltip" class="chart-tooltip" hidden></div></div>
+        <p class="hint">Vergleich der prozentualen Rendite deiner drei ETF-Positionen. Einzahlungen werden über die gespeicherten Einstandswerte berücksichtigt.</p>
+      </div>
+
+      <div class="chart-panel" data-chart-panel="heatmap">
+        <div id="fundHeatmap" class="fund-heatmap"></div>
+        <p class="hint">Je kräftiger die Fläche, desto stärker die absolute Performance. Grün steht für Gewinn, Rot für Verlust; neutral bleibt dunkel.</p>
+      </div>
+    </section>
+
+    <section class="two-col">
       <article class="card">
         <span class="eyebrow">Sparpläne</span><h2>1.500 € pro Monat</h2>
         <div id="savingsList"></div>
         <div class="info-box"><span>Jährliche Sparleistung</span><strong>18.000 €</strong></div>
         <div class="info-box"><span>Nächste Ausführung</span><strong id="nextSavingsDate">–</strong></div>
+      </article>
+      <article class="card">
+        <span class="eyebrow">Chart-Datenbasis</span><h2>Historie für Version 13</h2>
+        <div class="chart-data-quality">
+          <div><span>Gespeicherte Tagesstände</span><strong id="v13SnapshotCount">–</strong></div>
+          <div><span>Mit Gewinnhistorie</span><strong id="v13GainSnapshotCount">–</strong></div>
+          <div><span>Mit ETF-Snapshot</span><strong id="v13FundSnapshotCount">–</strong></div>
+        </div>
+        <p class="hint">Ab Version 13 speichert jeder neue Tagesstand Depotwert, Gewinn, Einstandskapital und die Werte jeder ETF-Position. So werden die Charts mit der Zeit immer aussagekräftiger.</p>
       </article>
     </section>
 
@@ -283,7 +329,7 @@
 
     <section class="card">
       <div class="section-head">
-        <div><span class="eyebrow">Version 10.2 · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
+        <div><span class="eyebrow">Version 13.0 · Synchronisation</span><h2>Cloud-Status und Synchronisationsprotokoll</h2></div>
         <button id="clearSyncLog" class="secondary">Protokoll leeren</button>
       </div>
       <div class="sync-proof">
@@ -368,12 +414,12 @@
     </section>
 
     <section class="card release-card">
-      <div><span class="eyebrow">Version 10.2</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
+      <div><span class="eyebrow">Version 13.0</span><h2>Systemstatus</h2><p id="systemSummary">Die App wird geprüft …</p></div>
       <div class="release-actions"><button id="installApp" class="secondary" hidden>App installieren</button><button id="forceRefresh" class="secondary">Neue Version laden</button></div>
     </section>
   </main>
 
-  <footer>ETF Depot Andreas · Version 10.2 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+  <footer>ETF Depot Andreas · Version 13.0 · Supabase als Hauptspeicher · lokaler Offline-Cache · Keine Anlageberatung.</footer>
 </div>
 
 <dialog id="editDialog">
@@ -477,6 +523,28 @@
     <div class="dialog-actions"><button value="cancel">Schließen</button></div>
   </form>
 </dialog>
-<script src="app.js?v=10.2.0"></script>
+<script src="app.js?v=13.0.0"></script>
+
+  <dialog id="versionInfoDialog" class="modal version-info-dialog">
+    <div class="modal-head">
+      <div>
+        <span class="eyebrow">Version 13 · Analytics & Charts</span>
+        <h2>Was ist neu?</h2>
+      </div>
+      <button id="closeVersionInfo" class="round" aria-label="Schließen">×</button>
+    </div>
+    <div class="version-info-grid">
+      <article><strong>Depotentwicklung</strong><span>Interaktive Verlaufskurve mit Zeitraumwahl und Kennzahlen.</span></article>
+      <article><strong>Gewinnverlauf</strong><span>Eigene Historie für den Depotgewinn ab dem ersten Version-13-Tagesstand.</span></article>
+      <article><strong>ETF-Performance</strong><span>Vergleich „Seit Kauf“ und „Seit Jahresbeginn“ für alle drei Positionen.</span></article>
+      <article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article>
+      <article><strong>Cloud bleibt Master</strong><span>Supabase-Sync, Offline-Queue und Konfliktschutz bleiben unverändert aktiv.</span></article>
+      <article><strong>Mehr Historie</strong><span>Neue Tagesstände speichern zusätzlich Gewinn, Einstandskapital und ETF-Snapshots.</span></article>
+    </div>
+    <div class="modal-actions">
+      <button id="closeVersionInfoBottom">Schließen</button>
+    </div>
+  </dialog>
+
 </body>
 </html>

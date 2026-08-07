@@ -1,37 +1,44 @@
-ETF DEPOT ANDREAS – VERSION 10.2 CLOUD VERIFIED
+ETF DEPOT ANDREAS – VERSION 13 ANALYTICS & CHARTS
 
-Wichtigste Änderung gegenüber 10.1
-----------------------------------
-Version 10.1 hat bereits erfolgreich automatisch nach Supabase geschrieben.
-Der Zeitstempel in Supabase wird in UTC angezeigt:
-05:36 UTC = 07:36 Uhr Deutschland (MESZ).
+Neu in Version 13
+-----------------
+- Depotentwicklung als interaktives Chart
+- Gewinnverlauf als eigenes Chart
+- ETF-Performance-Vergleich: Seit Kauf und seit Jahresbeginn
+- Performance-Heatmap für alle ETF-Positionen
+- Chart-KPIs für Zeitraum, Spanne und aktuelle Werte
+- neue Tagesstände speichern ab jetzt zusätzlich:
+  * Gesamtgewinn
+  * Einstandskapital
+  * YTD-Gewinn
+  * Werte/Gewinne/Einstandswerte jeder ETF-Position
+- dadurch wächst die historische Analyse automatisch mit jedem Tagesstand
+- Supabase-Cloud-Sync, Offline-Queue, Konfliktschutz und Geräte-Sync bleiben vollständig erhalten
 
-Der sichtbare Wert schema_version blieb jedoch auf 10.0, weil die App bisher nur
-portfolio_data und updated_at geschrieben hat. Version 10.2 behebt genau das.
+iPhone-Optimierung
+------------------
+Der grüne Synchronisationsstatus im Kopfbereich ist auf kleinen Displays deutlich
+kleiner und kompakter. Er nimmt nicht mehr die große vertikale Fläche im Header ein.
 
-Neu in 10.2
------------
-- schema_version wird bei jedem Cloud-Upsert explizit auf 10.2 gesetzt
-- Nach jedem Schreiben liest die App den Datensatz erneut aus Supabase
-- Schreibvorgang gilt erst dann als "Bestätigt", wenn updated_at und schema_version
-  von Supabase zurückgelesen wurden
-- Cloud-Schreibstatus direkt im Dashboard
-- sichtbares Cloud-Schema
-- Sync-Protokoll meldet "Supabase-Schreibtest bestätigt"
+Wichtig zur Gewinnhistorie
+--------------------------
+Alte Tagesstände aus Version 10.x enthalten nur den Depotwert. Version 13 erfindet
+dafür keine historischen Gewinnwerte. Der Gewinnverlauf beginnt deshalb ab dem
+ersten in Version 13 gespeicherten Tagesstand und wird danach automatisch erweitert.
 
 Supabase
 --------
-Kein neues SQL-Setup nötig. Deine Tabellen sind bereits korrekt eingerichtet.
+Kein neues SQL-Setup erforderlich. Beim nächsten Cloud-Speichern setzt die App
+schema_version automatisch auf 13.0.
 
-Test
-----
-1. Version 10.2 auf GitHub hochladen und Deployment abwarten.
-2. App neu laden.
-3. Einen Depotwert minimal ändern.
-4. 2–3 Sekunden warten.
-5. Im Dashboard muss "Cloud-Schreibstatus: Bestätigt ✓" erscheinen.
-6. In Supabase portfolio_sync muss schema_version = 10.2 stehen.
-7. updated_at ist UTC; Deutschland im August liegt 2 Stunden davor (MESZ).
+Installation
+------------
+1. ZIP entpacken.
+2. Inhalt in das Root des GitHub-Repositories hochladen.
+3. Vorhandene Dateien ersetzen.
+4. Commit changes.
+5. GitHub Pages Deployment abwarten.
+6. Auf iPhone/Mac Seite einmal neu laden.
 
 GitHub Pages
 ------------

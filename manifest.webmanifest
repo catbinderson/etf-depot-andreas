@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 10.2 Cloud Verified",
-  "short_name": "ETF Depot 10.2",
+  "name": "ETF Depot Andreas Version 13 Analytics & Charts",
+  "short_name": "ETF Depot V13",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Cloud-Depot mit verifiziertem Supabase-Schreibtest, Auto-Sync, Offline-Queue, Konfliktschutz und Versionshistorie."
+  "description": "Cloud-Depot mit Supabase-Synchronisation, interaktiver Depotentwicklung, Gewinnverlauf, ETF-Performance und Heatmap."
 }
