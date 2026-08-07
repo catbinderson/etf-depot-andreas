@@ -1,6 +1,6 @@
 {
-  "name": "ETF Depot Andreas Version 1.1",
-  "short_name": "ETF Depot 1.1",
+  "name": "ETF Depot Andreas Version 1.2 Wealth",
+  "short_name": "ETF Depot 1.2",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#f4f7fb",
@@ -17,5 +17,5 @@
       "type": "image/png"
     }
   ],
-  "description": "Refined Release mit kompakterem Header, stärkerer KPI-Hierarchie, früher platzierten Charts, ETF-Hervorhebung und Benchmark-Schnellvergleich."
+  "description": "Vermögensübersicht mit ETF-Depot, FNZ Flexkonto, Gesamtvermögen, Cashquote und Investitionsgrad – vollständig mit Supabase synchronisiert."
 }

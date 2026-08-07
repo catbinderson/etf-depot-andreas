@@ -1,19 +1,26 @@
-ETF DEPOT ANDREAS – VERSION 1.1
-Refined Release
+ETF DEPOT ANDREAS – VERSION 1.2 WEALTH
 
-Änderungen gegenüber 1.0 ULTIMATE
----------------------------------
-- Header nochmals kompakter
-- Depotwert und Gesamtgewinn rechts im Header angeordnet
-- KPI-Hierarchie verbessert: Depotwert stärker gewichtet
-- Charts deutlich weiter nach oben gezogen
-- ETF-Gewinner/Verlierer optisch hervorgehoben
-- Benchmark-Schnellvergleich direkt oberhalb der Charts
-- sanftere Rahmen und subtilere Schatten
-- mobile Darstellung entsprechend angepasst
-- bestehende Cloud-, Analytics- und Assistant-Funktionen bleiben erhalten
+Neu
+---
+- FNZ Flexkonto als zusätzlicher Vermögenswert
+- Startwert: 4.289,97 €
+- Gesamtvermögen = ETF-Depot + FNZ Flexkonto
+- Cashquote
+- Investitionsgrad
+- Werte im Header und in eigenem Vermögensblock
+- Flexkonto kann über „Flexkonto ändern“ manuell angepasst werden
+- Bezeichnung, Kontostand und Einbeziehung ins Gesamtvermögen sind konfigurierbar
+- Flexkonto wird im bestehenden Supabase-Portfolio-JSON mit synchronisiert
+
+Aktuelle Startwerte
+-------------------
+ETF-Depot:      120.905,32 €
+FNZ Flexkonto:    4.289,97 €
+Gesamtvermögen: 125.195,29 €
+Cashquote:           3,43 %
+Investitionsgrad:   96,57 %
 
 Supabase
 --------
-Keine neue SQL-Einrichtung erforderlich.
-Beim nächsten Cloud-Speichern wird schema_version auf 1.1 gesetzt.
+Kein neues SQL erforderlich.
+Beim nächsten Cloud-Speichern wird schema_version auf 1.2 gesetzt.

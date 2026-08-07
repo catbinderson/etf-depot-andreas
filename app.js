@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.1.refined.cache";
+const KEY="etfDepotAndreas.v1.2.wealth.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -15,9 +15,9 @@ const DEFAULTS={
  history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0,
  targets:[40,40,20],
  audit:[],
- preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
+ preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -42,7 +42,7 @@ const euro=new Intl.NumberFormat("de-DE",{style:"currency",currency:"EUR"});
 const pct=new Intl.NumberFormat("de-DE",{style:"percent",minimumFractionDigits:2,maximumFractionDigits:2});
 const num=new Intl.NumberFormat("de-DE",{minimumFractionDigits:2,maximumFractionDigits:6});
 function clone(x){return JSON.parse(JSON.stringify(x))}
-function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})},targets:Array.isArray(x.targets)?x.targets:[40,40,20],audit:Array.isArray(x.audit)?x.audit:[],preferences:{...DEFAULTS.preferences,...(x.preferences||{})},benchmarks:{...DEFAULTS.benchmarks,...(x.benchmarks||{})},syncLog:Array.isArray(x.syncLog)?x.syncLog:[],syncMeta:{...DEFAULTS.syncMeta,...(x.syncMeta||{})}}}catch{return clone(DEFAULTS)}}
+function load(){try{const raw=localStorage.getItem(KEY)||old;if(!raw)return clone(DEFAULTS);const x=JSON.parse(raw);return{...clone(DEFAULTS),...x,dividends:x.dividends||[],benchmark:{...DEFAULTS.benchmark,...(x.benchmark||{})},contributions:x.contributions||[],autoAccounting:{...DEFAULTS.autoAccounting,...(x.autoAccounting||{})},cloud:{...DEFAULTS.cloud,...(x.cloud||{})},fx:{...DEFAULTS.fx,...(x.fx||{})},targets:Array.isArray(x.targets)?x.targets:[40,40,20],audit:Array.isArray(x.audit)?x.audit:[],preferences:{...DEFAULTS.preferences,...(x.preferences||{})},otherAssets:{...DEFAULTS.otherAssets,...(x.otherAssets||{}),cashAccount:{...DEFAULTS.otherAssets.cashAccount,...(x.otherAssets?.cashAccount||{})}},benchmarks:{...DEFAULTS.benchmarks,...(x.benchmarks||{})},syncLog:Array.isArray(x.syncLog)?x.syncLog:[],syncMeta:{...DEFAULTS.syncMeta,...(x.syncMeta||{})}}}catch{return clone(DEFAULTS)}}
 function persist(options={}){
   localStorage.setItem(KEY,JSON.stringify(state));
   if(options.cloud===false||applyingRemote)return;
@@ -64,6 +64,46 @@ function totals(){
   return{value,gain,ytd,cost,ret:cost?gain/cost:0}
 }
 
+
+function getCashAccount(){
+  const a=state.otherAssets?.cashAccount||{name:"FNZ Flexkonto",balance:4289.97,include:true};
+  return{name:a.name||"FNZ Flexkonto",balance:Number(a.balance||0),include:a.include!==false};
+}
+function renderWealthOverview(){
+  const t=totals(),cash=getCashAccount(),cashValue=cash.include?cash.balance:0,total=t.value+cashValue;
+  const cashShare=total?cashValue/total:0,investedShare=total?t.value/total:0;
+
+  const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text};
+  set("heroCashValue",euro.format(cash.balance));
+  set("heroCashShare",`${pct.format(cashShare)} Cash`);
+  set("heroTotalWealth",euro.format(total));
+  set("heroInvestedShare",`${pct.format(investedShare)} investiert`);
+
+  set("wealthDepotValue",euro.format(t.value));
+  set("wealthDepotShare",`${pct.format(investedShare)} des Gesamtvermögens`);
+  set("wealthCashValue",euro.format(cash.balance));
+  set("wealthCashShare",`${pct.format(cashShare)} Cashquote`);
+  set("wealthTotalValue",euro.format(total));
+  set("wealthInvestedShare",`${pct.format(investedShare)} Investitionsgrad`);
+}
+function openCashAccountDialog(){
+  const a=getCashAccount();
+  cashAccountName.value=a.name;
+  cashAccountBalance.value=a.balance.toFixed(2);
+  cashIncludeInWealth.checked=a.include;
+  cashAccountDialog.showModal();
+}
+function saveCashAccountSettings(){
+  state.otherAssets=state.otherAssets||{};
+  state.otherAssets.cashAccount={
+    name:(cashAccountName.value||"FNZ Flexkonto").trim(),
+    balance:Math.max(0,Number(cashAccountBalance.value||0)),
+    include:Boolean(cashIncludeInWealth.checked)
+  };
+  persist();renderWealthOverview();cashAccountDialog.close();
+  if(cloudConfigured())syncToCloud().catch(()=>{});
+}
+
 function renderHeroDashboard(){
   const t=totals();
   const valueEl=document.getElementById("heroDepotValue");
@@ -74,7 +114,7 @@ function renderHeroDashboard(){
   if(pctEl)pctEl.textContent=t.cost?pct.format(t.gain/t.cost):"–";
 }
 
-function render(){renderHeroDashboard();
+function render(){renderWealthOverview();renderHeroDashboard();
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
@@ -533,7 +573,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.1";
+  copy.schemaVersion="1.2";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -645,10 +685,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.1"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.2"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.1");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.2");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -656,7 +696,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.1 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.2 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1230,6 +1270,10 @@ document.getElementById("assistantInput")?.addEventListener("keydown",e=>{if(e.k
 document.querySelectorAll(".assistant-chips button").forEach(b=>b.addEventListener("click",()=>askDepotAssistant(b.dataset.question)));
 document.getElementById("benchmarkSelect")?.addEventListener("change",()=>{renderBenchmark();renderBenchmarkStrip()});
 document.getElementById("benchmarkStripButton")?.addEventListener("click",()=>document.getElementById("benchmarkSection")?.scrollIntoView({behavior:"smooth",block:"start"}));
+document.getElementById("editCashAccount")?.addEventListener("click",openCashAccountDialog);
+document.getElementById("closeCashAccountDialog")?.addEventListener("click",()=>cashAccountDialog.close());
+document.getElementById("saveCashAccount")?.addEventListener("click",saveCashAccountSettings);
+document.getElementById("cashAccountDialog")?.addEventListener("click",e=>{if(e.target===cashAccountDialog)cashAccountDialog.close()});
 document.getElementById("openBenchmarkImport")?.addEventListener("click",()=>benchmarkDialog.showModal());
 document.getElementById("closeBenchmarkDialog")?.addEventListener("click",()=>benchmarkDialog.close());
 document.getElementById("saveBenchmarkCsv")?.addEventListener("click",saveBenchmarkCsv);
@@ -1257,7 +1301,7 @@ persist();
 
 document.documentElement.dataset.theme=state.theme;render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.1";
+document.title="ETF Depot Andreas · Version 1.2 Wealth";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

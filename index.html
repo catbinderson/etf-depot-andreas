@@ -9,24 +9,32 @@
 <meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=1.1.0" rel="stylesheet"/>
-<title>ETF Depot Andreas · Version 1.1</title>
+<link href="styles.css?v=1.2.0" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 1.2 Wealth</title>
 </head>
 <body>
 <div class="app">
 <header class="hero">
 <div>
-<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.1</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Refined</span></div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.2</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Wealth</span></div>
 <h1>ETF Depot Andreas</h1>
 <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
-<div class="hero-dashboard-summary hero-dashboard-summary-right">
+<div class="hero-dashboard-summary hero-dashboard-summary-right hero-dashboard-summary-wealth">
 <div class="hero-stat hero-stat-main">
 <span>Depotwert</span><strong id="heroDepotValue">–</strong>
 </div>
 <div class="hero-stat">
 <span>Gesamtgewinn</span><strong id="heroGainValue">–</strong><small id="heroGainPct">–</small>
 </div>
-</div></div>
+<div class="hero-stat">
+<span>FNZ Flexkonto</span>
+<strong id="heroCashValue">4.289,97 €</strong>
+<small id="heroCashShare">3,43 % Cash</small>
+</div><div class="hero-stat hero-stat-total">
+<span>Gesamtvermögen</span>
+<strong id="heroTotalWealth">125.195,29 €</strong>
+<small id="heroInvestedShare">96,57 % investiert</small>
+</div></div></div>
 <div class="live-cloud-status offline" id="liveCloudStatus" title="Cloud-Status">
 <span class="cloud-dot"></span>
 <span id="liveCloudLabel">Offline</span>
@@ -68,6 +76,31 @@
 <article class="card kpi kpi-md">
 <span>GuV seit Jahresbeginn</span><strong id="totalYtd">–</strong><small id="bestFund">–</small>
 </article>
+</section><section class="wealth-overview card" id="wealthOverview">
+<div class="section-head">
+<div>
+<span class="eyebrow">Vermögen</span>
+<h2>Depot + FNZ Flexkonto</h2>
+</div>
+<button class="secondary" id="editCashAccount">Flexkonto ändern</button>
+</div>
+<div class="wealth-grid">
+<div class="wealth-card">
+<span>ETF-Depot</span>
+<strong id="wealthDepotValue">–</strong>
+<small id="wealthDepotShare">–</small>
+</div>
+<div class="wealth-card cash">
+<span>FNZ Flexkonto</span>
+<strong id="wealthCashValue">4.289,97 €</strong>
+<small id="wealthCashShare">–</small>
+</div>
+<div class="wealth-card total">
+<span>Gesamtvermögen</span>
+<strong id="wealthTotalValue">–</strong>
+<small id="wealthInvestedShare">–</small>
+</div>
+</div>
 </section><section class="benchmark-strip" id="benchmarkStrip">
 <div>
 <span class="eyebrow">Benchmark-Schnellvergleich</span>
@@ -555,11 +588,35 @@
 <article><strong>Heatmap</strong><span>Visuelle Übersicht der relativen Stärke deiner ETF-Positionen.</span></article><article><strong>Profi-Risikokennzahlen</strong><span>Volatilität, Sharpe Ratio, Gewinntage sowie bester und schlechtester Tag.</span></article><article><strong>Smart Insights</strong><span>Automatische, lokale Hinweise aus deinen eigenen Depotdaten.</span></article><article><strong>Depot-Assistent</strong><span>Fragen zu Rendite, ETFs, Drawdown, Zielen und Kennzahlen direkt in der App.</span></article><article><strong>Benchmark-Vergleich</strong><span>Vergleich gegen MSCI World, ACWI oder S&amp;P 500 mit echten importierten Indexdaten.</span></article>
 <article><strong>Cloud bleibt Master</strong><span>Supabase-Sync, Offline-Queue und Konfliktschutz bleiben unverändert aktiv.</span></article>
 <article><strong>Mehr Historie</strong><span>Neue Tagesstände speichern zusätzlich Gewinn, Einstandskapital und ETF-Snapshots.</span></article>
-</div>
+<article><strong>Gesamtvermögen</strong><span>Das FNZ Flexkonto wird separat erfasst und gemeinsam mit dem ETF-Depot zum Gesamtvermögen addiert.</span></article></div>
 <div class="modal-actions">
 <button id="closeVersionInfoBottom">Schließen</button>
 </div>
 </dialog>
-<script src="app.js?v=1.1.0"></script>
-</body>
+<script src="app.js?v=1.2.0"></script>
+<dialog class="modal cash-dialog" id="cashAccountDialog">
+<div class="modal-head">
+<div>
+<span class="eyebrow">Weitere Vermögenswerte</span>
+<h2>FNZ Flexkonto</h2>
+</div>
+<button aria-label="Schließen" class="round" id="closeCashAccountDialog">×</button>
+</div>
+<label>
+        Bezeichnung
+        <input id="cashAccountName" type="text" value="FNZ Flexkonto"/>
+</label>
+<label>
+        Kontostand
+        <input id="cashAccountBalance" min="0" step="0.01" type="number" value="4289.97"/>
+</label>
+<label class="toggle-row">
+<input checked="" id="cashIncludeInWealth" type="checkbox"/>
+<span>Zum Gesamtvermögen addieren</span>
+</label>
+<div class="dialog-actions">
+<button id="saveCashAccount">Speichern</button>
+</div>
+<p class="hint">Da sich dieser Wert selten ändert, wird er manuell gepflegt und über Supabase mit deinen anderen Geräten synchronisiert.</p>
+</dialog></body>
 </html>
