@@ -361,14 +361,14 @@
           <button id="refreshVersions" class="secondary">Aktualisieren</button>
         </div>
         <div id="versionList" class="version-list"></div>
-        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 10 automatisch einen Wiederherstellungspunkt an.</p>
+        <p class="hint">Vor wichtigen Cloud-Änderungen legt Version 13 automatisch einen Wiederherstellungspunkt an.</p>
       </article>
     </section>
 
     <section class="two-col v10-grid">
       <article class="card">
         <div class="section-head">
-          <div><span class="eyebrow">Version 10 · Rebalancing</span><h2>Zielgewichtungen</h2></div>
+          <div><span class="eyebrow">Version 13 · Rebalancing</span><h2>Zielgewichtungen</h2></div>
           <button id="editTargets" class="secondary">Ziele bearbeiten</button>
         </div>
         <div id="rebalanceList" class="rebalance-list"></div>
@@ -484,8 +484,8 @@
 
 <dialog id="targetsDialog">
   <form method="dialog" class="dialog-card">
-    <div class="section-head"><div><span class="eyebrow">Version 10</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
-    <p class="hint">Die Summe sollte 100 % ergeben. Version 10 berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
+    <div class="section-head"><div><span class="eyebrow">Version 13</span><h2>Zielgewichtungen festlegen</h2></div><button class="round close" value="cancel">×</button></div>
+    <p class="hint">Die Summe sollte 100 % ergeben. Version 13 berechnet daraus Abweichungen und eine Empfehlung für die nächste Sparrate.</p>
     <div id="targetRows" class="target-rows"></div>
     <div class="dialog-actions"><button value="cancel">Abbrechen</button><button id="saveTargets" value="default" class="primary">Ziele speichern</button></div>
   </form>
@@ -494,7 +494,7 @@
 <dialog id="cloudDialog">
   <form method="dialog" class="dialog-card">
     <div class="section-head">
-      <div><span class="eyebrow">Version 10 · Cloud Pro</span><h2>Supabase anmelden</h2></div>
+      <div><span class="eyebrow">Version 13 · Cloud</span><h2>Supabase anmelden</h2></div>
       <button class="round close" value="cancel">×</button>
     </div>
     <p class="hint">Nach der einmaligen Anmeldung auf jedem Gerät ist Supabase die führende Datenquelle. Du erfasst Depotwerte nur noch auf einem Gerät; alle anderen Geräte laden Änderungen automatisch. Beim ersten Login wird ein vorhandener lokaler Version-9-Datenstand einmalig in die Cloud übernommen, falls dort noch kein Datensatz existiert.</p>
@@ -523,7 +523,7 @@
     <div class="dialog-actions"><button value="cancel">Schließen</button></div>
   </form>
 </dialog>
-<script src="app.js?v=13.0.0"></script>
+
 
   <dialog id="versionInfoDialog" class="modal version-info-dialog">
     <div class="modal-head">
@@ -546,5 +546,6 @@
     </div>
   </dialog>
 
+<script src="app.js?v=13.0.0"></script>
 </body>
 </html>
