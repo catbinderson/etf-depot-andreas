@@ -1,4 +1,8 @@
-ETF DEPOT ANDREAS – VERSION 1.5 SAFE UPDATE
+ETF DEPOT ANDREAS – VERSION 1.5.1 STABILITÄTSUPDATE
+
+Version 1.5.1 verhindert, dass ein fehlendes oder noch nicht geladenes Bedienelement
+die gesamte App-Initialisierung stoppt. Das JavaScript wartet außerdem auf das
+vollständige HTML-Dokument. Das behebt den Safari-Fehler „onclick … is null“.
 
 Warum diese Version?
 --------------------

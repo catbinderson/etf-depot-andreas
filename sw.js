@@ -1,5 +1,5 @@
-const CACHE="etf-depot-andreas-v1-5-safe-update";
-const ASSETS=["./","./index.html","./styles.css?v=1.5.0","./app.js?v=1.5.0","./manifest.webmanifest","./icon-192.png","./icon-512.png","./version.json"];
+const CACHE="etf-depot-andreas-v1-5-1-stability-update";
+const ASSETS=["./","./index.html","./styles.css?v=1.5.1","./app.js?v=1.5.1","./manifest.webmanifest","./icon-192.png","./icon-512.png","./version.json"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 
 self.addEventListener("message",event=>{
@@ -24,7 +24,7 @@ self.addEventListener("message",event=>{
         }
 
         // Validate the two most important resources before activation.
-        const jsResp=await cache.match("./app.js?v=1.5.0");
+        const jsResp=await cache.match("./app.js?v=1.5.1");
         const htmlResp=await cache.match("./index.html");
         if(!jsResp||!htmlResp)throw new Error("Kritische App-Dateien fehlen im neuen Cache");
 

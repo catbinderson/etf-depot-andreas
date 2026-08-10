@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.5.safeupdate.cache";
+const KEY="etfDepotAndreas.v1.5.1.safeupdate.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.5.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -105,8 +105,8 @@ async function restoreCloudSession(){
 }
 
 
-const APP_VERSION="1.5";
-const APP_SHELL_VERSION="1.5.0";
+const APP_VERSION="1.5.1";
+const APP_SHELL_VERSION="1.5.1";
 const APP_UPDATE_CHECK_INTERVAL=60*60*1000;
 const APP_UPDATE_DISMISS_KEY="etfDepotAndreas.update.dismissed";
 let appUpdateCheckTimer=null;
@@ -141,7 +141,7 @@ function hideUpdateBanner(){
 async function registerAppServiceWorker(){
   if(!("serviceWorker" in navigator))return null;
   try{
-    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.0",{scope:"./",updateViaCache:"none"});
+    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.1",{scope:"./",updateViaCache:"none"});
     await reg.update().catch(()=>{});
     return reg;
   }catch(e){
@@ -805,7 +805,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.5";
+  copy.schemaVersion="1.5.1";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -917,10 +917,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5.1"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5.1");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -928,7 +928,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5.1 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1453,22 +1453,28 @@ function startOfDay(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
 function startOfWeek(d){const x=startOfDay(d),day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-document.getElementById("openEdit").onclick=openEditor;
-document.getElementById("syncNow").onclick=syncNowHandler;
-document.getElementById("cloudSettings").onclick=openCloudDialog;
-document.getElementById("cloudRegister").onclick=registerCloud;
-document.getElementById("cloudLogin").onclick=loginCloud;
-document.getElementById("cloudLogout").onclick=logoutCloud;
-document.getElementById("editBenchmark").onclick=openBenchmarkDialog;
-document.getElementById("saveBenchmark").onclick=saveBenchmarkData;
-document.getElementById("addContribution").onclick=openContributionDialog;
-document.getElementById("saveContribution").onclick=saveContributionData;
-document.getElementById("exportCsv").onclick=exportHistoryCsv;
-document.getElementById("refreshFx").onclick=fetchUsdEur;
-document.getElementById("applyEdit").onclick=applyEditor;
-document.getElementById("saveSnapshot").onclick=snapshot;
-document.getElementById("exportBtn").onclick=exportBackup;
-document.getElementById("importInput").onchange=importBackup;
+function bindElement(id,event,handler,options){
+  const element=document.getElementById(id);
+  if(!element){console.warn(`Bedienelement #${id} ist in dieser App-Shell nicht vorhanden.`);return null}
+  element.addEventListener(event,handler,options);
+  return element;
+}
+bindElement("openEdit","click",openEditor);
+bindElement("syncNow","click",syncNowHandler);
+bindElement("cloudSettings","click",openCloudDialog);
+bindElement("cloudRegister","click",registerCloud);
+bindElement("cloudLogin","click",loginCloud);
+bindElement("cloudLogout","click",logoutCloud);
+bindElement("editBenchmark","click",openBenchmarkDialog);
+bindElement("saveBenchmark","click",saveBenchmarkData);
+bindElement("addContribution","click",openContributionDialog);
+bindElement("saveContribution","click",saveContributionData);
+bindElement("exportCsv","click",exportHistoryCsv);
+bindElement("refreshFx","click",fetchUsdEur);
+bindElement("applyEdit","click",applyEditor);
+bindElement("saveSnapshot","click",snapshot);
+bindElement("exportBtn","click",exportBackup);
+bindElement("importInput","change",importBackup);
 
 function openVersionInfoDialog(){
   if(typeof versionInfoDialog!=="undefined") versionInfoDialog.showModal();
@@ -1477,30 +1483,30 @@ function closeVersionInfoDialog(){
   if(typeof versionInfoDialog!=="undefined") versionInfoDialog.close();
 }
 
-document.getElementById("themeToggle").onclick=toggleTheme;
-document.getElementById("forecastRate").onchange=()=>{renderForecast();renderGoals();renderFire()};
-document.getElementById("historyRange").onchange=renderHistory;
-document.getElementById("analyticsRange").onchange=renderAnalytics;
-document.getElementById("clearHistory").onclick=clearHistoryData;
-document.getElementById("monthlyExpenses").oninput=renderFire;
-document.getElementById("withdrawalRate").onchange=renderFire;
-document.getElementById("addDividend").onclick=openDividendDialog;
-document.getElementById("saveDividend").onclick=saveDividendEntry;
-document.getElementById("openHistoryManager").onclick=openHistoryManager;
-document.getElementById("forceRefresh").onclick=forceVersionRefresh;
+bindElement("themeToggle","click",toggleTheme);
+bindElement("forecastRate","change",()=>{renderForecast();renderGoals();renderFire()});
+bindElement("historyRange","change",renderHistory);
+bindElement("analyticsRange","change",renderAnalytics);
+bindElement("clearHistory","click",clearHistoryData);
+bindElement("monthlyExpenses","input",renderFire);
+bindElement("withdrawalRate","change",renderFire);
+bindElement("addDividend","click",openDividendDialog);
+bindElement("saveDividend","click",saveDividendEntry);
+bindElement("openHistoryManager","click",openHistoryManager);
+bindElement("forceRefresh","click",forceVersionRefresh);
 document.getElementById("applyUpdate")?.addEventListener("click",applyAppUpdate);
 document.getElementById("dismissUpdate")?.addEventListener("click",dismissAppUpdate);
-document.getElementById("installApp").onclick=installPwa;
-document.getElementById("editTargets").onclick=openTargetsDialog;
-document.getElementById("saveTargets").onclick=saveTargetWeights;
-document.getElementById("clearAudit").onclick=clearAuditLog;
-document.getElementById("printReport").onclick=printDepotReport;
-document.getElementById("printReportCard").onclick=printDepotReport;
-document.getElementById("refreshDevices").onclick=loadDevices;
-document.getElementById("refreshVersions").onclick=loadVersions;
-document.getElementById("useCloudVersion").onclick=useCloudConflict;
-document.getElementById("keepLocalVersion").onclick=keepLocalConflict;
-document.getElementById("clearSyncLog").onclick=clearSyncLogFn;
+bindElement("installApp","click",installPwa);
+bindElement("editTargets","click",openTargetsDialog);
+bindElement("saveTargets","click",saveTargetWeights);
+bindElement("clearAudit","click",clearAuditLog);
+bindElement("printReport","click",printDepotReport);
+bindElement("printReportCard","click",printDepotReport);
+bindElement("refreshDevices","click",loadDevices);
+bindElement("refreshVersions","click",loadVersions);
+bindElement("useCloudVersion","click",useCloudConflict);
+bindElement("keepLocalVersion","click",keepLocalConflict);
+bindElement("clearSyncLog","click",clearSyncLogFn);
 document.getElementById("openVersionInfo")?.addEventListener("click",openVersionInfoDialog);
 document.getElementById("refreshInsights")?.addEventListener("click",renderSmartInsights);
 document.getElementById("askAssistant")?.addEventListener("click",()=>askDepotAssistant());
@@ -1520,18 +1526,18 @@ document.querySelectorAll(".mobile-bottom-nav button").forEach(b=>b.addEventList
 document.getElementById("closeVersionInfo")?.addEventListener("click",closeVersionInfoDialog);
 document.getElementById("closeVersionInfoBottom")?.addEventListener("click",closeVersionInfoDialog);
 document.getElementById("versionInfoDialog")?.addEventListener("click",e=>{if(e.target===versionInfoDialog)closeVersionInfoDialog()});
-document.getElementById("historyChart").addEventListener("mousemove",showChartTooltip);
-document.getElementById("historyChart").addEventListener("mouseleave",hideChartTooltip);
-document.getElementById("historyChart").addEventListener("touchmove",showChartTooltip,{passive:true});
-document.getElementById("historyChart").addEventListener("touchend",hideChartTooltip);
-document.getElementById("gainHistoryChart").addEventListener("mousemove",showGainTooltip);
-document.getElementById("gainHistoryChart").addEventListener("mouseleave",()=>gainChartTooltip.hidden=true);
-document.getElementById("gainHistoryChart").addEventListener("touchmove",showGainTooltip,{passive:true});
-document.getElementById("gainHistoryChart").addEventListener("touchend",()=>gainChartTooltip.hidden=true);
-document.getElementById("fundPerformanceChart").addEventListener("mousemove",showFundTooltip);
-document.getElementById("fundPerformanceChart").addEventListener("mouseleave",()=>fundChartTooltip.hidden=true);
-document.getElementById("fundPerformanceChart").addEventListener("touchmove",showFundTooltip,{passive:true});
-document.getElementById("fundPerformanceChart").addEventListener("touchend",()=>fundChartTooltip.hidden=true);
+bindElement("historyChart","mousemove",showChartTooltip);
+bindElement("historyChart","mouseleave",hideChartTooltip);
+bindElement("historyChart","touchmove",showChartTooltip,{passive:true});
+bindElement("historyChart","touchend",hideChartTooltip);
+bindElement("gainHistoryChart","mousemove",showGainTooltip);
+bindElement("gainHistoryChart","mouseleave",()=>gainChartTooltip.hidden=true);
+bindElement("gainHistoryChart","touchmove",showGainTooltip,{passive:true});
+bindElement("gainHistoryChart","touchend",()=>gainChartTooltip.hidden=true);
+bindElement("fundPerformanceChart","mousemove",showFundTooltip);
+bindElement("fundPerformanceChart","mouseleave",()=>fundChartTooltip.hidden=true);
+bindElement("fundPerformanceChart","touchmove",showFundTooltip,{passive:true});
+bindElement("fundPerformanceChart","touchend",()=>fundChartTooltip.hidden=true);
 setupChartTabs();
 if(!state.cloud.url)state.cloud.url="https://dgrulyvrxmughqgzherg.supabase.co";
 if(!state.cloud.anonKey)state.cloud.anonKey="sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2";
@@ -1544,7 +1550,7 @@ navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateIns
 restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
 render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.5 Safe Update";
+document.title="ETF Depot Andreas · Version 1.5.1 Stabilitätsupdate";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});
