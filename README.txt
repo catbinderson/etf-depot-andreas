@@ -1,4 +1,10 @@
-ETF DEPOT ANDREAS – VERSION 1.5.7 KENNZAHLENÄNDERUNGEN
+ETF DEPOT ANDREAS – VERSION 1.5.8 HEADER-SIGNATUR
+
+Der Header zeigt jetzt unten die persönliche Signatur „designed & developed by
+Andreas Binder“. Der Info-Schalter ist weiter nach links gerückt und hat damit
+auf Desktop und iPhone einen klaren Abstand zur Hell-/Dunkelumschaltung.
+
+VERSION 1.5.7 KENNZAHLENÄNDERUNGEN
 
 Nach jeder Werteübernahme zeigen „Gewinn seit Eröffnung“ und „GuV seit
 Jahresbeginn“ zusätzlich die Veränderung gegenüber dem unmittelbar vorherigen

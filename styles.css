@@ -938,3 +938,37 @@ html{scroll-behavior:smooth}button:focus-visible,input:focus-visible,select:focu
   border-color:rgba(34,197,94,.45)!important;
   background:linear-gradient(90deg,rgba(34,197,94,.12),rgba(59,130,246,.08))!important;
 }
+
+/* Version 1.5.8 · Header-Signatur und getrennte Werkzeugschalter */
+.hero{
+  position:relative!important;
+  padding-bottom:34px!important;
+}
+.hero-info-icon{
+  right:66px!important;
+}
+.hero-credit{
+  position:absolute;
+  left:18px;
+  bottom:11px;
+  color:rgba(255,255,255,.72);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.045em;
+  line-height:1;
+  white-space:nowrap;
+}
+
+@media(max-width:600px){
+  .hero{
+    padding-bottom:32px!important;
+  }
+  .hero-info-icon{
+    right:60px!important;
+  }
+  .hero-credit{
+    left:12px;
+    bottom:10px;
+    font-size:9px;
+  }
+}

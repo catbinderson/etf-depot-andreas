@@ -9,14 +9,14 @@
 <meta content="ETF Depot Andreas" name="apple-mobile-web-app-title"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="icon-192.png" rel="apple-touch-icon"/>
-<link href="styles.css?v=1.5.7" rel="stylesheet"/>
-<title>ETF Depot Andreas · Version 1.5.7</title>
+<link href="styles.css?v=1.5.8" rel="stylesheet"/>
+<title>ETF Depot Andreas · Version 1.5.8</title>
 </head>
 <body>
 <div class="app">
 <header class="hero">
 <div>
-<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.5.7</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Kennzahlenänderungen</span></div>
+<div class="topline"><span class="eyebrow light">Persönliche Depotübersicht</span><span class="version">Version 1.5.8</span><span class="build-stamp" id="buildStamp">Release 2026-08 · Header-Signatur</span></div>
 <h1>ETF Depot Andreas</h1>
 <p>Depot, Sparpläne, Renditen und Ziele auf einen Blick.</p>
 <div class="hero-dashboard-summary hero-dashboard-summary-right hero-dashboard-summary-wealth">
@@ -41,7 +41,9 @@
 <small id="liveCloudTime">–</small>
 </div>
 <button aria-label="Darstellung wechseln" class="round hero-tool" id="themeToggle">◐</button>
-<button aria-label="Was ist neu in Version 1.5.7?" class="hero-info-icon" id="openVersionInfo" title="Was ist neu?">i</button></header>
+<button aria-label="Was ist neu in Version 1.5.8?" class="hero-info-icon" id="openVersionInfo" title="Was ist neu?">i</button>
+<div class="hero-credit">designed &amp; developed by Andreas Binder</div>
+</header>
 <nav class="actions actions-pro">
 <button class="primary" id="openEdit">Werte aktualisieren</button>
 <button id="exportBtn">Backup</button><button class="secondary-action" id="syncNow">Jetzt synchronisieren</button><button class="secondary-action" id="cloudSettings">Cloud-Einstellungen</button><button id="exportCsv">CSV-Export</button><button id="printReport">PDF / Drucken</button>
@@ -497,7 +499,7 @@
 <div class="release-actions"><button class="secondary" hidden="" id="installApp">App installieren</button><button class="secondary" id="forceRefresh">Nach Update suchen</button></div>
 </section>
 </main>
-<footer>ETF Depot Andreas · Version 1.5.7 · Supabase als Hauptspeicher · Auto-Update · lokaler Offline-Cache · Keine Anlageberatung.</footer>
+<footer>ETF Depot Andreas · Version 1.5.8 · Supabase als Hauptspeicher · Auto-Update · lokaler Offline-Cache · Keine Anlageberatung.</footer>
 <nav aria-label="Mobile Navigation" class="mobile-bottom-nav">
 <button data-scroll-target="top"><span>⌂</span><small>Übersicht</small></button>
 <button data-scroll-target="portfolioSection"><span>◔</span><small>Depot</small></button>
@@ -600,12 +602,12 @@
 <dialog class="modal version-info-dialog" id="versionInfoDialog">
 <div class="modal-head">
 <div>
-<span class="eyebrow">Version 1.5.7 · Kennzahlenänderungen</span>
+<span class="eyebrow">Version 1.5.8 · Header-Signatur</span>
 <h2>Was ist neu?</h2>
 </div>
 <button aria-label="Schließen" class="round" id="closeVersionInfo">×</button>
 </div>
-<div class="version-info-grid"><article><strong>Sichtbare Kennzahlenänderungen</strong><span>Gewinn seit Eröffnung und GuV seit Jahresbeginn zeigen nach jeder Werteübernahme ihre Veränderung in Euro mit Richtungspfeil.</span></article><article><strong>Kurze Chart-Zeiträume</strong><span>Mit 1 Tag, 3 Tagen und 7 Tagen reagiert die Analyse bereits sichtbar auf die aktuell noch kurze Depot-Historie.</span></article><article><strong>Reagierende Chart-Zeiträume</strong><span>Die Zeitraumwahl aktualisiert Kurve, Kennzahlen, Gewinnverlauf und Benchmark gemeinsam. Zusätzlich wird der tatsächlich verwendete Datenbereich angezeigt.</span></article><article><strong>EUR/USD-Kurstrend</strong><span>Die manuelle Kursaktualisierung zeigt die Euro-Entwicklung zum US-Dollar in Prozent mit farbigem Richtungspfeil.</span></article><article><strong>Automatischer Tagesstand</strong><span>„Werte übernehmen“ speichert sofort den heutigen Tagesstand. Weitere Aktualisierungen am selben Tag ersetzen den vorhandenen Eintrag.</span></article><article>
+<div class="version-info-grid"><article><strong>Persönlicher Header</strong><span>Die Signatur „designed &amp; developed by Andreas Binder“ steht jetzt unten im Header. Info- und Darstellungs-Schalter sind klar voneinander abgesetzt.</span></article><article><strong>Sichtbare Kennzahlenänderungen</strong><span>Gewinn seit Eröffnung und GuV seit Jahresbeginn zeigen nach jeder Werteübernahme ihre Veränderung in Euro mit Richtungspfeil.</span></article><article><strong>Kurze Chart-Zeiträume</strong><span>Mit 1 Tag, 3 Tagen und 7 Tagen reagiert die Analyse bereits sichtbar auf die aktuell noch kurze Depot-Historie.</span></article><article><strong>Reagierende Chart-Zeiträume</strong><span>Die Zeitraumwahl aktualisiert Kurve, Kennzahlen, Gewinnverlauf und Benchmark gemeinsam. Zusätzlich wird der tatsächlich verwendete Datenbereich angezeigt.</span></article><article><strong>EUR/USD-Kurstrend</strong><span>Die manuelle Kursaktualisierung zeigt die Euro-Entwicklung zum US-Dollar in Prozent mit farbigem Richtungspfeil.</span></article><article><strong>Automatischer Tagesstand</strong><span>„Werte übernehmen“ speichert sofort den heutigen Tagesstand. Weitere Aktualisierungen am selben Tag ersetzen den vorhandenen Eintrag.</span></article><article>
 <strong>Automatische Updates</strong>
 <span>Die App prüft beim Start, beim Zurückkehren und regelmäßig im Hintergrund auf neue Releases. Ein Update kann mit einem Fingertipp installiert werden.</span>
 </article>
@@ -620,7 +622,7 @@
 <button id="closeVersionInfoBottom">Schließen</button>
 </div>
 </dialog>
-<script defer="" src="app.js?v=1.5.7"></script>
+<script defer="" src="app.js?v=1.5.8"></script>
 <dialog class="modal cash-dialog" id="cashAccountDialog">
 <div class="modal-head">
 <div>

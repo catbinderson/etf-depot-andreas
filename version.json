@@ -1,7 +1,7 @@
 {
-  "version": "1.5.7",
-  "name": "Kennzahlenänderungen",
+  "version": "1.5.8",
+  "name": "Header-Signatur",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.7 zeigt nach jeder Werteübernahme die Veränderung von Gewinn seit Eröffnung und GuV seit Jahresbeginn in Euro mit farbigem Richtungspfeil."
+  "message": "Version 1.5.8 ergänzt die persönliche Entwickler-Signatur im Header und trennt Info- und Darstellungs-Schalter klar voneinander."
 }
