@@ -1,7 +1,7 @@
 {
-  "version": "1.5.5",
-  "name": "Chart-Zeiträume",
+  "version": "1.5.6",
+  "name": "Kurze Chart-Zeiträume",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.5 aktualisiert bei der Zeitraumwahl alle zugehörigen Performance-Kennzahlen und Diagramme und zeigt den tatsächlich verwendeten Datenbereich an."
+  "message": "Version 1.5.6 ergänzt 1 Tag, 3 Tage und 7 Tage, damit sich Diagramm und Kennzahlen schon bei einer kurzen vorhandenen Historie sichtbar unterscheiden."
 }

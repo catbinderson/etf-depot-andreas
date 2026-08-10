@@ -1,4 +1,8 @@
-ETF DEPOT ANDREAS – VERSION 1.5.5 CHART-ZEITRÄUME
+ETF DEPOT ANDREAS – VERSION 1.5.6 KURZE CHART-ZEITRÄUME
+
+Die zusätzlichen Zeitfenster 1 Tag, 3 Tage und 7 Tage machen Unterschiede
+bereits mit der aktuell noch kurzen Historie sichtbar. Längere Zeitfenster
+werden automatisch aussagekräftiger, sobald ältere echte Tagesstände vorliegen.
 
 Die Auswahl 30 Tage, 90 Tage, 1 Jahr oder Gesamt aktualisiert jetzt gemeinsam
 die Depotkurve, die Performance-Kennzahlen, den Gewinnverlauf und den
