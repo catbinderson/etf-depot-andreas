@@ -1,4 +1,10 @@
-ETF DEPOT ANDREAS – VERSION 1.5.8 HEADER-SIGNATUR
+ETF DEPOT ANDREAS – VERSION 1.5.9 GEWINNVERLAUF
+
+Im Gewinnverlauf heißt die mittlere Kennzahl jetzt „Gewinnänderung im gewählten
+Zeitraum“. Die dritte Kennzahl ist als „Datenpunkte (Anzahl Tagesstände)“
+beschriftet und zeigt die Anzahl wieder zuverlässig an.
+
+VERSION 1.5.8 HEADER-SIGNATUR
 
 Der Header zeigt jetzt unten die persönliche Signatur „designed & developed by
 Andreas Binder“. Der Info-Schalter ist weiter nach links gerückt und hat damit

@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.5.8.cache";
+const KEY="etfDepotAndreas.v1.5.9.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -17,7 +17,7 @@ const DEFAULTS={
  audit:[],
  preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"},metricChange:{gain:0,ytd:0,hasValue:false,updatedAt:""}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.5.7.cache")||localStorage.getItem("etfDepotAndreas.v1.5.6.cache")||localStorage.getItem("etfDepotAndreas.v1.5.5.cache")||localStorage.getItem("etfDepotAndreas.v1.5.4.cache")||localStorage.getItem("etfDepotAndreas.v1.5.3.cache")||localStorage.getItem("etfDepotAndreas.v1.5.2.cache")||localStorage.getItem("etfDepotAndreas.v1.5.1.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.5.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.5.8.cache")||localStorage.getItem("etfDepotAndreas.v1.5.7.cache")||localStorage.getItem("etfDepotAndreas.v1.5.6.cache")||localStorage.getItem("etfDepotAndreas.v1.5.5.cache")||localStorage.getItem("etfDepotAndreas.v1.5.4.cache")||localStorage.getItem("etfDepotAndreas.v1.5.3.cache")||localStorage.getItem("etfDepotAndreas.v1.5.2.cache")||localStorage.getItem("etfDepotAndreas.v1.5.1.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.5.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -105,8 +105,8 @@ async function restoreCloudSession(){
 }
 
 
-const APP_VERSION="1.5.8";
-const APP_SHELL_VERSION="1.5.8";
+const APP_VERSION="1.5.9";
+const APP_SHELL_VERSION="1.5.9";
 const APP_UPDATE_CHECK_INTERVAL=60*60*1000;
 const APP_UPDATE_DISMISS_KEY="etfDepotAndreas.update.dismissed";
 let appUpdateCheckTimer=null;
@@ -141,7 +141,7 @@ function hideUpdateBanner(){
 async function registerAppServiceWorker(){
   if(!("serviceWorker" in navigator))return null;
   try{
-    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.8",{scope:"./",updateViaCache:"none"});
+    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.9",{scope:"./",updateViaCache:"none"});
     await reg.update().catch(()=>{});
     return reg;
   }catch(e){
@@ -843,7 +843,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.5.8";
+  copy.schemaVersion="1.5.9";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -955,10 +955,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5.8"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5.9"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5.8");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5.9");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -966,7 +966,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5.8 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5.9 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1072,7 +1072,7 @@ function renderHistory(){
 function showChartTooltip(event){const canvas=historyChart,tip=chartTooltip;if(!chartPoints.length)return;const r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;const q=chartPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);tip.textContent=`${formatDate(q.date)} · ${euro.format(q.value)}`;tip.style.left=q.x+"px";tip.style.top=q.y+"px";tip.hidden=false}
 function hideChartTooltip(){chartTooltip.hidden=true}
 
-let gainChartPoints=[];
+let gainChartPlotPoints=[];
 let fundChartHitAreas=[];
 
 function filteredHistoryByRange(){
@@ -1141,26 +1141,27 @@ function renderGainHistory(){
   const hist=filteredHistoryByRange().filter(x=>Number.isFinite(Number(x.gain)));
   const currentGain=totals().gain;
   gainChartCurrent.textContent=euro.format(currentGain);gainChartCurrent.className=currentGain>=0?"positive":"negative";
-  gainChartPoints.textContent=hist.length.toLocaleString("de-DE");
+  const pointsLabel=document.getElementById("gainChartPoints");
+  if(pointsLabel)pointsLabel.textContent=hist.length.toLocaleString("de-DE");
   if(hist.length){
     const d=currentGain-Number(hist[0].gain||0);gainChartDelta.textContent=(d>=0?"+":"")+euro.format(d);gainChartDelta.className=d>=0?"positive":"negative";
   }else{gainChartDelta.textContent="–";gainChartDelta.className=""}
-  if(!hist.length){gainChartPoints=[];drawEmptyChart(canvas,"Gewinnhistorie startet mit dem nächsten gespeicherten Tagesstand");return}
+  if(!hist.length){gainChartPlotPoints=[];drawEmptyChart(canvas,"Gewinnhistorie startet mit dem nächsten gespeicherten Tagesstand");return}
   const {ctx,w,h}=canvasSetup(canvas),th=chartTheme(),p=54;
   ctx.clearRect(0,0,w,h);
   const vals=hist.map(x=>Number(x.gain)),min=Math.min(0,...vals),max=Math.max(0,...vals),span=Math.max(1,max-min);
   drawGrid(ctx,w,h,p,min,max,v=>`${Math.round(v/1000)} T€`);
   const zeroY=h-p-((0-min)/span)*(h-2*p);
   ctx.strokeStyle=th.muted;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(p,zeroY);ctx.lineTo(w-p,zeroY);ctx.stroke();ctx.setLineDash([]);
-  gainChartPoints=hist.map((pt,i)=>({x:p+(hist.length===1?(w-2*p)/2:i*(w-2*p)/(hist.length-1)),y:h-p-((Number(pt.gain)-min)/span)*(h-2*p),date:pt.date,gain:Number(pt.gain)}));
+  gainChartPlotPoints=hist.map((pt,i)=>({x:p+(hist.length===1?(w-2*p)/2:i*(w-2*p)/(hist.length-1)),y:h-p-((Number(pt.gain)-min)/span)*(h-2*p),date:pt.date,gain:Number(pt.gain)}));
   const grad=ctx.createLinearGradient(0,p,0,h-p);grad.addColorStop(0,"rgba(34,197,94,.28)");grad.addColorStop(1,"rgba(34,197,94,0)");
-  ctx.beginPath();ctx.moveTo(gainChartPoints[0].x,zeroY);gainChartPoints.forEach(q=>ctx.lineTo(q.x,q.y));ctx.lineTo(gainChartPoints.at(-1).x,zeroY);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  ctx.beginPath();gainChartPoints.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.strokeStyle=currentGain>=0?"#22c55e":"#ef4444";ctx.lineWidth=3;ctx.lineJoin="round";ctx.stroke();
+  ctx.beginPath();ctx.moveTo(gainChartPlotPoints[0].x,zeroY);gainChartPlotPoints.forEach(q=>ctx.lineTo(q.x,q.y));ctx.lineTo(gainChartPlotPoints.at(-1).x,zeroY);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  ctx.beginPath();gainChartPlotPoints.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.strokeStyle=currentGain>=0?"#22c55e":"#ef4444";ctx.lineWidth=3;ctx.lineJoin="round";ctx.stroke();
 }
 
 function showGainTooltip(event){
-  if(!gainChartPoints.length)return;const canvas=gainHistoryChart,r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;
-  const q=gainChartPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);gainChartTooltip.textContent=`${formatDate(q.date)} · ${euro.format(q.gain)}`;gainChartTooltip.style.left=q.x+"px";gainChartTooltip.style.top=q.y+"px";gainChartTooltip.hidden=false;
+  if(!gainChartPlotPoints.length)return;const canvas=gainHistoryChart,r=canvas.getBoundingClientRect(),x=(event.touches?.[0]?.clientX??event.clientX)-r.left;
+  const q=gainChartPlotPoints.reduce((a,b)=>Math.abs(b.x-x)<Math.abs(a.x-x)?b:a);gainChartTooltip.textContent=`${formatDate(q.date)} · ${euro.format(q.gain)}`;gainChartTooltip.style.left=q.x+"px";gainChartTooltip.style.top=q.y+"px";gainChartTooltip.hidden=false;
 }
 
 function fundReturns(){
@@ -1603,7 +1604,7 @@ navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateIns
 restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
 render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.5.8 Header-Signatur";
+document.title="ETF Depot Andreas · Version 1.5.9 Gewinnverlauf";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

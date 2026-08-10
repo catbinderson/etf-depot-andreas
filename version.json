@@ -1,7 +1,7 @@
 {
-  "version": "1.5.8",
-  "name": "Header-Signatur",
+  "version": "1.5.9",
+  "name": "Gewinnverlauf",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.8 ergänzt die persönliche Entwickler-Signatur im Header und trennt Info- und Darstellungs-Schalter klar voneinander."
+  "message": "Version 1.5.9 beschriftet die Kennzahlen des Gewinnverlaufs verständlicher und zeigt die Anzahl der verwendeten Tagesstände zuverlässig an."
 }
