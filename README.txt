@@ -1,4 +1,8 @@
-ETF DEPOT ANDREAS – VERSION 1.5.6 KURZE CHART-ZEITRÄUME
+ETF DEPOT ANDREAS – VERSION 1.5.7 KENNZAHLENÄNDERUNGEN
+
+Nach jeder Werteübernahme zeigen „Gewinn seit Eröffnung“ und „GuV seit
+Jahresbeginn“ zusätzlich die Veränderung gegenüber dem unmittelbar vorherigen
+Depotstand. Positive Änderungen erscheinen grün, negative rot.
 
 Die zusätzlichen Zeitfenster 1 Tag, 3 Tage und 7 Tage machen Unterschiede
 bereits mit der aktuell noch kurzen Historie sichtbar. Längere Zeitfenster

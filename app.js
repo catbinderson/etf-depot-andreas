@@ -4,7 +4,7 @@ window.addEventListener("error",event=>{
  box.textContent="App-Fehler: "+(event.message||"Unbekannter Fehler");
  document.body.appendChild(box);
 });
-const KEY="etfDepotAndreas.v1.5.6.cache";
+const KEY="etfDepotAndreas.v1.5.7.cache";
 const COLORS=["#5B9BD5","#14b8a6","#f59e0b"];
 const DEFAULTS={
  funds:[
@@ -15,9 +15,9 @@ const DEFAULTS={
  history:[{date:"2026-08-04",value:121163.28}],dividends:[],theme:"light",benchmark:{name:"MSCI World",start:0,current:0,date:""},contributions:[],autoAccounting:{lastAppliedMonth:"2026-08",totalApplied:0},cloud:{url:"https://dgrulyvrxmughqgzherg.supabase.co",anonKey:"sb_publishable_6TeNYQRBAqDpysVgKUJ0Jw_7KqDvgc2",accessToken:"",refreshToken:"",userId:"",email:"",lastSync:""},fx:{usdEur:0.87,date:"",source:""},vanguardUsdMode:false,vanguardUsdValue:0,
  targets:[40,40,20],
  audit:[],
- preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"}
+ preferences:{reportTitle:"ETF Depot Andreas",autoPullSeconds:15},otherAssets:{cashAccount:{name:"FNZ Flexkonto",balance:4289.97,include:true}},benchmarks:{msci_world:[],acwi:[],sp500:[]},syncLog:[],syncMeta:{lastSuccess:"",lastAttempt:"",lastError:"",state:"offline"},metricChange:{gain:0,ytd:0,hasValue:false,updatedAt:""}
 };
-const old=localStorage.getItem("etfDepotAndreas.v1.5.5.cache")||localStorage.getItem("etfDepotAndreas.v1.5.4.cache")||localStorage.getItem("etfDepotAndreas.v1.5.3.cache")||localStorage.getItem("etfDepotAndreas.v1.5.2.cache")||localStorage.getItem("etfDepotAndreas.v1.5.1.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.5.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
+const old=localStorage.getItem("etfDepotAndreas.v1.5.6.cache")||localStorage.getItem("etfDepotAndreas.v1.5.5.cache")||localStorage.getItem("etfDepotAndreas.v1.5.4.cache")||localStorage.getItem("etfDepotAndreas.v1.5.3.cache")||localStorage.getItem("etfDepotAndreas.v1.5.2.cache")||localStorage.getItem("etfDepotAndreas.v1.5.1.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.5.safeupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.4.autoupdate.cache")||localStorage.getItem("etfDepotAndreas.v1.3.persistentlogin.cache")||localStorage.getItem("etfDepotAndreas.v1.2.wealth.cache")||localStorage.getItem("etfDepotAndreas.v1.1.refined.cache")||localStorage.getItem("etfDepotAndreas.v1.0.ultimate.cache")||localStorage.getItem("etfDepotAndreas.v14pro.final.cache")||localStorage.getItem("etfDepotAndreas.v14pro.dashboard2.cache")||localStorage.getItem("etfDepotAndreas.v14pro.cache")||localStorage.getItem("etfDepotAndreas.v13.cache")||localStorage.getItem("etfDepotAndreas.v10_2.cache")||localStorage.getItem("etfDepotAndreas.v10_1.cache")||localStorage.getItem("etfDepotAndreas.v10.cache")||localStorage.getItem("etfDepotAndreas.v9_1.cache")||localStorage.getItem("etfDepotAndreas.v9")||localStorage.getItem("etfDepotAndreas.v8")||localStorage.getItem("etfDepotAndreas.v7")||localStorage.getItem("etfDepotAndreas.v6")||localStorage.getItem("etfDepotAndreas.v5_1")||localStorage.getItem("etfDepotAndreas.v5")||localStorage.getItem("etfDepotAndreas.v4")||localStorage.getItem("etfDepotAndreas.v3")||localStorage.getItem("etfDepotAndreas.v1");
 let syncTimer=null;
 let syncInFlight=false;
 let applyingRemote=false;
@@ -105,8 +105,8 @@ async function restoreCloudSession(){
 }
 
 
-const APP_VERSION="1.5.6";
-const APP_SHELL_VERSION="1.5.6";
+const APP_VERSION="1.5.7";
+const APP_SHELL_VERSION="1.5.7";
 const APP_UPDATE_CHECK_INTERVAL=60*60*1000;
 const APP_UPDATE_DISMISS_KEY="etfDepotAndreas.update.dismissed";
 let appUpdateCheckTimer=null;
@@ -141,7 +141,7 @@ function hideUpdateBanner(){
 async function registerAppServiceWorker(){
   if(!("serviceWorker" in navigator))return null;
   try{
-    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.6",{scope:"./",updateViaCache:"none"});
+    const reg=await navigator.serviceWorker.register("./sw.js?v=1.5.7",{scope:"./",updateViaCache:"none"});
     await reg.update().catch(()=>{});
     return reg;
   }catch(e){
@@ -349,8 +349,23 @@ function renderHeroDashboard(){
 function render(){renderCloudAccountSummary();renderWealthOverview();renderHeroDashboard();
  const t=totals();
  totalValue.textContent=euro.format(t.value);totalGain.textContent=euro.format(t.gain);totalGain.className=t.gain>=0?"positive":"negative";totalGainPct.textContent=pct.format(t.ret);totalYtd.textContent=euro.format(t.ytd);totalYtd.className=t.ytd>=0?"positive":"negative";investedCapital.textContent=euro.format(t.cost);
+ renderMetricChanges();
  const best=[...state.funds].sort((a,b)=>b.ytd-a.ytd)[0];bestFund.textContent="Bester Beitrag: "+best.name;lastUpdated.textContent="Stand "+formatDate(latestDate());statusBadge.textContent=allocationStatus(t.value);
  renderReturns(t.value);renderDailySummary(t.value);renderFunds(t.value);renderDonut(t.value);renderSavings();renderForecast();renderGoals();renderHistory();renderV13Charts();renderV14Pro();renderRisk();renderDividends();renderDividendCalendar();renderNextSavings();renderFx();renderAnalytics();renderProgressGoals();renderPeriodSummary();renderDataQuality();renderBenchmark();renderMonthlyReport();renderContributions();renderHealth();renderAutomaticAccounting();renderCloudStatus();renderFire();renderV10Intelligence();renderAudit();renderReportPreview();renderSyncStatus();renderSystemSummary();
+}
+
+function renderMetricChanges(){
+  const change={...DEFAULTS.metricChange,...(state.metricChange||{})};
+  const setChange=(id,value)=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.classList.remove("positive","negative","neutral");
+    if(!change.hasValue){el.textContent="Änderung erscheint nach der nächsten Werteübernahme";el.classList.add("neutral");return}
+    const arrow=value>0?"↑":value<0?"↓":"→";
+    el.textContent=`${arrow} Seit letzter Werteübernahme ${value>0?"+":""}${euro.format(value)}`;
+    el.classList.add(value>0?"positive":value<0?"negative":"neutral");
+  };
+  setChange("totalGainChange",Number(change.gain||0));
+  setChange("totalYtdChange",Number(change.ytd||0));
 }
 
 function renderDailySummary(current){
@@ -828,7 +843,7 @@ function cloudPayload(){
     copy.cloud.url="";
     copy.cloud.lastSync="";
   }
-  copy.schemaVersion="1.5.6";
+  copy.schemaVersion="1.5.7";
   return copy;
 }
 function mergeRemoteState(remote,updatedAt){
@@ -940,10 +955,10 @@ async function syncToCloud(options={}){
     }
     try{await createCloudVersion(options.reason||"Automatische Sicherung")}catch{}
     const now=new Date().toISOString();
-    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5.6"};
+    const row={user_id:state.cloud.userId,portfolio_data:cloudPayload(),updated_at:now,schema_version:"1.5.7"};
     await cloudRequest("/rest/v1/portfolio_sync?on_conflict=user_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
     const verify=await getCloudRow();
-    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5.6");
+    const verified=Boolean(verify?.updated_at && new Date(verify.updated_at).getTime() >= new Date(now).getTime()-1500 && verify?.schema_version==="1.5.7");
     state.cloud.lastSync=verify?.updated_at||now;
     state.syncMeta={...DEFAULTS.syncMeta,...(state.syncMeta||{}),cloudSchema:verify?.schema_version||"",writeVerified:verified,writeVerifiedAt:new Date().toISOString()};
     localDirty=false;
@@ -951,7 +966,7 @@ async function syncToCloud(options={}){
     clearConflict();
     persist({cloud:false});
     renderCloudStatus();
-    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5.6 · ${euro.format(totals().value)}`);
+    heartbeatDevice().catch(()=>{});setSyncState("synced");pushSyncLog("success",`Supabase-Schreibtest bestätigt · Schema 1.5.7 · ${euro.format(totals().value)}`);
   }finally{syncInFlight=false}
 }
 async function getCloudRow(){
@@ -1436,6 +1451,7 @@ function openEditor(){
   document.getElementById("editDialog").showModal();
 }
 function applyEditor(){
+  const before=totals();
   document.getElementById("simpleValueRows").querySelectorAll("input[data-simple-i]").forEach(inp=>{
     const i=Number(inp.dataset.simpleI);
     state.funds[i].value=Number(inp.value||0);
@@ -1446,8 +1462,10 @@ function applyEditor(){
     state.funds[i][k]=k==="date"?inp.value:Number(inp.value||0);
   });
   recalculateFundMetrics();
+  const after=totals();
+  state.metricChange={gain:after.gain-before.gain,ytd:after.ytd-before.ytd,hasValue:true,updatedAt:new Date().toISOString()};
   const dailySnapshot=upsertDailySnapshot();
-  addAudit("Depotwerte aktualisiert",`${euro.format(totals().value)} · Tagesstand ${dailySnapshot.replaced?"aktualisiert":"erstellt"}`);
+  addAudit("Depotwerte aktualisiert",`${euro.format(after.value)} · Gewinn ${after.gain-before.gain>=0?"+":""}${euro.format(after.gain-before.gain)} · GuV YTD ${after.ytd-before.ytd>=0?"+":""}${euro.format(after.ytd-before.ytd)} · Tagesstand ${dailySnapshot.replaced?"aktualisiert":"erstellt"}`);
   persist();
   render();
   if(cloudConfigured())syncToCloud().catch(()=>{});
@@ -1585,7 +1603,7 @@ navigator.serviceWorker?.addEventListener?.("controllerchange",()=>{if(updateIns
 restoreCloudSession().then(ok=>{if(ok&&navigator.onLine)syncFromCloud().catch(()=>{});renderCloudAccountSummary()}).catch(()=>{renderCloudAccountSummary()});
 render();if(!state.fx?.date||state.fx.date!==isoDate(new Date()))fetchUsdEur();
 
-document.title="ETF Depot Andreas · Version 1.5.6 Kurze Chart-Zeiträume";
+document.title="ETF Depot Andreas · Version 1.5.7 Kennzahlenänderungen";
 
 let chartResizeTimer;
 window.addEventListener("resize",()=>{clearTimeout(chartResizeTimer);chartResizeTimer=setTimeout(()=>{renderHistory();renderV13Charts()},120)});

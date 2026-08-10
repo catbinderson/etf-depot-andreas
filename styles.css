@@ -47,6 +47,9 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .chart-range-picker small{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
 @media(max-width:700px){.chart-range-picker{justify-items:stretch;width:100%;min-width:0}.chart-range-picker select{width:100%}.chart-range-picker small{text-align:left;white-space:normal}}
 
+.metric-change{display:block!important;margin-top:8px;font-size:11px!important;font-weight:700;line-height:1.35}
+.metric-change.positive{color:#16a34a!important}.metric-change.negative{color:#dc2626!important}.metric-change.neutral{color:var(--muted)!important}
+
 .analytics-grid,.period-grid,.data-quality{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
 .analytics-grid>div,.period-grid>div,.data-quality>div{border:1px solid var(--line);border-radius:14px;padding:14px}
 .analytics-grid span,.period-grid span,.data-quality span{display:block;color:var(--muted);font-size:12px}

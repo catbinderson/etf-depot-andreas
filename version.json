@@ -1,7 +1,7 @@
 {
-  "version": "1.5.6",
-  "name": "Kurze Chart-Zeiträume",
+  "version": "1.5.7",
+  "name": "Kennzahlenänderungen",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.6 ergänzt 1 Tag, 3 Tage und 7 Tage, damit sich Diagramm und Kennzahlen schon bei einer kurzen vorhandenen Historie sichtbar unterscheiden."
+  "message": "Version 1.5.7 zeigt nach jeder Werteübernahme die Veränderung von Gewinn seit Eröffnung und GuV seit Jahresbeginn in Euro mit farbigem Richtungspfeil."
 }
