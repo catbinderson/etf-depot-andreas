@@ -1,4 +1,8 @@
-ETF DEPOT ANDREAS – VERSION 1.5.1 STABILITÄTSUPDATE
+ETF DEPOT ANDREAS – VERSION 1.5.2 DATUMSUPDATE
+
+Version 1.5.2 trägt beim Aktualisieren der Depotwerte automatisch das heutige
+Datum als neuen Stand ein. Unter „Erweiterte Angaben“ kann weiterhin bewusst
+ein abweichender Stichtag ausgewählt werden.
 
 Version 1.5.1 verhindert, dass ein fehlendes oder noch nicht geladenes Bedienelement
 die gesamte App-Initialisierung stoppt. Das JavaScript wartet außerdem auf das
