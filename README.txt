@@ -1,4 +1,9 @@
-ETF DEPOT ANDREAS – VERSION 1.5.2 DATUMSUPDATE
+ETF DEPOT ANDREAS – VERSION 1.5.3 AUTOMATISCHE TAGESSTÄNDE
+
+„Werte übernehmen“ speichert automatisch einen vollständigen Tagesstand.
+Bei mehreren Aktualisierungen am selben Kalendertag wird der vorhandene
+Tagesstand ersetzt. Der zuletzt übernommene Stand bleibt damit maßgeblich.
+Der separate Button „Tagesstand speichern“ wurde entfernt.
 
 Version 1.5.2 trägt beim Aktualisieren der Depotwerte automatisch das heutige
 Datum als neuen Stand ein. Unter „Erweiterte Angaben“ kann weiterhin bewusst

@@ -1,7 +1,7 @@
 {
-  "version": "1.5.2",
-  "name": "Datumsupdate",
+  "version": "1.5.3",
+  "name": "Automatische Tagesstände",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.2 übernimmt beim Aktualisieren der Depotwerte automatisch das heutige Datum als neuen Depotstand."
+  "message": "Version 1.5.3 speichert bei jeder Werteübernahme automatisch den heutigen Tagesstand und aktualisiert ihn bei weiteren Änderungen desselben Tages."
 }
