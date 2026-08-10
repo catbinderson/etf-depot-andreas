@@ -42,6 +42,11 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .fx-mode input[type="checkbox"]{width:auto;margin:0}
 @media(max-width:850px){.fx-strip{grid-template-columns:1fr}.fx-value{text-align:left}.fx-status{justify-content:space-between}.fx-change{width:100%}}
 
+.chart-range-picker{display:grid;justify-items:end;gap:6px;min-width:210px}
+.chart-range-picker select{min-width:130px}
+.chart-range-picker small{color:var(--muted);font-size:11px;text-align:right;white-space:nowrap}
+@media(max-width:700px){.chart-range-picker{justify-items:stretch;width:100%;min-width:0}.chart-range-picker select{width:100%}.chart-range-picker small{text-align:left;white-space:normal}}
+
 .analytics-grid,.period-grid,.data-quality{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
 .analytics-grid>div,.period-grid>div,.data-quality>div{border:1px solid var(--line);border-radius:14px;padding:14px}
 .analytics-grid span,.period-grid span,.data-quality span{display:block;color:var(--muted);font-size:12px}

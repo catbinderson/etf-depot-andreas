@@ -1,4 +1,9 @@
-ETF DEPOT ANDREAS – VERSION 1.5.4 EUR/USD-TREND
+ETF DEPOT ANDREAS – VERSION 1.5.5 CHART-ZEITRÄUME
+
+Die Auswahl 30 Tage, 90 Tage, 1 Jahr oder Gesamt aktualisiert jetzt gemeinsam
+die Depotkurve, die Performance-Kennzahlen, den Gewinnverlauf und den
+Benchmark-Vergleich. Zusätzlich zeigt die App die Anzahl der verwendeten
+Tagesstände und deren tatsächlichen Datumsbereich an.
 
 Beim manuellen Drücken auf „Kurs aktualisieren“ wird die Entwicklung des Euro
 zum US-Dollar gegenüber der vorherigen manuellen Aktualisierung berechnet.
