@@ -31,13 +31,16 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}dialog{b
 .fire-result span,.fire-result small{display:block;color:var(--muted)}.fire-result strong{display:block;font-size:30px;margin:7px 0}
 @media(max-width:850px){.daily-grid{grid-template-columns:1fr}.calendar-item{grid-template-columns:1fr}.fire-form{grid-template-columns:1fr}}
 
-.fx-strip{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center}
+.fx-strip{display:grid;grid-template-columns:minmax(150px,1fr) auto minmax(230px,auto) auto;gap:18px;align-items:center}
 .fx-value{text-align:right}.fx-value strong{display:block;font-size:28px}.fx-value small{color:var(--muted)}
 .fx-status{display:flex;align-items:center;gap:12px}.fx-status span{color:var(--muted);font-size:13px}
+.fx-change{display:flex;align-items:center;gap:10px;padding:10px 13px;border:1px solid var(--line);border-radius:14px;background:var(--blue2)}
+.fx-change-arrow{font-size:29px;font-weight:900;line-height:1}.fx-change div{display:grid;gap:2px}.fx-change strong{font-size:17px}.fx-change small{display:block;color:var(--muted);font-size:11px}
+.fx-change.positive,.fx-change.positive strong,.fx-change.positive .fx-change-arrow{color:#16a34a}.fx-change.negative,.fx-change.negative strong,.fx-change.negative .fx-change-arrow{color:#dc2626}.fx-change.neutral,.fx-change.neutral strong,.fx-change.neutral .fx-change-arrow{color:var(--muted)}
 .fx-mode{display:flex;gap:8px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .fx-mode label{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:12px}
 .fx-mode input[type="checkbox"]{width:auto;margin:0}
-@media(max-width:850px){.fx-strip{grid-template-columns:1fr}.fx-value{text-align:left}.fx-status{justify-content:space-between}}
+@media(max-width:850px){.fx-strip{grid-template-columns:1fr}.fx-value{text-align:left}.fx-status{justify-content:space-between}.fx-change{width:100%}}
 
 .analytics-grid,.period-grid,.data-quality{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
 .analytics-grid>div,.period-grid>div,.data-quality>div{border:1px solid var(--line);border-radius:14px;padding:14px}

@@ -1,7 +1,7 @@
 {
-  "version": "1.5.3",
-  "name": "Automatische Tagesstände",
+  "version": "1.5.4",
+  "name": "EUR/USD-Trend",
   "build": "2026-08",
   "published": "2026-08-10",
-  "message": "Version 1.5.3 speichert bei jeder Werteübernahme automatisch den heutigen Tagesstand und aktualisiert ihn bei weiteren Änderungen desselben Tages."
+  "message": "Version 1.5.4 zeigt nach jeder manuellen Kursaktualisierung die prozentuale Entwicklung des Euro zum US-Dollar mit grünem Aufwärts- oder rotem Abwärtspfeil."
 }

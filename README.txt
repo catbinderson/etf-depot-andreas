@@ -1,4 +1,9 @@
-ETF DEPOT ANDREAS – VERSION 1.5.3 AUTOMATISCHE TAGESSTÄNDE
+ETF DEPOT ANDREAS – VERSION 1.5.4 EUR/USD-TREND
+
+Beim manuellen Drücken auf „Kurs aktualisieren“ wird die Entwicklung des Euro
+zum US-Dollar gegenüber der vorherigen manuellen Aktualisierung berechnet.
+Ein stärkerer Euro erscheint grün mit Aufwärtspfeil, ein schwächerer Euro rot
+mit Abwärtspfeil. Die automatische Kursabfrage verändert den Vergleich nicht.
 
 „Werte übernehmen“ speichert automatisch einen vollständigen Tagesstand.
 Bei mehreren Aktualisierungen am selben Kalendertag wird der vorhandene
