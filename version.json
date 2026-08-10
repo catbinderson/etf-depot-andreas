@@ -1,7 +1,7 @@
 {
   "version": "1.5.1",
-  "name": "Safe Update",
+  "name": "Stabilitätsupdate",
   "build": "2026-08",
-  "published": "2026-08-07",
+  "published": "2026-08-10",
   "message": "Version 1.5.1 verhindert Startabbrüche durch kurzzeitig gemischte HTML- und JavaScript-Versionen in Safari."
 }
